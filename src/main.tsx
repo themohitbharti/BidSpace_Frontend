@@ -5,11 +5,22 @@ import { Provider } from 'react-redux'
 import store from './store/store.ts';
 import './index.css';
 import App from './App.tsx';
+import { AuthLayout,Login } from './components/index.ts';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    children: [
+      {
+        path: "/login",
+        element: (
+            <AuthLayout authentication={false}>
+                <Login />
+            </AuthLayout>
+        ),
+    },
+    ]
     
 },
 ])

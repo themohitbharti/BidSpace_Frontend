@@ -8,48 +8,51 @@ import { login as loginAction } from "../store/authSlice";
 import axios from "axios";
 
 interface LoginFormInputs {
-    email: string;
-    password: string;
-  }
+  email: string;
+  password: string;
+}
 
-function Login(){
+function Login() {
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const { register, handleSubmit } = useForm<LoginFormInputs>();
+  const navigate = useNavigate();
 
-    const [error, setError] = useState<string | null>(null);
-    const dispatch = useDispatch();
-    const { register, handleSubmit } = useForm<LoginFormInputs>();
-    const navigate = useNavigate();
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    try {
+      setError(null);
+      await loginUser(data);
+      const userData = await getCurrentUser();
+      dispatch(loginAction(userData));
+      navigate("/");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || "Login failed");
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Something went wrong");
+      }
+    }
+  };
 
-    const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
-        try {
-          setError(null);
-          await loginUser(data);
-          const userData = await getCurrentUser();
-          dispatch(loginAction(userData));
-          navigate("/");
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-              setError(error.response?.data?.message || "Login failed");
-            } else if (error instanceof Error) {
-              setError(error.message);
-            } else {
-              setError("Something went wrong");
-            }
-          }
-      };
-
-
-    return(
-        <div className="flex w-full items-center justify-center">
-      <div className="mx-auto w-full max-w-lg rounded-xl border bg-gray-100 p-10">
+  return (
+    <div className="flex min-h-[calc(100vh-72px)] flex-1 flex-col items-center justify-center px-4 py-10">
+      <div className="mx-auto w-full max-w-lg rounded-xl border bg-gray-100 p-10 shadow-lg">
         <div className="mb-2 flex justify-center">
           <span className="inline-block w-full max-w-[100px]">
-            <Logo width="100%" />
+            <Logo size="default" />
           </span>
         </div>
-        <h2 className="text-center text-2xl font-bold">Sign in to your account</h2>
+        <h2 className="text-center text-2xl font-bold">
+          Log in to your account
+        </h2>
         <p className="mt-2 text-center text-base text-black/60">
           Don&apos;t have an account?{" "}
-          <Link to="/signup" className="text-primary font-medium hover:underline">
+          <Link
+            to="/signup"
+            className="text-primary font-medium hover:underline"
+          >
             Sign Up
           </Link>
         </p>
@@ -75,7 +78,7 @@ function Login(){
         </form>
       </div>
     </div>
-    )
+  );
 }
 
-export default Login
+export default Login;
