@@ -1,12 +1,15 @@
-import React from "react";
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+
+import {  useNavigate, useLocation } from "react-router-dom";
 import { FaRocket, FaUserAstronaut } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../store/authSlice"; // Adjust import path based on your actual file structure
+import { RootState } from "../../store/store";
 
 function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const authStatus = useSelector((state: RootState) => state.auth.status)
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   // Updated space theme button styles
   const buttonBaseStyle =
@@ -18,9 +21,9 @@ function Header() {
     { name: "Home", slug: "/", active: true },
     { name: "Categories", slug: "/categories", active: true },
     { name: "Trending", slug: "/trending", active: true },
-    { name: "Login", slug: "/login", active: !isLoggedIn },
-    { name: "Signup", slug: "/signup", active: !isLoggedIn },
-    { name: "Profile", slug: "/profile", active: isLoggedIn },
+    { name: "Login", slug: "/login", active: !authStatus },
+    { name: "Signup", slug: "/signup", active: !authStatus },
+    { name: "Profile", slug: "/profile", active: authStatus },
   ];
 
   return (
@@ -48,17 +51,17 @@ function Header() {
                 </li>
               )
           )}
-          {isLoggedIn && (
+          {authStatus && (
             <li className="shrink-0">
               <button
-                onClick={() => setIsLoggedIn(false)}
+                onClick={() => dispatch(logout())}
                 className={`${buttonBaseStyle} ${buttonInactiveStyle}`}
               >
                 Logout
               </button>
             </li>
           )}
-          {isLoggedIn && (
+          {authStatus && (
             <li className="shrink-0">
               <button 
                 onClick={() => navigate('/profile')}
