@@ -6,7 +6,7 @@ import { logout } from "../../store/authSlice"; // Adjust import path based on y
 import { RootState } from "../../store/store";
 
 function Header() {
-  const authStatus = useSelector((state: RootState) => state.auth.status)
+  const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn)
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
