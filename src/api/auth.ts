@@ -7,11 +7,6 @@ interface LoginPayload {
   }
 
   export const loginUser = async (data: LoginPayload) => {
-    const response = await axiosInstance.post("/auth/login", data);
-    return response.data;
-  };
-  
-  export const getCurrentUser = async () => {
-    const response = await axiosInstance.get("/auth/me");
+    const response = await axiosInstance.post("/user/login", data);
     return response.data;
   };

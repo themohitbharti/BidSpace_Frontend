@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Input, Button, Logo } from "./index";
-import { loginUser, getCurrentUser } from "../api/auth";
+import { loginUser } from "../api/auth";
 import { login as loginAction } from "../store/authSlice";
 import axios from "axios";
 
@@ -21,10 +21,22 @@ function Login() {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
       setError(null);
-      await loginUser(data);
-      const userData = await getCurrentUser();
-      dispatch(loginAction(userData));
+      const res = await loginUser(data);
+
+    if (res?.success) {
+      const { accessToken, refreshToken } = res.data[0];
+      const user = res.user;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      dispatch(loginAction(user));
+      console.log(user._id)
+
       navigate("/");
+    } else {
+      throw new Error(res.message || "Login failed");
+    }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Login failed");
