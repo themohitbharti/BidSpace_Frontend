@@ -4,6 +4,7 @@ import Input from "./Input";
 import Logo from "./Logo";
 import AuthLayout from './AuthLayout'
 import Login from "./Login";
+import Signup from "./Signup";
 
 export {
     Header,
@@ -12,5 +13,6 @@ export {
     Logo,
     AuthLayout,
     Login,
+    Signup,
 
 }
