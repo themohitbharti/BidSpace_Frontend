@@ -10,3 +10,16 @@ interface LoginPayload {
     const response = await axiosInstance.post("/user/login", data);
     return response.data;
   };
+
+  export const logoutUser = async (token: string) => {
+    const response = await axiosInstance.post(
+      "/user/logout",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  };
