@@ -5,6 +5,7 @@ import Logo from "./Logo";
 import AuthLayout from './AuthLayout'
 import Login from "./Login";
 import Signup from "./Signup";
+import Footer from "./footer/Footer";
 
 export {
     Header,
@@ -14,5 +15,6 @@ export {
     AuthLayout,
     Login,
     Signup,
+    Footer,
 
 }

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
-import Header from "./components/header/Header";
+import {Header , Footer} from './components/index'
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <main className="flex-grow">
         <Outlet />
       </main>
-      {/* Optional footer could go here */}
+      <Footer/>
     </div>
   );
 }
