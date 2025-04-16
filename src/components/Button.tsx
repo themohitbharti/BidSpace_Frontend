@@ -5,6 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   bgColor?: string;
   textColor?: string;
   className?: string;
+  variant?: "default" | "outline"; // Add this line
 }
 
 export default function Button({
@@ -12,11 +13,18 @@ export default function Button({
   bgColor = "bg-blue-600",
   textColor = "text-white",
   className = "",
+  variant = "default", // Add this line
   ...props
 }: ButtonProps) {
+  // Determine styling based on variant
+  const variantStyles = 
+    variant === "outline" 
+      ? "bg-transparent border border-current" 
+      : `${bgColor}`;
+
   return (
     <button
-      className={`cursor-pointer rounded-lg px-4 py-2 transition-all hover:opacity-90 ${bgColor} ${textColor} ${className}`}
+      className={`cursor-pointer rounded-lg px-4 py-2 transition-all hover:opacity-90 ${variantStyles} ${textColor} ${className}`}
       {...props}
     >
       {children}

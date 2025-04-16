@@ -29,7 +29,7 @@ export default function HeroSlider() {
   }, []);
 
   return (
-    <div className="relative h-[90vh] w-full overflow-hidden">
+    <div className="relative h-[50vh] w-full overflow-hidden">
       {slides.map((slide, index) => (
         <motion.div
           key={index}
@@ -40,19 +40,19 @@ export default function HeroSlider() {
         >
           <div className="flex h-full w-full flex-col items-center justify-center bg-black/60 px-4 text-center text-white">
             <motion.h1
-              className="text-4xl font-bold md:text-6xl"
+              className="text-3xl font-bold md:text-5xl"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1 }}
             >
               {slide.title}
             </motion.h1>
-            <p className="mt-4 text-lg md:text-xl">{slide.subtitle}</p>
-            <div className="mt-8 flex gap-4">
-              <Button className="rounded-lg bg-blue-500 px-6 py-2 text-lg text-white hover:bg-blue-600">
+            <p className="mt-3 text-base md:text-lg">{slide.subtitle}</p>
+            <div className="mt-6 flex gap-4">
+              <Button className="rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600">
                 Start exploring
               </Button>
-              <Button className="rounded-lg bg-blue-500 px-6 py-2 text-lg text-white hover:bg-blue-600">
+              <Button className="rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600">
                 Mint NFT
               </Button>
             </div>

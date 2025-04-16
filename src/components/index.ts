@@ -7,6 +7,8 @@ import Login from "./Login";
 import Signup from "./Signup";
 import Footer from "./footer/Footer";
 import HeroSlider from "./HeroSlider";
+import SearchBar from "./SearchBar";
+import Container from "./Container";
 
 export {
     Header,
@@ -18,5 +20,7 @@ export {
     Signup,
     Footer,
     HeroSlider,
-    
+    SearchBar,
+    Container,
+
 }
