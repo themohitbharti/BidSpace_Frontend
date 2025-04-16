@@ -10,6 +10,8 @@ import HeroSlider from "./HeroSlider";
 import SearchBar from "./SearchBar";
 import Container from "./Container";
 import HomeStats from './HomeStats'
+import ProductCard from "./ProductCard";
+import CardsByCategory from './CardsByCategory'
 
 export {
     Header,
@@ -24,5 +26,8 @@ export {
     SearchBar,
     Container,
     HomeStats,
+    ProductCard,
+    CardsByCategory,
+
 
 }

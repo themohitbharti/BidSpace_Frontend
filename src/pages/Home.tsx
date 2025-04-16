@@ -3,6 +3,7 @@ import {
   SearchBar,
   Container,
   HomeStats,
+  CardsByCategory,
 } from "../components/index";
 
 export default function Home() {
@@ -29,6 +30,10 @@ export default function Home() {
             </div>
           </div>
         </Container>
+      </div>
+
+      <div>
+        <CardsByCategory />
       </div>
     </div>
   );
