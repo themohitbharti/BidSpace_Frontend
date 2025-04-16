@@ -4,10 +4,13 @@ import Header from "./components/header/Header";
 
 function App() {
   return (
-    <>
+    <div className="flex min-h-screen flex-col bg-transparent">
       <Header />
-      <Outlet />
-    </>
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      {/* Optional footer could go here */}
+    </div>
   );
 }
 

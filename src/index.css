@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+/* Global space background */
+body {
+  background-image: url('./assets/Space.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* Add a subtle overlay to ensure text readability */
+#root {
+  min-height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent overlay */
+}
