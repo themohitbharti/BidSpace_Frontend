@@ -78,18 +78,21 @@ function Signup() {
               label="Full Name"
               placeholder="Enter your full name"
               type="text"
+              onFocus={() => setError(null)}
               {...register("fullName", { required: "Full name is required" })}
             />
             <Input
               label="Email"
               placeholder="Enter your email"
               type="email"
+              onFocus={() => setError(null)}
               {...register("email", { required: "Email is required" })}
             />
             <Input
               label="Password"
               placeholder="Enter your password"
               type="password"
+              onFocus={() => setError(null)}
               {...register("password", { required: "Password is required" })}
             />
             <Button type="submit" className="w-full">

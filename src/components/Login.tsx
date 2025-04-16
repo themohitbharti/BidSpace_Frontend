@@ -23,20 +23,20 @@ function Login() {
       setError(null);
       const res = await loginUser(data);
 
-    if (res?.success) {
-      const { accessToken, refreshToken } = res.data[1];
-      const user = res.user;
+      if (res?.success) {
+        const { accessToken, refreshToken } = res.data[1];
+        const user = res.user;
 
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
 
-      dispatch(loginAction(user));
-      console.log(user._id)
+        dispatch(loginAction(user));
+        console.log(user._id);
 
-      navigate("/");
-    } else {
-      throw new Error(res.message || "Login failed");
-    }
+        navigate("/");
+      } else {
+        throw new Error(res.message || "Login failed");
+      }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Login failed");
@@ -75,12 +75,14 @@ function Login() {
               label="Email"
               placeholder="Enter your email"
               type="email"
+              onFocus={() => setError(null)}
               {...register("email", { required: "Email is required" })}
             />
             <Input
               label="Password"
               placeholder="Enter your password"
               type="password"
+              onFocus={() => setError(null)}
               {...register("password", { required: "Password is required" })}
             />
             <Button type="submit" className="w-full">
