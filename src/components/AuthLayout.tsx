@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ReactNode } from "react";
+import  { useEffect, useState, ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../store/store";
@@ -8,10 +8,10 @@ interface ProtectedProps {
   authentication?: boolean;
 }
 
-const Protected: React.FC<ProtectedProps> = ({
+const Protected= ({
   children,
   authentication = true,
-}) => {
+}:ProtectedProps) => {
   const navigate = useNavigate();
   const [loader, setLoader] = useState(true);
   const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn);
