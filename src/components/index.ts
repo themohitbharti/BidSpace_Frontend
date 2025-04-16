@@ -12,6 +12,7 @@ import Container from "./Container";
 import HomeStats from './HomeStats'
 import ProductCard from "./ProductCard";
 import CardsByCategory from './CardsByCategory'
+import VerifyOTP from "./VerifyOTP";
 
 export {
     Header,
@@ -28,6 +29,7 @@ export {
     HomeStats,
     ProductCard,
     CardsByCategory,
+    VerifyOTP,
 
 
 }

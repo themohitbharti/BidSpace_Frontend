@@ -26,9 +26,15 @@ function Signup() {
 
       if (res?.success) {
         setSuccessMsg(res.message); // "OTP sent to email..."
-        // optional: redirect after delay
+        // Pass all user data to the verify-otp page
         setTimeout(() => {
-          navigate("/verify-otp", { state: { email: data.email } }); // if you're doing OTP next
+          navigate("/verify-otp", {
+            state: {
+              email: data.email,
+              fullName: data.fullName,
+              password: data.password,
+            },
+          });
         }, 2000);
       } else {
         throw new Error(res.message || "Signup failed");
@@ -52,9 +58,7 @@ function Signup() {
             <Logo size="default" />
           </span>
         </div>
-        <h2 className="text-center text-2xl font-bold">
-          Create a new account
-        </h2>
+        <h2 className="text-center text-2xl font-bold">Create a new account</h2>
         <p className="mt-2 text-center text-base text-black/60">
           Already have an account?{" "}
           <Link

@@ -24,7 +24,7 @@ function Login() {
       const res = await loginUser(data);
 
     if (res?.success) {
-      const { accessToken, refreshToken } = res.data[0];
+      const { accessToken, refreshToken } = res.data[1];
       const user = res.user;
 
       localStorage.setItem("accessToken", accessToken);
