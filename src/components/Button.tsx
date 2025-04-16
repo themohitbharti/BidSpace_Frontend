@@ -17,9 +17,9 @@ export default function Button({
   ...props
 }: ButtonProps) {
   // Determine styling based on variant
-  const variantStyles = 
-    variant === "outline" 
-      ? "bg-transparent border border-current" 
+  const variantStyles =
+    variant === "outline"
+      ? "bg-transparent border border-current"
       : `${bgColor}`;
 
   return (

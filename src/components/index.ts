@@ -9,6 +9,7 @@ import Footer from "./footer/Footer";
 import HeroSlider from "./HeroSlider";
 import SearchBar from "./SearchBar";
 import Container from "./Container";
+import HomeStats from './HomeStats'
 
 export {
     Header,
@@ -22,5 +23,6 @@ export {
     HeroSlider,
     SearchBar,
     Container,
+    HomeStats,
 
 }
