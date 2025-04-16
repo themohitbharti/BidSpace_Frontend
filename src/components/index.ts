@@ -6,6 +6,7 @@ import AuthLayout from './AuthLayout'
 import Login from "./Login";
 import Signup from "./Signup";
 import Footer from "./footer/Footer";
+import HeroSlider from "./HeroSlider";
 
 export {
     Header,
@@ -16,5 +17,6 @@ export {
     Login,
     Signup,
     Footer,
-
+    HeroSlider,
+    
 }

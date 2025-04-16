@@ -1,9 +1,9 @@
-import React from 'react'
+import {HeroSlider } from "../components/index";
 
-function Home() {
+export default function Home() {
   return (
-    <div>Home</div>
-  )
+    <div>
+      <HeroSlider />
+    </div>
+  );
 }
-
-export default Home
