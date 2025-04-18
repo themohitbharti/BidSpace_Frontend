@@ -2,44 +2,15 @@ import { useState } from "react";
 import {ProfileSidebar} from "../index";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaRocket, FaUserAstronaut } from "react-icons/fa";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../store/authSlice"; // Adjust import path based on your actual file structure
+import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { toast } from "react-toastify";
-import { logoutUser } from "../../api/auth";
-import axios from "axios";
-import { setAccessToken } from "../../api/axiosInstance";
 
 function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn);
-  const token = localStorage.getItem("accessToken");
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
 
-  const handleLogout = async () => {
-    try {
-      if (!token) throw new Error("No token found");
-
-      const res = await logoutUser(token);
-      setAccessToken(null);
-      if (res.success) {
-        toast.success(res.message || "Logged out successfully");
-        dispatch(logout());
-        console.log(res.success);
-        navigate("/login");
-      } else {
-        toast.error("Logout failed");
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Logout failed");
-      } else {
-        toast.error("An unexpected error occurred");
-      }
-    }
-  };
 
   // Updated space theme button styles
   const buttonBaseStyle =
@@ -86,16 +57,7 @@ function Header() {
                   </li>
                 ),
             )}
-            {authStatus && (
-              <li className="shrink-0">
-                <button
-                  onClick={handleLogout}
-                  className={`${buttonBaseStyle} ${buttonInactiveStyle}`}
-                >
-                  Logout
-                </button>
-              </li>
-            )}
+
             {authStatus && (
               <li className="shrink-0">
                 <button

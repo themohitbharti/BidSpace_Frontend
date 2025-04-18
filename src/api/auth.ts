@@ -51,15 +51,10 @@ export const verifyOTP = async (data: VerifyOTPPayload) => {
   return response.data;
 };
 
-export const logoutUser = async (token: string) => {
+export const logoutUser = async () => {
   const response = await axiosInstance.post(
     "/user/logout",
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
+    {}
   );
   return response.data;
 };

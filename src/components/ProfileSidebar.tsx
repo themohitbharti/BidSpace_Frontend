@@ -3,6 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { logout } from "../store/authSlice";
 import { useNavigate } from "react-router-dom";
+import profilePhoto from "../assets/DP.png";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { logoutUser } from "../api/auth";
+import { setAccessToken } from "../api/axiosInstance";
+import axios from "axios";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,11 +19,47 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
   const user = useSelector((s: RootState) => s.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-    onClose();
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+
+      // Call the logout API - this should invalidate the refresh token on the server
+      await logoutUser()
+        .then((res) => {
+          if (res.success) {
+            toast.success(res.message || "Logged out successfully");
+          }
+        })
+        .catch((error) => {
+          console.error("Logout API error:", error);
+          // Continue with local logout even if API call fails
+        })
+        .finally(() => {
+          // Always perform these actions regardless of API success/failure
+          // Clear the access token
+          setAccessToken(null);
+
+          // Update Redux state
+          dispatch(logout());
+
+          // Close the sidebar
+          onClose();
+
+          // Navigate to login page
+          navigate("/login");
+        });
+    } catch (error) {
+      console.error("Logout error:", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Logout failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -40,7 +82,7 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
           {/* User Info */}
           <div className="mb-4 flex items-center space-x-4">
             <img
-              src={"/default-avatar.png"}
+              src={profilePhoto}
               alt="Profile"
               className="h-12 w-12 rounded-full object-cover"
             />
@@ -64,20 +106,16 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
             <button className="flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
               <FaCoins className="mr-2 text-lg text-yellow-400" />
               <span className="font-medium">Coins:</span>
-              <span className="ml-1 font-semibold">
-                {user?.coins}
-              </span>
+              <span className="ml-1 font-semibold">{user?.coins}</span>
             </button>
 
             {/* Reserved coins small, dull, lock as subscript */}
             <button className="flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
-            
-                <FaLock className="text-xs mr-1" />
+              <FaLock className="mr-1 text-xs" />
               <span className="text-sm text-gray-400">Reserved Coins:</span>
               <span className="ml-1 text-sm font-semibold">
                 {user?.reservedCoins}
               </span>
-              
             </button>
           </div>
 
@@ -90,9 +128,10 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
             </button>
             <button
               onClick={handleLogout}
-              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800"
+              disabled={isLoggingOut}
+              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800 disabled:opacity-50"
             >
-              Logout
+              {isLoggingOut ? "Logging out..." : "Logout"}
             </button>
           </div>
         </div>
