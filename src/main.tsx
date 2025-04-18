@@ -7,7 +7,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthLayout } from "./components/index.ts";
 import { Home, Login, Signup, VerifyOTP } from "./pages/index.ts";
-import { AuthProvider } from "./context/AuthProvider.ts";
+import { AuthProvider } from "./context/AuthProvider.tsx";
 
 const router = createBrowserRouter([
   {

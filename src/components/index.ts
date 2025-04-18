@@ -13,6 +13,7 @@ import HomeStats from './HomeStats'
 import ProductCard from "./ProductCard";
 import CardsByCategory from './CardsByCategory'
 import VerifyOTP from "./VerifyOTP";
+import ProfileSidebar from "./ProfileSidebar";
 
 export {
     Header,
@@ -30,6 +31,6 @@ export {
     ProductCard,
     CardsByCategory,
     VerifyOTP,
-
+    ProfileSidebar,
 
 }
