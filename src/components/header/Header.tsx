@@ -26,7 +26,7 @@ function Header() {
     { name: "Trending", slug: "/trending", active: true },
     { name: "Login", slug: "/login", active: !authStatus },
     { name: "Signup", slug: "/signup", active: !authStatus },
-    { name: "Profile", slug: "/profile", active: authStatus },
+    { name: "Create Auction", slug: "/upload-item", active: authStatus },
   ];
 
   return (

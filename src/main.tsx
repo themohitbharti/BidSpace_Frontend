@@ -6,7 +6,7 @@ import store from "./store/store.ts";
 import "./index.css";
 import App from "./App.tsx";
 import { AuthLayout } from "./components/index.ts";
-import { Home, Login, Signup, VerifyOTP } from "./pages/index.ts";
+import { Home, Login, Signup, VerifyOTP, UploadItem } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
 
 const router = createBrowserRouter([
@@ -39,6 +39,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <VerifyOTP />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/upload-item",
+        element: (
+          <AuthLayout>
+            <UploadItem />
           </AuthLayout>
         ),
       },
