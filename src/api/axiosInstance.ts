@@ -58,7 +58,8 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
       return regenerateToken()
-        .then(({ accessToken: newToken }: TokenResponse) => {
+        .then((response: TokenResponse) => {
+          const newToken = response.data.accessToken;
           setAccessToken(newToken);
           processQueue(null, newToken);
           originalRequest.headers = originalRequest.headers || {};

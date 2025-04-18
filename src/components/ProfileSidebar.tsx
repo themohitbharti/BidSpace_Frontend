@@ -64,7 +64,9 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
             <button className="flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
               <FaCoins className="mr-2 text-lg text-yellow-400" />
               <span className="font-medium">Coins:</span>
-              <span className="ml-1 font-semibold">123</span>
+              <span className="ml-1 font-semibold">
+                {user?.coins}
+              </span>
             </button>
 
             {/* Reserved coins small, dull, lock as subscript */}
@@ -72,7 +74,9 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
             
                 <FaLock className="text-xs mr-1" />
               <span className="text-sm text-gray-400">Reserved Coins:</span>
-              <span className="ml-1 text-sm font-semibold">45</span>
+              <span className="ml-1 text-sm font-semibold">
+                {user?.reservedCoins}
+              </span>
               
             </button>
           </div>

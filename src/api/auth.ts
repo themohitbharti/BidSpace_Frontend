@@ -5,6 +5,19 @@ interface LoginPayload {
   password: string;
 }
 
+interface User {
+  _id: string;
+  email: string;
+  fullName: string;
+  productsListed: string[];
+  productsPurchased: string[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  reservedCoins: number;
+  coins: number;
+}
+
 interface SignupPayload extends LoginPayload {
   fullName: string;
 }
@@ -14,9 +27,13 @@ interface VerifyOTPPayload extends SignupPayload {
 }
 
 export interface TokenResponse {
-  accessToken: string;
-  refreshToken?: string;
-  [key: string]: unknown;
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  user: User;
 }
 
 export const loginUser = async (data: LoginPayload) => {

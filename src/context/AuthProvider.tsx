@@ -22,6 +22,16 @@ interface User {
   coins: number;
 }
 
+interface TokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  user: User;
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -31,9 +41,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     regenerateToken()
-      .then(({ accessToken, user }) => {
-        setAccessToken(accessToken);
-        // Type assertion to ensure user matches the expected type
+      .then((response: TokenResponse) => {
+        setAccessToken(response.data.accessToken);
+        const user = response.user;
         dispatch(loginAction(user as User));
         setIsAuthenticated(true);
       })

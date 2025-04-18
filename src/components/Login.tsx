@@ -31,7 +31,6 @@ function Login() {
         setAccessToken(accessToken);
 
         dispatch(loginAction(user));
-        console.log(user._id);
 
         navigate("/");
       } else {
