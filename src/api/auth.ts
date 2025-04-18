@@ -13,6 +13,12 @@ interface VerifyOTPPayload extends SignupPayload {
   otp: string;
 }
 
+export interface TokenResponse {
+  accessToken: string;
+  refreshToken?: string;
+  [key: string]: unknown;
+}
+
 export const loginUser = async (data: LoginPayload) => {
   const response = await axiosInstance.post("/user/login", data);
   return response.data;
@@ -39,4 +45,11 @@ export const logoutUser = async (token: string) => {
     },
   );
   return response.data;
+};
+
+export const regenerateToken = async (): Promise<TokenResponse> => {
+  const { data } = await axiosInstance.post<TokenResponse>(
+    "/user/refresh-token",
+  );
+  return data;
 };

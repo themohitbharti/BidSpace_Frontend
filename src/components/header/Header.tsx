@@ -6,6 +6,7 @@ import { RootState } from "../../store/store";
 import { toast } from "react-toastify";
 import { logoutUser } from "../../api/auth";
 import axios from "axios";
+import { setAccessToken } from "../../api/axiosInstance";
 
 function Header() {
   const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn);
@@ -19,8 +20,7 @@ function Header() {
       if (!token) throw new Error("No token found");
 
       const res = await logoutUser(token);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      setAccessToken(null);
       if (res.success) {
         toast.success(res.message || "Logged out successfully");
         dispatch(logout());

@@ -6,6 +6,7 @@ import { Input, Button, Logo } from "./index";
 import { loginUser } from "../api/auth";
 import { login as loginAction } from "../store/authSlice";
 import axios from "axios";
+import { setAccessToken } from "../api/axiosInstance";
 
 interface LoginFormInputs {
   email: string;
@@ -24,13 +25,10 @@ function Login() {
       const res = await loginUser(data);
 
       if (res?.success) {
-        console.log('res.data' , res.data)
-        const { accessToken, refreshToken } = res.data[0];
-        console.log(accessToken);
+        const { accessToken } = res.data[0];
         const user = res.user;
 
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
+        setAccessToken(accessToken);
 
         dispatch(loginAction(user));
         console.log(user._id);

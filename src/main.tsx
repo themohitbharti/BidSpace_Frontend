@@ -7,6 +7,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthLayout } from "./components/index.ts";
 import { Home, Login, Signup, VerifyOTP } from "./pages/index.ts";
+import { AuthProvider } from "./context/AuthProvider.ts";
 
 const router = createBrowserRouter([
   {
@@ -48,7 +49,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </Provider>
-  </StrictMode>,
+  </StrictMode>
 );
