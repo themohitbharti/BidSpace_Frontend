@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface User {
+export interface User {
   _id: string;
   email: string;
   fullName: string;
@@ -12,6 +12,13 @@ interface User {
   reservedCoins: number;
   coins: number;
 }
+
+// Define a type for the minimum required user data
+export type PartialUser = Partial<User> & {
+  _id: string;
+  email: string;
+  fullName: string;
+};
 
 interface AuthState {
   user: User | null;
@@ -27,9 +34,19 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action:PayloadAction<User>) => {
+    login: (state, action: PayloadAction<PartialUser>) => {
       state.isLoggedIn = true;
-      state.user = action.payload;
+      // Merge with default values for missing properties
+      state.user = {
+        productsListed: [],
+        productsPurchased: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        __v: 0,
+        reservedCoins: 0,
+        coins: 0,
+        ...action.payload,
+      } as User;
     },
     logout: (state) => {
       state.isLoggedIn = false;
