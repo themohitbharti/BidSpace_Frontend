@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {ProfileSidebar} from "../index";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaRocket, FaUserAstronaut } from "react-icons/fa";

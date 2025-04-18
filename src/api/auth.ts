@@ -49,7 +49,7 @@ export const logoutUser = async (token: string) => {
 
 export const regenerateToken = async (): Promise<TokenResponse> => {
   const { data } = await axiosInstance.post<TokenResponse>(
-    "/user/refresh-token",
+    "/user/regenerate-tokens",
   );
   return data;
 };
