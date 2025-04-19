@@ -15,3 +15,19 @@ body {
   min-height: 100vh;
   background-color: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent overlay */
 }
+
+.range-input-no-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 0;
+  height: 0;
+  border: 0;
+}
+
+.range-input-no-thumb::-moz-range-thumb {
+  background: transparent;
+  width: 0;
+  height: 0;
+  border: 0;
+}

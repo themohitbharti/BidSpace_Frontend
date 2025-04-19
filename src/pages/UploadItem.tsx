@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import axiosInstance from "../api/axiosInstance";
 import axios from "axios";
+import { addProductWithAuction } from "../store/productSlice";
 
 interface UploadFormInputs {
   title: string;
   basePrice: number;
   description: string;
   category: string;
-  condition: string;
+  auctionDuration: number; // Changed from condition to auctionDuration
 }
+
+// Define allowed auction durations (in hours)
+const AUCTION_DURATIONS = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24, 48, 72, 96, 120, 144, 168,
+];
 
 function UploadItem() {
   const {
@@ -17,12 +26,33 @@ function UploadItem() {
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<UploadFormInputs>();
+    watch,
+    setValue,
+  } = useForm<UploadFormInputs>({
+    defaultValues: {
+      auctionDuration: 24, // Default to 24 hours
+    },
+  });
   const [files, setFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [error, setUploadError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sliderValue, setSliderValue] = useState(AUCTION_DURATIONS.indexOf(24)); // Set initial index
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const MAX_IMAGES = 5;
+
+  // Watch the auction duration value for display
+  const auctionDuration = watch("auctionDuration");
+
+  // Handle slider change
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const idx = parseInt(e.target.value);
+    setSliderValue(idx);
+    setValue("auctionDuration", AUCTION_DURATIONS[idx], {
+      shouldValidate: true,
+    });
+  };
 
   useEffect(() => {
     if (files.length > 0) {
@@ -63,24 +93,71 @@ function UploadItem() {
     }
 
     try {
+      setIsSubmitting(true);
+      setUploadError(null);
+
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("basePrice", data.basePrice.toString());
       formData.append("description", data.description);
       formData.append("category", data.category);
-      formData.append("condition", data.condition);
+      formData.append("auctionDuration", data.auctionDuration.toString()); // Changed from condition to auctionDuration
 
-      files.forEach((file) => formData.append("images", file));
+      // Append each image to formData with the key "coverImages"
+      files.forEach((file) => formData.append("coverImages", file));
 
-      const res = await axios.post("/api/products/upload", formData);
-      if (res.data.success) {
+      // Use axiosInstance instead of axios directly
+      const response = await axiosInstance.post("/product/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const res = response.data;
+
+      if (res.success) {
+        // Success! Update the redux store with new product and auction
+        dispatch(addProductWithAuction(res.data));
+
+        // Show success message
+        toast.success("Product listed and auction started successfully");
+
+        // Navigate to home page
         navigate("/");
       } else {
-        throw new Error("Upload failed");
+        throw new Error(res.message || "Upload failed");
       }
-    } catch (err) {
-      setUploadError("Something went wrong during upload");
-      console.error(err);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(error)) {
+        setUploadError(error.response?.data?.message || "Upload failed");
+      } else if (err instanceof Error) {
+        setUploadError(err.message);
+      } else {
+        setUploadError("Something went wrong");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Helper function to format duration display
+  const formatDuration = (hours: number) => {
+    if (hours < 24) {
+      return `${hours} hour${hours > 1 ? "s" : ""}`;
+    } else {
+      const days = Math.floor(hours / 24);
+      const remainingHours = hours % 24;
+      return `${days} day${days > 1 ? "s" : ""}${remainingHours > 0 ? ` ${remainingHours} hour${remainingHours > 1 ? "s" : ""}` : ""}`;
+    }
+  };
+
+  // Helper function to get formatted labels for specific positions
+  const getDurationLabel = (index: number) => {
+    const hours = AUCTION_DURATIONS[index];
+    if (hours < 24) {
+      return `${hours}h`;
+    } else {
+      return `${hours / 24}d`;
     }
   };
 
@@ -108,7 +185,20 @@ function UploadItem() {
                 htmlFor="imageUpload"
                 className="flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-600 text-white"
               >
-                <svg className="mb-2 h-10 w-10" /*…*/ />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mb-2 h-10 w-10"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
                 <span className="text-lg">Upload Images</span>
                 <span className="mt-1 text-sm text-gray-400">
                   or drag & drop
@@ -238,6 +328,7 @@ function UploadItem() {
                   <option value="tech">Tech</option>
                   <option value="home">Home</option>
                   <option value="collectibles">Collectibles</option>
+                  <option value="food">Food</option>
                 </select>
                 {errors.category && (
                   <p className="text-sm text-red-500">
@@ -245,24 +336,67 @@ function UploadItem() {
                   </p>
                 )}
               </div>
-              {/* Condition */}
+              {/* Enhanced Auction Duration Slider */}
               <div>
-                <label className="mb-1 block text-sm text-gray-300">
-                  Condition
-                </label>
-                <select
-                  className="w-full rounded-2xl bg-gray-800 p-3"
-                  {...register("condition", {
-                    required: "Condition is required",
-                  })}
-                >
-                  <option value="">Select Condition</option>
-                  <option value="new">New</option>
-                  <option value="used">Used</option>
-                </select>
-                {errors.condition && (
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="block text-sm text-gray-300">
+                    Auction Duration
+                  </label>
+                  <span className="text-sm font-medium text-white">
+                    {formatDuration(auctionDuration)}
+                  </span>
+                </div>
+
+                {/* Custom styled slider */}
+                <div className="relative py-4">
+                  <input
+                    type="range"
+                    min="0"
+                    max={AUCTION_DURATIONS.length - 1}
+                    step="1"
+                    value={sliderValue}
+                    onChange={handleSliderChange}
+                    className="range-input-no-thumb absolute z-10 h-8 w-full cursor-pointer appearance-none bg-transparent outline-none"
+                    style={{
+                      // These style overrides help with the custom appearance
+                      WebkitAppearance: "none",
+                      margin: 0,
+                    }}
+                  />
+
+                  {/* Track background */}
+                  <div className="absolute top-[18px] h-4 w-full rounded-full bg-gray-700"></div>
+
+                  {/* Filled track */}
+                  <div
+                    className="absolute top-[18px] h-4 rounded-full bg-blue-500"
+                    style={{
+                      width: `${(sliderValue / (AUCTION_DURATIONS.length - 1)) * 100}%`,
+                      transition: "width 0.1s ease-in-out",
+                    }}
+                  ></div>
+
+                  {/* Thumb indicator */}
+                  <div
+                    className="absolute top-[14px] h-6 w-6 rounded-full border-2 border-white bg-blue-600 shadow-md"
+                    style={{
+                      left: `calc(${(sliderValue / (AUCTION_DURATIONS.length - 1)) * 100}% - 12px)`,
+                      transition: "left 0.1s ease-in-out",
+                    }}
+                  ></div>
+                </div>
+
+                {/* Duration marks */}
+                <div className="mt-6 flex justify-between text-xs text-gray-400">
+                  <span>{getDurationLabel(0)}</span>
+                  <span>{getDurationLabel(6)}</span>
+                  <span>{getDurationLabel(12)}</span>
+                  <span>{getDurationLabel(AUCTION_DURATIONS.length - 1)}</span>
+                </div>
+
+                {errors.auctionDuration && (
                   <p className="text-sm text-red-500">
-                    {errors.condition.message}
+                    {errors.auctionDuration.message}
                   </p>
                 )}
               </div>
@@ -272,9 +406,14 @@ function UploadItem() {
           <button
             type="submit"
             onClick={handleSubmit(onSubmit)}
-            className="mt-4 w-full rounded-2xl bg-white p-3 font-semibold text-black"
+            disabled={isSubmitting}
+            className={`mt-4 w-full rounded-2xl p-3 font-semibold ${
+              isSubmitting
+                ? "cursor-not-allowed bg-gray-400 text-gray-700"
+                : "bg-white text-black hover:bg-blue-100"
+            }`}
           >
-            Upload Now
+            {isSubmitting ? "Uploading..." : "Upload Now"}
           </button>
         </div>
       </div>
