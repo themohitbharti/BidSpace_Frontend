@@ -101,8 +101,7 @@ function UploadItem() {
       formData.append("basePrice", data.basePrice.toString());
       formData.append("description", data.description);
       formData.append("category", data.category);
-      formData.append("auctionDuration", data.auctionDuration.toString()); // Changed from condition to auctionDuration
-
+      formData.append("endTime", data.auctionDuration.toString());
       // Append each image to formData with the key "coverImages"
       files.forEach((file) => formData.append("coverImages", file));
 
@@ -122,14 +121,14 @@ function UploadItem() {
         // Show success message
         toast.success("Product listed and auction started successfully");
 
-        // Navigate to home page
-        navigate("/");
+        // Navigate to product details
+        navigate("/product-details");
       } else {
         throw new Error(res.message || "Upload failed");
       }
     } catch (err: unknown) {
-      if (axios.isAxiosError(error)) {
-        setUploadError(error.response?.data?.message || "Upload failed");
+      if (axios.isAxiosError(err)) {
+        setUploadError(err.response?.data?.message || "Upload failed");
       } else if (err instanceof Error) {
         setUploadError(err.message);
       } else {
