@@ -1,4 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { AxiosError } from "axios";
+import { getProductDetails, Bidder } from "../api/productApi"; // Import Bidder interface too
 
 // Product interface
 export interface Product {
@@ -14,16 +16,17 @@ export interface Product {
   updatedAt: string;
   __v: number;
   auctionId?: string;
+  finalSoldPrice?: number;
 }
 
-// Auction interface
+// Auction interface - updated with Bidder[] instead of string[]
 export interface Auction {
   _id: string;
   productId: string;
   startPrice: number;
   currentPrice: number;
   endTime: string;
-  bidders: string[];
+  bidders: Bidder[]; // Changed from string[] to Bidder[]
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -54,6 +57,22 @@ const initialState: ProductState = {
   error: null,
 };
 
+// Updated thunk to use the API function
+export const fetchProductDetails = createAsyncThunk(
+  "product/fetchDetails",
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const response = await getProductDetails(productId);
+      return response.data; // The API function already returns response.data
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      return rejectWithValue(
+        axiosError.response?.data?.message || "Failed to fetch product details",
+      );
+    }
+  },
+);
+
 const productSlice = createSlice({
   name: "product",
   initialState,
@@ -61,64 +80,93 @@ const productSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    
+
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-    
+
     setProducts: (state, action: PayloadAction<Product[]>) => {
       state.products = action.payload;
     },
-    
+
     setSelectedProduct: (state, action: PayloadAction<Product | null>) => {
       state.selectedProduct = action.payload;
     },
-    
+
     addProduct: (state, action: PayloadAction<Product>) => {
       state.products.push(action.payload);
     },
-    
+
     updateProduct: (state, action: PayloadAction<Product>) => {
-      const index = state.products.findIndex(p => p._id === action.payload._id);
+      const index = state.products.findIndex(
+        (p) => p._id === action.payload._id,
+      );
       if (index !== -1) {
         state.products[index] = action.payload;
       }
-      if (state.selectedProduct && state.selectedProduct._id === action.payload._id) {
+      if (
+        state.selectedProduct &&
+        state.selectedProduct._id === action.payload._id
+      ) {
         state.selectedProduct = action.payload;
       }
     },
-    
+
     setAuctions: (state, action: PayloadAction<Auction[]>) => {
       state.auctions = action.payload;
     },
-    
+
     setSelectedAuction: (state, action: PayloadAction<Auction | null>) => {
       state.selectedAuction = action.payload;
     },
-    
+
     updateAuction: (state, action: PayloadAction<Auction>) => {
-      const index = state.auctions.findIndex(a => a._id === action.payload._id);
+      const index = state.auctions.findIndex(
+        (a) => a._id === action.payload._id,
+      );
       if (index !== -1) {
         state.auctions[index] = action.payload;
       }
-      if (state.selectedAuction && state.selectedAuction._id === action.payload._id) {
+      if (
+        state.selectedAuction &&
+        state.selectedAuction._id === action.payload._id
+      ) {
         state.selectedAuction = action.payload;
       }
     },
-    
+
     // Add a product and its auction at the same time
-    addProductWithAuction: (state, action: PayloadAction<ProductAuctionResponse>) => {
+    addProductWithAuction: (
+      state,
+      action: PayloadAction<ProductAuctionResponse>,
+    ) => {
       const { product, auction } = action.payload;
       state.products.push(product);
       state.auctions.push(auction);
       state.selectedProduct = product;
       state.selectedAuction = auction;
     },
-    
+
     clearSelectedProduct: (state) => {
       state.selectedProduct = null;
       state.selectedAuction = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProductDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedProduct = action.payload.product;
+        state.selectedAuction = action.payload.auction;
+      })
+      .addCase(fetchProductDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

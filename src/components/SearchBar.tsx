@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect, useMemo } from "react"; // Replace useCallback with useMemo
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom"; // Add this import
 import { Input } from "./index";
 import { Button } from "./index";
-import { useSelector } from "react-redux"; // Remove useDispatch from here
+import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { useAppDispatch } from "../store/hooks"; // Add this import
+import { useAppDispatch } from "../store/hooks";
 import {
   addRecentSearch,
   searchProducts,
@@ -39,6 +40,7 @@ const POPULAR_CATEGORIES = [
 ];
 
 export default function SearchBar() {
+  const navigate = useNavigate(); // Add this
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,7 +49,7 @@ export default function SearchBar() {
   const { recentSearches, searchResults, isLoading } = useSelector(
     (state: RootState) => state.search,
   );
-  const dispatch = useAppDispatch(); // Use the typed dispatch
+  const dispatch = useAppDispatch();
 
   // Replace useCallback with useMemo for the debounced function
   const debouncedSearch = useMemo(
@@ -104,6 +106,18 @@ export default function SearchBar() {
 
     // Trigger a search with the selected item
     dispatch(searchProducts(item));
+  };
+
+  // Add a new function to handle product click
+  const handleProductClick = (product: SearchProduct) => {
+    // Store search term in recent searches
+    dispatch(addRecentSearch(product.title));
+
+    // Close dropdown
+    setOpen(false);
+
+    // Navigate to product details page with product ID
+    navigate(`/product-details/${product._id}`);
   };
 
   return (
@@ -176,7 +190,7 @@ export default function SearchBar() {
                   <div
                     key={product._id}
                     className="cursor-pointer rounded-lg bg-gray-800 p-3 hover:bg-gray-700"
-                    onClick={() => handleSelect(product.title)}
+                    onClick={() => handleProductClick(product)} // Update to use new handler
                   >
                     <div className="flex items-center gap-3">
                       {product.coverImages &&

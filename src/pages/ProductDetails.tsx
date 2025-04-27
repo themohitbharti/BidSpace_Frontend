@@ -1,41 +1,45 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import { fetchProductDetails } from "../store/productSlice";
 import { formatDistanceToNowStrict } from "date-fns";
-
-// interface Bidder {
-//   userId: string;
-//   bidAmount: number;
-//   _id: string;
-// }
-
-// interface Auction {
-//   _id: string;
-//   currentPrice: number;
-//   endTime: string;
-//   bidders: Bidder[];
-// }
-
-// interface Product {
-//   _id: string;
-//   title: string;
-//   basePrice: number;
-//   category: string;
-//   coverImages: string[];
-//   status: "live" | "sold" | "unsold";
-// }
+import { useAppDispatch } from "../store/hooks";
 
 export default function ProductDetails() {
-  const { selectedProduct: product } = useSelector(
-    (state: RootState) => state.product,
-  );
-  const { selectedAuction: auction } = useSelector(
-    (state: RootState) => state.product,
-  );
-
+  const { productId } = useParams();
+  const dispatch = useAppDispatch();
+  const {
+    selectedProduct: product,
+    selectedAuction: auction,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.product);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
+  // Fetch product details when component mounts or productId changes
+  useEffect(() => {
+    if (productId) {
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-white">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-t-4 border-gray-400 border-t-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return <div className="py-20 text-center text-red-400">Error: {error}</div>;
+  }
+
+  // Show not found state
   if (!product || !auction) {
     return (
       <div className="py-20 text-center text-white">Product not found</div>

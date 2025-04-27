@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axiosInstance from "../api/axiosInstance";
-import { AxiosError } from "axios"; // Add this import
+import { AxiosError } from "axios";
+import { searchProducts as searchProductsApi } from "../api/productApi"; // Import API function
 
 // Define product interface based on your API response
 export interface SearchProduct {
@@ -31,15 +31,13 @@ const initialState: SearchState = {
   error: null,
 };
 
-// Async thunk for searching products
+// Updated thunk to use the API function
 export const searchProducts = createAsyncThunk(
   "search/searchProducts",
   async (query: string, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `/product/search?query=${encodeURIComponent(query)}`,
-      );
-      return response.data.data;
+      const response = await searchProductsApi(query);
+      return response.data;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message: string }>;
       return rejectWithValue(
