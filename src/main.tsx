@@ -60,7 +60,7 @@ const router = createBrowserRouter([
       {
         path: "/product-details",
         element: (
-          <AuthLayout>
+          <AuthLayout authentication={false}>
             <ProductDetails />
           </AuthLayout>
         ),
@@ -68,7 +68,7 @@ const router = createBrowserRouter([
       {
         path: "/product-details/:productId", // Add productId parameter
         element: (
-          <AuthLayout>
+          <AuthLayout authentication={false}>
             <ProductDetails />
           </AuthLayout>
         ),
