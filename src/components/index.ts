@@ -14,6 +14,7 @@ import ProductCard from "./ProductCard";
 import CardsByCategory from './CardsByCategory'
 import VerifyOTP from "./VerifyOTP";
 import ProfileSidebar from "./ProfileSidebar";
+import SliderSection from "./SliderSection";
 // import SearchSuggestions from "./SearchSuggestions";
 
 export {
@@ -33,6 +34,7 @@ export {
     CardsByCategory,
     VerifyOTP,
     ProfileSidebar,
+    SliderSection,
     // SearchSuggestions
 
 }

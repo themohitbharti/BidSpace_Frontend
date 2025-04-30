@@ -79,3 +79,13 @@ export const uploadProduct = async (formData: FormData) => {
   });
   return response.data;
 };
+
+export const getRecentProducts = async () => {
+  const response = await axiosInstance.get("/product/recent");
+  return response.data;
+};
+
+export const getTrendingProducts = async () => {
+  const response = await axiosInstance.get("/product/trending");
+  return response.data;
+};
