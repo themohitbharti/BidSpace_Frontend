@@ -1,35 +1,13 @@
 // components/ProductCard.tsx
 
 import { formatDistanceToNowStrict } from "date-fns";
-
-interface Bidder {
-  userId: string;
-  bidAmount: number;
-  _id: string;
-}
-
-interface Auction {
-  _id: string;
-  currentPrice: number;
-  endTime: string;
-  bidders: Bidder[];
-}
-
-interface Product {
-  _id: string;
-  title: string;
-  basePrice: number;
-  category: string;
-  coverImages: string[];
-  status: "live" | "sold" | "unsold";
-}
+import { Product } from "../types";
 
 interface Props {
   product: Product;
-  auction: Auction;
 }
 
-const ProductCard = ({ product, auction }: Props) => {
+const ProductCard = ({ product }: Props) => {
   return (
     <div className="w-full max-w-xs rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl">
       {/* Image with status overlay */}
@@ -77,7 +55,7 @@ const ProductCard = ({ product, auction }: Props) => {
           <div className="mb-1 flex items-center justify-between">
             <p className="text-sm font-medium text-slate-700">Current Bid</p>
             <p className="text-xl font-bold text-emerald-600">
-              ${auction.currentPrice}
+              ${product.currentPrice}
             </p>
           </div>
           <div className="flex items-center justify-between">
@@ -94,7 +72,7 @@ const ProductCard = ({ product, auction }: Props) => {
                 <span className="mr-2 h-2 w-2 animate-pulse rounded-full bg-blue-500"></span>
                 Ends{" "}
                 <span className="ml-1 font-bold">
-                  {formatDistanceToNowStrict(new Date(auction.endTime), {
+                  {formatDistanceToNowStrict(new Date(product.endTime), {
                     addSuffix: true,
                   })}
                 </span>

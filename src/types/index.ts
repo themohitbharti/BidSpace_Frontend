@@ -8,9 +8,11 @@ export interface Product {
   _id: string;
   title: string;
   basePrice: number;
+  currentPrice: number; // Added property
+  endTime: string; // Added property
   category: string;
   coverImages: string[];
-  status: "live" | "unsold" | "sold";  // Use union type instead of string
+  status: "live" | "unsold" | "sold"; // Use union type instead of string
   auctionId?: string;
 }
 
@@ -23,5 +25,5 @@ export interface Auction {
 
 export interface ProductWithAuction {
   product: Product;
-  auction: Auction;
+  auction?: Auction; // Make auction optional
 }
