@@ -1,4 +1,4 @@
-import  { useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../store/store";
@@ -8,19 +8,15 @@ interface ProtectedProps {
   authentication?: boolean;
 }
 
-const Protected= ({
-  children,
-  authentication = true,
-}:ProtectedProps) => {
+const Protected = ({ children, authentication = true }: ProtectedProps) => {
   const navigate = useNavigate();
   const [loader, setLoader] = useState(true);
   const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn);
 
   useEffect(() => {
-    if (authentication && authStatus !== authentication) {
+    // Only redirect if authentication is required AND user is not logged in
+    if (authentication && !authStatus) {
       navigate("/login");
-    } else if (!authentication && authStatus !== authentication) {
-      navigate("/");
     }
 
     setLoader(false);
