@@ -194,82 +194,95 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* Auction Activity Section - Redesigned to be more horizontal */}
+      {/* Auction Activity Section with loading state */}
       <div className="mx-auto max-w-7xl px-4 pt-12 lg:px-8">
         <div id="auction-section" className="mx-auto">
           <h2 className="mb-4 text-2xl font-semibold">Auction Activity</h2>
-          <div className="rounded-xl bg-gray-900 p-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {/* Current Auction Status */}
-              <div className="rounded-lg bg-gray-800 p-4">
-                <h3 className="mb-3 text-lg font-medium">Current Status</h3>
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Current Bid</span>
-                    <span className="font-semibold text-blue-400">
-                      {auction.currentPrice} Coins
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Time Left</span>
-                    <span className="font-semibold text-green-400">
-                      {timeLeft}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Total Bids</span>
-                    <span>{auction.bidders?.length || 0}</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Bid History / Live Activity */}
-              <div className="md:col-span-2">
-                <h3 className="mb-3 text-lg font-medium">Recent Activity</h3>
-                <div className="h-48 overflow-y-auto rounded-lg bg-gray-800 p-4">
-                  <div className="flex flex-col gap-3">
-                    {auction.bidders && auction.bidders.length > 0 ? (
-                      auction.bidders.slice(0, 10).map((bid, index) => (
-                        <div
-                          key={bid._id || index}
-                          className="flex items-center gap-2 rounded-md bg-gray-700 p-2 text-sm"
-                        >
-                          <div className="h-8 w-8 rounded-full bg-blue-600 text-center">
-                            <span className="leading-8">
-                              {bid.userId.charAt(0)}
-                            </span>
-                          </div>
-                          <p>
-                            <span className="font-medium text-blue-400">
-                              User {bid.userId.substring(0, 6)}
-                            </span>{" "}
-                            bid{" "}
-                            <span className="text-green-400">
-                              {bid.bidAmount} Coins
-                            </span>
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-center text-gray-500">
-                        No bids placed yet
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
+          {loading ? (
+            <div className="rounded-xl bg-gray-900 p-6 text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-white border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+              <p className="mt-4">Loading auction data...</p>
             </div>
+          ) : !auction || !auction._id ? (
+            <div className="rounded-xl bg-gray-900 p-6 text-center">
+              <p>Auction information is not available</p>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-gray-900 p-6">
+              {/* Rest of your existing auction section */}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                {/* Current Auction Status */}
+                <div className="rounded-lg bg-gray-800 p-4">
+                  <h3 className="mb-3 text-lg font-medium">Current Status</h3>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Current Bid</span>
+                      <span className="font-semibold text-blue-400">
+                        {auction.currentPrice} Coins
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Time Left</span>
+                      <span className="font-semibold text-green-400">
+                        {timeLeft}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Total Bids</span>
+                      <span>{auction.bidders?.length || 0}</span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* LiveBidding component */}
-            {product.status === "live" && (
-              <div className="mt-6">
-                <LiveBidding
-                  auctionId={auction._id}
-                  currentPrice={auction.currentPrice}
-                />
+                {/* Bid History / Live Activity */}
+                <div className="md:col-span-2">
+                  <h3 className="mb-3 text-lg font-medium">Recent Activity</h3>
+                  <div className="h-48 overflow-y-auto rounded-lg bg-gray-800 p-4">
+                    <div className="flex flex-col gap-3">
+                      {auction.bidders && auction.bidders.length > 0 ? (
+                        auction.bidders.slice(0, 10).map((bid, index) => (
+                          <div
+                            key={bid._id || index}
+                            className="flex items-center gap-2 rounded-md bg-gray-700 p-2 text-sm"
+                          >
+                            <div className="h-8 w-8 rounded-full bg-blue-600 text-center">
+                              <span className="leading-8">
+                                {bid.userId.charAt(0)}
+                              </span>
+                            </div>
+                            <p>
+                              <span className="font-medium text-blue-400">
+                                User {bid.userId.substring(0, 6)}
+                              </span>{" "}
+                              bid{" "}
+                              <span className="text-green-400">
+                                {bid.bidAmount} Coins
+                              </span>
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-center text-gray-500">
+                          No bids placed yet
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* LiveBidding component - with better validation */}
+              {product.status === "live" && auction && auction._id && (
+                <div className="mt-6">
+                  <LiveBidding
+                    auctionId={auction._id}
+                    currentPrice={auction.currentPrice}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

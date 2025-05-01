@@ -27,6 +27,16 @@ export default function LiveBidding({
   const [isPlacingBid, setIsPlacingBid] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Validate props immediately to prevent rendering with invalid data
+  useEffect(() => {
+    if (!auctionId) {
+      console.error("LiveBidding: Missing auctionId prop");
+    }
+    if (typeof currentPrice !== "number" || isNaN(currentPrice)) {
+      console.error("LiveBidding: Invalid currentPrice prop:", currentPrice);
+    }
+  }, [auctionId, currentPrice]);
+
   // Get current user info and bid loading/error states from Redux
   const user = useSelector((state: RootState) => state.auth.user);
   const bidLoading = useSelector(
@@ -74,6 +84,14 @@ export default function LiveBidding({
   const handleBidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Enhanced validation with clearer error messages
+    if (!auctionId || auctionId.trim() === "") {
+      console.error("Cannot place bid: Missing auction ID");
+      setError("Auction information is missing. Please refresh the page.");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
     if (!user) {
       setError("You must be logged in to place a bid");
       setTimeout(() => setError(null), 3000);
@@ -97,7 +115,7 @@ export default function LiveBidding({
         setError(null);
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
         // Error already handled by setting bidError in Redux
       })
       .finally(() => {
