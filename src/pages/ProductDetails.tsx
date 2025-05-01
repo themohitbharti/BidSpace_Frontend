@@ -55,9 +55,24 @@ export default function ProductDetails() {
   }
 
   const mainImage = product.coverImages[selectedIdx];
-  const timeLeft = formatDistanceToNowStrict(new Date(auction.endTime), {
-    addSuffix: true,
-  });
+
+  // Safe date calculation with validation
+  let timeLeft = "unknown";
+  try {
+    if (auction.endTime) {
+      const endDate = new Date(auction.endTime);
+      // Check if the parsed date is valid
+      if (!isNaN(endDate.getTime())) {
+        timeLeft = formatDistanceToNowStrict(endDate, {
+          addSuffix: true,
+        });
+      } else {
+        console.error("Invalid date format:", auction.endTime);
+      }
+    }
+  } catch (dateError) {
+    console.error("Error formatting date:", dateError);
+  }
 
   const badgeColor =
     product.status === "live"
