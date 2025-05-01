@@ -8,11 +8,12 @@ export interface Product {
   _id: string;
   title: string;
   basePrice: number;
-  currentPrice: number; // Added property
-  endTime: string; // Added property
+  currentPrice: number;
+  endTime: string;
   category: string;
   coverImages: string[];
-  status: "live" | "unsold" | "sold"; // Use union type instead of string
+  description?: string; // Add description field
+  status: "live" | "unsold" | "sold";
   auctionId?: string;
 }
 

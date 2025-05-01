@@ -5,6 +5,7 @@ import { RootState } from "../store/store";
 import { fetchProductDetails } from "../store/productSlice";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useAppDispatch } from "../store/hooks";
+import LiveBidding from "../components/LiveBidding";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -125,6 +126,125 @@ export default function ProductDetails() {
           <button className="w-full rounded-full bg-white py-3 text-lg font-semibold text-black transition hover:bg-gray-200">
             Bid Now
           </button>
+        </div>
+      </div>
+
+      {/* Product Description and Details Section */}
+      <div className="mx-auto max-w-7xl px-4 pt-12 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Description */}
+          <div className="lg:col-span-2">
+            <h2 className="mb-4 text-2xl font-semibold">Product Description</h2>
+            <div className="rounded-xl bg-gray-900 p-6">
+              <p className="leading-relaxed text-gray-300">
+                {product.description ||
+                  "No description available for this product."}
+              </p>
+
+              {/* Product Specifications */}
+              <div className="mt-8">
+                <h3 className="mb-4 text-xl font-medium">Specifications</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="flex justify-between rounded-lg bg-gray-800 p-3">
+                    <span className="text-gray-400">Category</span>
+                    <span>{product.category}</span>
+                  </div>
+                  <div className="flex justify-between rounded-lg bg-gray-800 p-3">
+                    <span className="text-gray-400">Condition</span>
+                    <span>New</span>
+                  </div>
+                  <div className="flex justify-between rounded-lg bg-gray-800 p-3">
+                    <span className="text-gray-400">Starting Price</span>
+                    <span>€{product.basePrice}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Auction Activity Box */}
+          <div>
+            <h2 className="mb-4 text-2xl font-semibold">Auction Activity</h2>
+            <div className="rounded-xl bg-gray-900 p-6">
+              {/* Current Auction Status */}
+              <div className="mb-4 rounded-lg bg-gray-800 p-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Current Bid</span>
+                  <span className="font-semibold text-blue-400">
+                    €{auction.currentPrice}
+                  </span>
+                </div>
+                <div className="mt-2 flex justify-between">
+                  <span className="text-gray-400">Time Left</span>
+                  <span className="font-semibold text-green-400">
+                    {timeLeft}
+                  </span>
+                </div>
+                <div className="mt-2 flex justify-between">
+                  <span className="text-gray-400">Total Bids</span>
+                  <span>{auction.bidders?.length || 0}</span>
+                </div>
+              </div>
+
+              {/* Bid History / Live Activity */}
+              <div className="mt-6">
+                <h3 className="mb-3 text-lg font-medium">Recent Activity</h3>
+                <div className="h-64 overflow-y-auto rounded-lg bg-gray-800 p-4">
+                  <div className="flex flex-col gap-3">
+                    {auction.bidders && auction.bidders.length > 0 ? (
+                      auction.bidders.slice(0, 10).map((bid, index) => (
+                        <div
+                          key={bid._id || index}
+                          className="flex items-center gap-2 rounded-md bg-gray-700 p-2 text-sm"
+                        >
+                          <div className="h-8 w-8 rounded-full bg-blue-600 text-center">
+                            <span className="leading-8">
+                              {bid.userId.charAt(0)}
+                            </span>
+                          </div>
+                          <p>
+                            <span className="font-medium text-blue-400">
+                              User {bid.userId.substring(0, 6)}
+                            </span>{" "}
+                            bid €
+                            <span className="text-green-400">
+                              {bid.bidAmount}
+                            </span>
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500">
+                        No bids placed yet
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Place Bid Section */}
+              <div className="mt-6">
+                <h3 className="mb-3 text-lg font-medium">Place Your Bid</h3>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    className="w-full rounded-lg bg-gray-800 px-4 py-2 text-white"
+                    placeholder={`Min €${auction.currentPrice + 1}`}
+                    min={auction.currentPrice + 1}
+                  />
+                  <button className="rounded-lg bg-blue-600 px-4 py-2 font-medium hover:bg-blue-500">
+                    Bid
+                  </button>
+                </div>
+              </div>
+              {product.status === "live" && (
+                <LiveBidding
+                  auctionId={auction._id}
+                  currentPrice={auction.currentPrice}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
