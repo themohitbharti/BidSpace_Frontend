@@ -89,3 +89,10 @@ export const getTrendingProducts = async () => {
   const response = await axiosInstance.get("/product/trending");
   return response.data;
 };
+
+export const placeBid = async (auctionId: string, bidAmount: number) => {
+  return await axiosInstance.post("/auction/bid", {
+    auctionId,
+    bidAmount: bidAmount.toString(),
+  });
+};

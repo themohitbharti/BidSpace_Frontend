@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import { useAppDispatch } from "../store/hooks";
+import { placeBid } from "../store/productSlice";
 
 interface LiveBidMessage {
   userId: string;
@@ -19,21 +21,37 @@ export default function LiveBidding({
   auctionId,
   currentPrice,
 }: LiveBiddingProps) {
+  const dispatch = useAppDispatch();
   const [messages, setMessages] = useState<LiveBidMessage[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [bidAmount, setBidAmount] = useState<number>(currentPrice + 1);
   const [isPlacingBid, setIsPlacingBid] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get current user info from Redux store (adjust based on your auth implementation)
+  // Get current user info and bid loading/error states from Redux
   const user = useSelector((state: RootState) => state.auth.user);
+  const bidLoading = useSelector(
+    (state: RootState) => state.product.bidLoading,
+  );
+  const bidError = useSelector((state: RootState) => state.product.bidError);
+
+  // Update minimum bid when current price changes
+  useEffect(() => {
+    setBidAmount(currentPrice + 1);
+  }, [currentPrice]);
+
+  // Set error from Redux if it exists
+  useEffect(() => {
+    if (bidError) {
+      setError(bidError);
+      setTimeout(() => setError(null), 3000);
+    }
+  }, [bidError]);
 
   useEffect(() => {
     // Connect to the WebSocket server
     const socketInstance = io(
       import.meta.env.VITE_API_URL || "http://localhost:3000",
     );
-    setSocket(socketInstance);
 
     // Join the auction room
     socketInstance.emit("joinAuction", auctionId);
@@ -47,18 +65,6 @@ export default function LiveBidding({
       }
     });
 
-    // Listen for bid responses
-    socketInstance.on(
-      "bidResponse",
-      (response: { success: boolean; message: string }) => {
-        setIsPlacingBid(false);
-        if (!response.success) {
-          setError(response.message);
-          setTimeout(() => setError(null), 3000);
-        }
-      },
-    );
-
     return () => {
       socketInstance.emit("leaveAuction", auctionId);
       socketInstance.disconnect();
@@ -67,7 +73,12 @@ export default function LiveBidding({
 
   const handleBidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!socket || !user) return;
+
+    if (!user) {
+      setError("You must be logged in to place a bid");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
 
     if (bidAmount <= currentPrice) {
       setError("Bid must be higher than the current price");
@@ -76,18 +87,27 @@ export default function LiveBidding({
     }
 
     setIsPlacingBid(true);
-    // Now we're using the socket to send a bid
-    socket.emit("placeBid", {
-      auctionId,
-      userId: user._id,
-      username: user.fullName || `User_${user._id.substring(0, 6)}`,
-      bidAmount,
-    });
+
+    // Dispatch the API call through Redux
+    dispatch(placeBid({ auctionId, bidAmount }))
+      .unwrap()
+      .then(() => {
+        // Success is handled by the reducer updating the state
+        // Show success message
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err)
+        // Error already handled by setting bidError in Redux
+      })
+      .finally(() => {
+        setIsPlacingBid(false);
+      });
   };
 
   return (
     <div className="mt-4">
-      <h3 className="mb-2 text-lg font-medium">Live Activity</h3>
+      <h3 className="mb-2 text-lg font-medium">Place Your Bid</h3>
 
       {/* Live bid feed */}
       <div className="h-48 overflow-y-auto rounded-lg bg-gray-800 p-3">
@@ -106,9 +126,9 @@ export default function LiveBidding({
                 <span className="font-medium text-blue-400">
                   {msg.username}
                 </span>{" "}
-                bid €
+                bid{" "}
                 <span className="font-medium text-green-400">
-                  {msg.bidAmount}
+                  {msg.bidAmount} Coins
                 </span>
               </div>
             ))}
@@ -126,16 +146,16 @@ export default function LiveBidding({
             value={bidAmount}
             onChange={(e) => setBidAmount(Number(e.target.value))}
             className="w-full rounded-lg bg-gray-800 px-4 py-2 text-white"
-            placeholder={`Min €${currentPrice + 1}`}
+            placeholder={`Min ${currentPrice + 1} Coins`}
             min={currentPrice + 1}
             required
           />
           <button
             type="submit"
             className="rounded-lg bg-blue-600 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
-            disabled={isPlacingBid}
+            disabled={isPlacingBid || bidLoading}
           >
-            {isPlacingBid ? "Bidding..." : "Place Bid"}
+            {isPlacingBid || bidLoading ? "Bidding..." : "Place Bid"}
           </button>
         </div>
         {error && <p className="mt-2 text-sm text-red-400">{error}</p>}

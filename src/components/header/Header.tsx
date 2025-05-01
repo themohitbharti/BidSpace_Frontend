@@ -35,7 +35,9 @@ function Header() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4">
           <div className="flex items-center">
             <FaRocket className="mr-2 text-3xl text-[#199cfa] drop-shadow-[0_0_5px_rgba(94,231,223,0.6)]" />
-            <span className="bg-[#199cfa] bg-clip-text text-2xl font-bold tracking-wider text-transparent">
+            <span className="bg-[#199cfa] bg-clip-text text-2xl font-bold tracking-wider text-transparent cursor-pointer"
+              onClick={() => navigate("/")}
+            >
               BidSpace
             </span>
           </div>

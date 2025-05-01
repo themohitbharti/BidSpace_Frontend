@@ -192,7 +192,7 @@ export default function ProductDetails() {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Current Bid</span>
                     <span className="font-semibold text-blue-400">
-                      €{auction.currentPrice}
+                      {auction.currentPrice} Coins
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -228,9 +228,9 @@ export default function ProductDetails() {
                             <span className="font-medium text-blue-400">
                               User {bid.userId.substring(0, 6)}
                             </span>{" "}
-                            bid €
+                            bid{" "}
                             <span className="text-green-400">
-                              {bid.bidAmount}
+                              {bid.bidAmount} Coins
                             </span>
                           </p>
                         </div>
@@ -265,7 +265,7 @@ export default function ProductDetails() {
             <div>
               <p className="text-sm">Live Auction</p>
               <p className="text-lg font-semibold">
-                Current Bid: €{auction.currentPrice}
+                Current Bid: {auction.currentPrice} Coins
               </p>
               <p className="text-xs text-gray-400">Ends {timeLeft}</p>
             </div>

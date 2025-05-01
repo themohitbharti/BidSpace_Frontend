@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
-import { getProductDetails, Bidder } from "../api/productApi"; // Import Bidder interface too
+import {
+  getProductDetails,
+  placeBid as placeBidApi,
+  Bidder,
+} from "../api/productApi"; // Import Bidder interface too
 
 // Product interface
 export interface Product {
@@ -46,6 +50,8 @@ interface ProductState {
   selectedAuction: Auction | null;
   loading: boolean;
   error: string | null;
+  bidLoading?: boolean;
+  bidError?: string | null;
 }
 
 const initialState: ProductState = {
@@ -55,6 +61,8 @@ const initialState: ProductState = {
   selectedAuction: null,
   loading: false,
   error: null,
+  bidLoading: false,
+  bidError: null,
 };
 
 // Updated thunk to use the API function
@@ -68,6 +76,31 @@ export const fetchProductDetails = createAsyncThunk(
       const axiosError = error as AxiosError<{ message: string }>;
       return rejectWithValue(
         axiosError.response?.data?.message || "Failed to fetch product details",
+      );
+    }
+  },
+);
+
+export const placeBid = createAsyncThunk(
+  "product/placeBid",
+  async (
+    { auctionId, bidAmount }: { auctionId: string; bidAmount: number },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await placeBidApi(auctionId, bidAmount);
+
+      const data = response.data;
+
+      if (!data.success) {
+        return rejectWithValue(data.message || "Failed to place bid");
+      }
+
+      return data.data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      return rejectWithValue(
+        axiosError.response?.data?.message || "Failed to place bid",
       );
     }
   },
@@ -166,6 +199,19 @@ const productSlice = createSlice({
       .addCase(fetchProductDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(placeBid.pending, (state) => {
+        state.bidLoading = true;
+        state.bidError = null;
+      })
+      .addCase(placeBid.fulfilled, (state, action) => {
+        state.bidLoading = false;
+        // Update the current auction with the new data
+        state.selectedAuction = action.payload.auction;
+      })
+      .addCase(placeBid.rejected, (state, action) => {
+        state.bidLoading = false;
+        state.bidError = action.payload as string;
       });
   },
 });
