@@ -20,6 +20,8 @@ import MusicImage from "../assets/categories/Music.jpeg";
 import FootwearImage from "../assets/categories/Footwear.jpg";
 import ClothesImage from "../assets/categories/Clothes.jpg";
 
+import Category_banner from "../assets/Category_banner.jpg";
+
 // Available categories
 const CATEGORIES = [
   "Tech",
@@ -191,11 +193,11 @@ export default function Categories() {
   };
 
   return (
-    <div className="min-h-screen bg-black pb-16 text-white">
+    <div className="min-h-screen  pb-16 text-white">
       {/* Category Header/Banner */}
       <div
         className="relative mb-8 h-48 w-full bg-cover bg-center"
-        style={{ backgroundImage: `url('/assets/images/category-banner.jpg')` }}
+        style={{ backgroundImage: `url(${Category_banner})` }}
       >
         <div className="absolute inset-0 flex items-center justify-center bg-black/40">
           <h1 className="text-4xl font-bold">Discover Products</h1>

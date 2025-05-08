@@ -20,6 +20,20 @@ const AUCTION_DURATIONS = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24, 48, 72, 96, 120, 144, 168,
 ];
 
+// Add this near the top of your file with your other constants
+// Use the same categories as in your Categories.tsx file for consistency
+const CATEGORIES = [
+  "Tech",
+  "Fashion",
+  "Food",
+  "Home",
+  "Collectibles",
+  "Toys",
+  "Music",
+  "Footwear",
+  "Clothes",
+];
+
 function UploadItem() {
   const {
     register,
@@ -323,11 +337,11 @@ function UploadItem() {
                   })}
                 >
                   <option value="">Select Category</option>
-                  <option value="fashion">Fashion</option>
-                  <option value="tech">Tech</option>
-                  <option value="home">Home</option>
-                  <option value="collectibles">Collectibles</option>
-                  <option value="food">Food</option>
+                  {CATEGORIES.map((category) => (
+                    <option key={category} value={category.toLowerCase()}>
+                      {category}
+                    </option>
+                  ))}
                 </select>
                 {errors.category && (
                   <p className="text-sm text-red-500">
