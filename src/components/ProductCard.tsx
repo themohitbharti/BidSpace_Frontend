@@ -5,11 +5,15 @@ import { Product } from "../types";
 
 interface Props {
   product: Product;
+  onClick?: () => void;
 }
 
-const ProductCard = ({ product }: Props) => {
+const ProductCard = ({ product , onClick}: Props) => {
   return (
-    <div className="w-full max-w-xs rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl">
+    <div 
+    className="w-full max-w-xs rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl"
+    onClick={onClick}
+    >
       {/* Image with status overlay */}
       <div className="relative">
         <div className="h-52 w-full overflow-hidden rounded-t-xl border-b border-slate-700/20">
