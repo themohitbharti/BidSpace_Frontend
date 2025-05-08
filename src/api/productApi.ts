@@ -96,25 +96,15 @@ export const placeBid = async (auctionId: string, bidAmount: number) => {
     bidAmount: bidAmount.toString(),
   });
 };
-
-/**
- * Get products by category, status, and other filters
- * @param category - Category name or "all"
- * @param status - Product status: "live", "sold", "unsold" or "all"
- * @param all - Include all products: "yes" or "no"
- * @param page - Page number for pagination
- * @param limit - Number of items per page
- * @returns API response with matching products
- */
 export const getProductsByCategory = async (
   category: string = "all",
   status: string = "live",
   all: string = "no",
   page: number = 1,
-  limit: number = 15
+  limit: number = 15,
 ) => {
   const response = await axiosInstance.get(
-    `/product/list/${category}/${status}/${all}?page=${page}&limit=${limit}`
+    `/product/list/${category}/${status}/${all}?page=${page}&limit=${limit}`,
   );
   return response.data;
 };

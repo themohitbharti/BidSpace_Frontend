@@ -6,32 +6,52 @@ import CategoryFilter from "../components/CategoryFilter";
 import CategorySlider from "../components/CategorySlider";
 import ProductCard from "../components/ProductCard";
 
-// At the top of your file, import the images directly:
-import techImage from "../assets/categories/tech.png";
-import fashionImage from "../assets/categories/Fashion.jpg";
-import foodImage from "../assets/categories/Food.jpg";
-import homeImage from "../assets/categories/Home.jpg";
-import collectiblesImage from "../assets/categories/Collectibles.avif";
-import defaultImage from "../assets/categories/Food.jpg"; // Add a default image
+// At the top of your file, update the imports to include the new categories:
+import TechImage from "../assets/categories/tech.png";
+import FashionImage from "../assets/categories/Fashion.jpg";
+import FoodImage from "../assets/categories/Food.jpg";
+import HomeImage from "../assets/categories/Home.jpg";
+import CollectiblesImage from "../assets/categories/Collectibles.avif";
+import defaultImage from "../assets/categories/Food.jpg";
+
+// Add the new category images from the assets directory
+import ToysImage from "../assets/categories/Toys.jpg";
+import MusicImage from "../assets/categories/Music.jpeg";
+import FootwearImage from "../assets/categories/Footwear.jpg";
+import ClothesImage from "../assets/categories/Clothes.jpg";
 
 // Available categories
-const CATEGORIES = ["tech", "fashion", "food", "home", "collectibles"];
+const CATEGORIES = [
+  "Tech",
+  "Fashion",
+  "Food",
+  "Home",
+  "Collectibles",
+  "Toys",
+  "Music",
+  "Footwear",
+  "Clothes",
+];
 
 // Featured categories to display in separate sections
 const FEATURED_CATEGORIES = ["tech", "fashion", "collectibles"];
 
-// Update your CATEGORY_IMAGES mapping to use the imported images:
+// Update your CATEGORY_IMAGES mapping to include the new categories:
 const CATEGORY_IMAGES: Record<string, string> = {
-  tech: techImage,
-  fashion: fashionImage,
-  food: foodImage,
-  home: homeImage,
-  collectibles: collectiblesImage,
+  Tech: TechImage,
+  Fashion: FashionImage,
+  Food: FoodImage,
+  Home: HomeImage,
+  Collectibles: CollectiblesImage,
+  Toys: ToysImage,
+  Music: MusicImage,
+  Footwear: FootwearImage,
+  Clothes: ClothesImage,
 };
 
 // Update your getCategoryImage function:
 const getCategoryImage = (category: string): string => {
-  return CATEGORY_IMAGES[category.toLowerCase()] || defaultImage;
+  return CATEGORY_IMAGES[category] || defaultImage;
 };
 
 export default function Categories() {
