@@ -15,6 +15,7 @@ import {
   ProductDetails,
 } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
+import Categories from "./pages/Categories"; // Add this import
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <ProductDetails />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/categories",
+        element: (
+          <AuthLayout authentication={false}>
+            <Categories />
           </AuthLayout>
         ),
       },
