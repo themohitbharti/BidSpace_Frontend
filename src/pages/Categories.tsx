@@ -36,7 +36,7 @@ const CATEGORIES = [
 ];
 
 // Featured categories to display in separate sections
-const FEATURED_CATEGORIES = ["tech", "fashion", "collectibles"];
+const FEATURED_CATEGORIES = ["Tech", "Food", "Music"];
 
 // Update your CATEGORY_IMAGES mapping to include the new categories:
 const CATEGORY_IMAGES: Record<string, string> = {
@@ -78,7 +78,7 @@ export default function Categories() {
       try {
         // If "all" is selected, get products from all categories
         const categoryToFetch =
-          selectedCategory === "all" ? "tech" : selectedCategory;
+          selectedCategory === "all" ? "Tech" : selectedCategory;
 
         const response = await getProductsByCategory(
           categoryToFetch,
@@ -113,21 +113,25 @@ export default function Categories() {
 
       try {
         const categoryData: Record<string, Product[]> = {};
-        const categoryStatus: Record<string, boolean> = {};
 
         // Make a separate API call for each featured category
         const fetchPromises = FEATURED_CATEGORIES.map(async (category) => {
-          const response = await getProductsByCategory(
-            category, // Use specific category instead of "all"
-            "live",
-            "no",
-            1,
-            4, // Limit to 4 products per category
-          );
+          try {
+            const response = await getProductsByCategory(
+              category,
+              "live",
+              "no",
+              1,
+              4, // Limit to 4 products per category
+            );
 
-          // Track both success status and data
-          categoryStatus[category] = response.success;
-          categoryData[category] = response.success ? response.data : [];
+            // Store products if successful, otherwise store empty array
+            categoryData[category] = response.success ? response.data : [];
+          } catch (err) {
+            console.error(`Error fetching products for ${category}:`, err);
+            // Still include the category with empty products
+            categoryData[category] = [];
+          }
         });
 
         await Promise.all(fetchPromises);
@@ -193,7 +197,7 @@ export default function Categories() {
   };
 
   return (
-    <div className="min-h-screen  pb-16 text-white">
+    <div className="min-h-screen pb-16 text-white">
       {/* Category Header/Banner */}
       <div
         className="relative mb-8 h-48 w-full bg-cover bg-center"
