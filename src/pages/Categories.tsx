@@ -69,7 +69,7 @@ export default function Categories() {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  // Fetch products for the selected category
+  // Update the useEffect for fetching products to get more products when a specific category is selected
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -80,18 +80,21 @@ export default function Categories() {
         const categoryToFetch =
           selectedCategory === "all" ? "Tech" : selectedCategory;
 
+        // Get more products (20 instead of 15) when a specific category is selected
+        const limit = selectedCategory === "all" ? 15 : 20;
+
         const response = await getProductsByCategory(
           categoryToFetch,
           "live",
           "no",
           1,
-          15,
+          limit,
         );
 
         if (response.success) {
           setProducts(response.data);
           setPage(1);
-          setHasMore(response.data.length === 15);
+          setHasMore(response.data.length === limit);
         } else {
           setError(response.message || "Failed to load products");
         }
@@ -146,9 +149,19 @@ export default function Categories() {
     fetchCategoryProducts();
   }, []);
 
-  // Handle category change
+  // Update the handleCategoryChange function to make this the focused view
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+
+    // Scroll to the products section when a category is selected
+    setTimeout(() => {
+      const productsSection = document.getElementById(
+        "selected-category-products",
+      );
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
   };
 
   // Handle product click
@@ -163,7 +176,7 @@ export default function Categories() {
 
       // If "all" is selected, get products from the first category as default
       const categoryToFetch =
-        selectedCategory === "all" ? "tech" : selectedCategory;
+        selectedCategory === "all" ? "Tech" : selectedCategory;
 
       const response = await getProductsByCategory(
         categoryToFetch,
@@ -229,96 +242,170 @@ export default function Categories() {
           />
         </div>
 
-        {/* Featured Categories Grid - 2x2 */}
-        {categoryLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-          </div>
-        ) : (
-          <div className="mb-12">
-            <h2 className="mb-6 text-2xl font-bold">Featured Categories</h2>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {FEATURED_CATEGORIES.map((category) => {
-                const productsForCategory = categoryProducts[category] || [];
-                const hasProducts = productsForCategory.length > 0;
+        {/* Conditionally show featured categories only when viewing "all" products */}
+        {selectedCategory === "all" && (
+          <>
+            {/* Featured Categories Grid - 2x2 */}
+            {categoryLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              </div>
+            ) : (
+              <div className="mb-12">
+                <h2 className="mb-6 text-2xl font-bold">Featured Categories</h2>
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                  {FEATURED_CATEGORIES.map((category) => {
+                    const productsForCategory =
+                      categoryProducts[category] || [];
+                    const hasProducts = productsForCategory.length > 0;
 
-                return (
-                  <div key={category} className="rounded-lg bg-gray-900 p-6">
-                    <div className="relative mb-4 h-24 overflow-hidden rounded-lg">
-                      {/* Replace CSS background-image with an actual img element */}
-                      <img
-                        src={getCategoryImage(category)}
-                        alt={`${category} category`}
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                      <div className="bg-opacity-50 absolute inset-0 bg-black" />
+                    return (
+                      <div
+                        key={category}
+                        className="rounded-lg bg-gray-900 p-6"
+                      >
+                        <div className="relative mb-4 h-24 overflow-hidden rounded-lg">
+                          {/* Replace CSS background-image with an actual img element */}
+                          <img
+                            src={getCategoryImage(category)}
+                            alt={`${category} category`}
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                          <div className="bg-opacity-50 absolute inset-0 bg-black" />
 
-                      <div className="absolute inset-0 flex items-center justify-between px-4">
-                        <h3 className="text-xl font-bold text-white">
-                          {formatCategoryName(category)} Collection
-                        </h3>
-                        {hasProducts && (
-                          <button
-                            className="rounded-full bg-blue-600 px-4 py-1 text-sm hover:bg-blue-700"
-                            onClick={() => handleCategoryChange(category)}
-                          >
-                            View All
-                          </button>
+                          <div className="absolute inset-0 flex items-center justify-between px-4">
+                            <h3 className="text-xl font-bold text-white">
+                              {formatCategoryName(category)} Collection
+                            </h3>
+                            {hasProducts && (
+                              <button
+                                className="rounded-full bg-blue-600 px-4 py-1 text-sm hover:bg-blue-700"
+                                onClick={() => handleCategoryChange(category)}
+                              >
+                                View All
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {hasProducts ? (
+                          <div className="grid grid-cols-2 gap-4">
+                            {productsForCategory.slice(0, 4).map((product) => (
+                              <ProductCard
+                                key={product._id}
+                                product={product}
+                                onClick={() => handleProductClick(product._id)}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="py-8 text-center">
+                            <div className="mb-4">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="mx-auto h-10 w-10 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M20 12H4M8 8V16M16 16V8"
+                                />
+                              </svg>
+                            </div>
+                            <p className="text-base text-gray-400">
+                              No products in this category yet
+                            </p>
+                            <p className="mt-1 text-sm text-gray-500">
+                              Check back soon
+                            </p>
+                          </div>
                         )}
                       </div>
-                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
-                    {hasProducts ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        {productsForCategory.slice(0, 4).map((product) => (
-                          <ProductCard
-                            key={product._id}
-                            product={product}
-                            onClick={() => handleProductClick(product._id)}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-8 text-center">
-                        <div className="mb-4">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="mx-auto h-10 w-10 text-gray-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M20 12H4M8 8V16M16 16V8"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-base text-gray-400">
-                          No products in this category yet
-                        </p>
-                        <p className="mt-1 text-sm text-gray-500">
-                          Check back soon
-                        </p>
-                      </div>
-                    )}
+            {/* Summer Collection Section - Only show when in "all" view */}
+            <div className="mb-12">
+              <h2 className="mb-6 flex items-center justify-between text-2xl font-bold">
+                <span>Summer Collection</span>
+                {categoryProducts["fashion"] &&
+                  categoryProducts["fashion"].length > 0 && (
+                    <div className="flex space-x-2">
+                      <button
+                        className="rounded-full bg-gray-800 p-2 hover:bg-gray-700"
+                        onClick={() => handleCategoryChange("fashion")}
+                      >
+                        View All
+                      </button>
+                    </div>
+                  )}
+              </h2>
+
+              {categoryProducts["fashion"] &&
+              categoryProducts["fashion"].length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {categoryProducts["fashion"].slice(0, 4).map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      onClick={() => handleProductClick(product._id)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg bg-gray-900 py-10 text-center">
+                  <div className="mb-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                      />
+                    </svg>
                   </div>
-                );
-              })}
+                  <p className="text-lg text-gray-400">
+                    Summer collection coming soon
+                  </p>
+                  <p className="mt-2 text-gray-500">
+                    Be the first to know when new items drop
+                  </p>
+                </div>
+              )}
             </div>
-          </div>
+          </>
         )}
 
         {/* Selected Category Products */}
-        <div className="mb-12">
+        <div
+          id="selected-category-products"
+          className={`mb-12 ${selectedCategory !== "all" ? "rounded-lg border-2 border-blue-500 bg-gray-900/50 p-6" : ""}`}
+        >
           <h2 className="mb-6 flex items-center justify-between text-2xl font-bold">
             <span>
               {selectedCategory === "all"
                 ? "All Products"
                 : `${formatCategoryName(selectedCategory)} Collection`}
             </span>
+
+            {selectedCategory !== "all" && (
+              <span className="text-sm text-blue-300">
+                Showing {products.length} product(s)
+              </span>
+            )}
           </h2>
 
           {loading ? (
@@ -354,134 +441,6 @@ export default function Categories() {
                 </div>
               )}
             </>
-          )}
-        </div>
-
-        {/* Category-Specific Featured Sections - Now in 2x2 Grid */}
-        {categoryLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-          </div>
-        ) : (
-          <div className="mb-16">
-            <h2 className="mb-6 text-2xl font-bold">Featured Categories</h2>
-
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {FEATURED_CATEGORIES.map((category) => {
-                const productsForCategory = categoryProducts[category] || [];
-                const hasProducts = productsForCategory.length > 0;
-
-                // Always render the section regardless of whether there are products
-                return (
-                  <div key={category} className="rounded-lg bg-gray-900 p-6">
-                    <h3 className="mb-4 flex items-center justify-between text-xl font-bold">
-                      <span>{formatCategoryName(category)} Collection</span>
-                      {hasProducts && (
-                        <button
-                          className="rounded-full bg-blue-600 px-4 py-1 text-sm hover:bg-blue-700"
-                          onClick={() => handleCategoryChange(category)}
-                        >
-                          View All
-                        </button>
-                      )}
-                    </h3>
-
-                    {hasProducts ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        {productsForCategory.slice(0, 4).map((product) => (
-                          <ProductCard
-                            key={product._id}
-                            product={product}
-                            onClick={() => handleProductClick(product._id)}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-8 text-center">
-                        <div className="mb-4">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="mx-auto h-10 w-10 text-gray-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M20 12H4M8 8V16M16 16V8"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-base text-gray-400">
-                          No products in this category yet
-                        </p>
-                        <p className="mt-1 text-sm text-gray-500">
-                          Check back soon
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Summer Collection Section */}
-        <div className="mb-12">
-          <h2 className="mb-6 flex items-center justify-between text-2xl font-bold">
-            <span>Summer Collection</span>
-            {categoryProducts["fashion"] &&
-              categoryProducts["fashion"].length > 0 && (
-                <div className="flex space-x-2">
-                  <button
-                    className="rounded-full bg-gray-800 p-2 hover:bg-gray-700"
-                    onClick={() => handleCategoryChange("fashion")}
-                  >
-                    View All
-                  </button>
-                </div>
-              )}
-          </h2>
-
-          {categoryProducts["fashion"] &&
-          categoryProducts["fashion"].length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {categoryProducts["fashion"].slice(0, 4).map((product) => (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  onClick={() => handleProductClick(product._id)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-lg bg-gray-900 py-10 text-center">
-              <div className="mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                  />
-                </svg>
-              </div>
-              <p className="text-lg text-gray-400">
-                Summer collection coming soon
-              </p>
-              <p className="mt-2 text-gray-500">
-                Be the first to know when new items drop
-              </p>
-            </div>
           )}
         </div>
       </div>

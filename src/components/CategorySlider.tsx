@@ -84,7 +84,7 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
             <CategoryCard
               name={category}
               image={getImage(category)} // Get the proper image
-              onClick={() => onCategorySelect(category.toLowerCase())}
+              onClick={() => onCategorySelect(category)}
             />
           </div>
         ))}
