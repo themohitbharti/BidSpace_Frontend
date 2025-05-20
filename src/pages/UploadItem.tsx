@@ -338,7 +338,7 @@ function UploadItem() {
                 >
                   <option value="">Select Category</option>
                   {CATEGORIES.map((category) => (
-                    <option key={category} value={category.toLowerCase()}>
+                    <option key={category} value={category}>
                       {category}
                     </option>
                   ))}
