@@ -96,7 +96,18 @@ export default function Categories() {
           setPage(1);
           setHasMore(response.data.length === limit);
         } else {
-          setError(response.message || "Failed to load products");
+          // Check if the message indicates no products were found
+          if (
+            response.message &&
+            response.message.includes("No products found")
+          ) {
+            // This is not an error, just an empty result
+            setProducts([]);
+            setHasMore(false);
+          } else {
+            // This is an actual error
+            setError(response.message || "Failed to load products");
+          }
         }
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -415,8 +426,30 @@ export default function Categories() {
           ) : error ? (
             <div className="py-12 text-center text-red-500">{error}</div>
           ) : products.length === 0 ? (
-            <div className="py-12 text-center text-gray-400">
-              No products found in this category
+            <div className="py-12 text-center">
+              <div className="mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M20 12H4M8 8V16M16 16V8"
+                  />
+                </svg>
+              </div>
+              <p className="text-lg text-gray-300">
+                No products available in the{" "}
+                {formatCategoryName(selectedCategory)} category
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                Check back soon for new listings
+              </p>
             </div>
           ) : (
             <>
