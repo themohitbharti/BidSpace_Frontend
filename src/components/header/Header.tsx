@@ -1,7 +1,7 @@
 import { useState } from "react";
-import {ProfileSidebar} from "../index";
+import { ProfileSidebar } from "../index";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaRocket, FaUserAstronaut } from "react-icons/fa";
+import { FaRocket, FaUserAstronaut, FaBell } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
@@ -10,7 +10,6 @@ function Header() {
   const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn);
   const navigate = useNavigate();
   const location = useLocation();
-
 
   // Updated space theme button styles
   const buttonBaseStyle =
@@ -22,8 +21,7 @@ function Header() {
 
   const navItems = [
     { name: "Home", slug: "/", active: true },
-    { name: "Categories", slug: "/categories", active: true },
-    { name: "Trending", slug: "/trending", active: true },
+    { name: "Discover", slug: "/discover", active: true },
     { name: "Login", slug: "/login", active: !authStatus },
     { name: "Signup", slug: "/signup", active: !authStatus },
     { name: "Create Auction", slug: "/upload-item", active: authStatus },
@@ -61,14 +59,25 @@ function Header() {
             )}
 
             {authStatus && (
-              <li className="shrink-0">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 transition-all hover:bg-purple-500/25 hover:shadow-[0_0_12px_rgba(180,144,202,0.4)]"
-                >
-                  <FaUserAstronaut />
-                </button>
-              </li>
+              <>
+                {/* Notification Bell Icon */}
+                <li className="shrink-0">
+                  <button
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 text-blue-300 transition-all hover:bg-blue-500/25 hover:shadow-[0_0_12px_rgba(59,130,246,0.4)]"
+                  >
+                    <FaBell />
+                  </button>
+                </li>
+                {/* Profile Button */}
+                <li className="shrink-0">
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 transition-all hover:bg-purple-500/25 hover:shadow-[0_0_12px_rgba(180,144,202,0.4)]"
+                  >
+                    <FaUserAstronaut />
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>

@@ -75,7 +75,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/categories",
+        path: "/discover",
         element: (
           <AuthLayout authentication={false}>
             <Categories />
