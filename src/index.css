@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 /* Global space background */
+html {
+  background-color: #111827; /* Dark gray-900 to match header/footer gradients */
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
 body {
   background-image: url('./assets/Space.jpg');
   background-size: cover;
@@ -8,12 +14,15 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
   min-height: 100vh;
+  background-color: #1e3a8a; /* Blue-900 as fallback if image fails to load */
+  color: white;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Add a subtle overlay to ensure text readability */
 #root {
   min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent overlay */
+  background-color: rgba(15, 23, 42, 0.6); /* Semi-transparent blue-gray overlay */
 }
 
 .range-input-no-thumb::-webkit-slider-thumb {
