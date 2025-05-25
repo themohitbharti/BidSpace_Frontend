@@ -95,10 +95,22 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Stats Section */}
           <div className="mb-4 flex-1 space-y-2">
-            <button className="w-full rounded px-4 py-2 text-left hover:bg-gray-800">
+            <button
+              onClick={() => {
+                navigate("/profile/products");
+                onClose(); // Close sidebar after navigation
+              }}
+              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800"
+            >
               Products Purchased
             </button>
-            <button className="w-full rounded px-4 py-2 text-left hover:bg-gray-800">
+            <button
+              onClick={() => {
+                navigate("/profile/products?tab=listed");
+                onClose(); // Close sidebar after navigation
+              }}
+              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800"
+            >
               Products Listed
             </button>
 

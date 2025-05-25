@@ -5,6 +5,7 @@ import VerifyOTP from "./VerifyOTP";
 import UploadItem from "./UploadItem";
 import ProductDetails from "./ProductDetails";
 import Categories from "./Categories";
+import UserProfile from "./UserProfile";
 
 export {
   Home,
@@ -14,4 +15,5 @@ export {
   UploadItem,
   ProductDetails,
   Categories,
+  UserProfile,
 };

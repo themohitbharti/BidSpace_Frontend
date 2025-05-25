@@ -13,9 +13,10 @@ import {
   VerifyOTP,
   UploadItem,
   ProductDetails,
+  UserProfile,
 } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
-import Categories from "./pages/Categories"; // Add this import
+import Categories from "./pages/Categories";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +80,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <Categories />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/profile/products",
+        element: (
+          <AuthLayout authentication={false}>
+            <UserProfile />
           </AuthLayout>
         ),
       },
