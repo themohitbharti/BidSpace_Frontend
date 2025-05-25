@@ -1,7 +1,7 @@
 // components/ProductCard.tsx
 
 import { formatDistanceToNowStrict } from "date-fns";
-import { Product } from "../types";
+import { Product } from "../../types";
 
 interface Props {
   product: Product;

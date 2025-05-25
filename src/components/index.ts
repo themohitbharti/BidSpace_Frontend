@@ -1,45 +1,67 @@
-import Header from "./header/Header";
-import Button from "./Button";
-import Input from "./Input";
-import Logo from "./Logo";
-import AuthLayout from "./AuthLayout";
-import Login from "./Login";
-import Signup from "./Signup";
-import Footer from "./footer/Footer";
-import HeroSlider from "./HeroSlider";
-import SearchBar from "./SearchBar";
-import Container from "./Container";
-import HomeStats from "./HomeStats";
-import ProductCard from "./ProductCard";
-import CardsByCategory from "./CardsByCategory";
-import VerifyOTP from "./VerifyOTP";
-import ProfileSidebar from "./ProfileSidebar";
-import SliderSection from "./SliderSection";
-// import SearchSuggestions from "./SearchSuggestions";
-import CategoryCard from "./CategoryCard";
-import CategorySlider from "./CategorySlider";
-import CategoryFilter from "./CategoryFilter";
+// Auth components
+import Login from "./auth/Login";
+import Signup from "./auth/Signup";
+import VerifyOTP from "./auth/VerifyOTP";
+import AuthLayout from "./auth/AuthLayout";
+
+// UI components
+import Button from "./ui/Button";
+import Input from "./ui/Input";
+import Logo from "./ui/Logo";
+import Container from "./ui/Container";
+
+// Layout components
+import Header from "./layout/header/Header";
+import Footer from "./layout/footer/Footer";
+import ProfileSidebar from "./layout/ProfileSidebar";
+
+// Product components
+import ProductCard from "./product/ProductCard";
+import CardsByCategory from "./product/CardsByCategory";
+import LiveBidding from "./product/LiveBidding";
+
+// Category components
+import CategoryCard from "./category/CategoryCard";
+import CategorySlider from "./category/CategorySlider";
+import CategoryFilter from "./category/CategoryFilter";
+
+// Home components
+import HeroSlider from "./home/HeroSlider";
+import HomeStats from "./home/HomeStats";
+import SearchBar from "./home/SearchBar";
+import SliderSection from "./home/SliderSection";
 
 export {
-  Header,
+  // Auth
+  Login,
+  Signup,
+  VerifyOTP,
+  AuthLayout,
+
+  // UI
   Button,
   Input,
   Logo,
-  AuthLayout,
-  Login,
-  Signup,
-  Footer,
-  HeroSlider,
-  SearchBar,
   Container,
-  HomeStats,
+
+  // Layout
+  Header,
+  Footer,
+  ProfileSidebar,
+
+  // Product
   ProductCard,
   CardsByCategory,
-  VerifyOTP,
-  ProfileSidebar,
-  SliderSection,
-  // SearchSuggestions
+  LiveBidding,
+
+  // Category
   CategoryCard,
   CategorySlider,
   CategoryFilter,
+
+  // Home
+  HeroSlider,
+  HomeStats,
+  SearchBar,
+  SliderSection,
 };

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Input, Button, Logo } from "./index";
+import { Input, Button, Logo } from "../index";
 import axios from "axios";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance";
 import { useDispatch } from "react-redux";
-import { login } from "../store/authSlice";
+import { login } from "../../store/authSlice";
 
 interface OTPFormInputs {
   otp: string;

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProductsByCategory } from "../api/productApi";
 import { Product } from "../types";
-import CategoryFilter from "../components/CategoryFilter";
-import CategorySlider from "../components/CategorySlider";
-import ProductCard from "../components/ProductCard";
+import CategoryFilter from "../components/category/CategoryFilter";
+import CategorySlider from "../components/category/CategorySlider";
+import ProductCard from "../components/product/ProductCard";
 
 // At the top of your file, update the imports to include the new categories:
 import TechImage from "../assets/categories/tech.png";

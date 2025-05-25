@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Button } from "./index";
+import { Button } from "../index";
 import { useEffect, useState } from "react";
-import banner1 from "../assets/banner1.jpg";
-import banner2 from "../assets/banner2.jpg";
+import banner1 from "../../assets/banner1.jpg";
+import banner2 from "../../assets/banner2.jpg";
 
 const slides = [
   {

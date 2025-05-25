@@ -5,7 +5,7 @@ import { RootState } from "../store/store";
 import { fetchProductDetails } from "../store/productSlice";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useAppDispatch } from "../store/hooks";
-import LiveBidding from "../components/LiveBidding";
+import LiveBidding from "../components/product/LiveBidding";
 
 export default function ProductDetails() {
   const { productId } = useParams();

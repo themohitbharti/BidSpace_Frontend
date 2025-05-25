@@ -1,47 +1,44 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Input, Button, Logo } from "./index";
-import { registerUser } from "../api/auth"; // <-- you'll create this
+import { Input, Button, Logo } from "../index";
+import { loginUser } from "../../api/auth";
+import { login as loginAction } from "../../store/authSlice";
 import axios from "axios";
+import { setAccessToken } from "../../api/axiosInstance";
 
-interface SignupFormInputs {
-  fullName: string;
+interface LoginFormInputs {
   email: string;
   password: string;
 }
 
-function Signup() {
+function Login() {
   const [error, setError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const { register, handleSubmit } = useForm<SignupFormInputs>();
+  const dispatch = useDispatch();
+  const { register, handleSubmit } = useForm<LoginFormInputs>();
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<SignupFormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
       setError(null);
-      setSuccessMsg(null);
-
-      const res = await registerUser(data);
+      const res = await loginUser(data);
 
       if (res?.success) {
-        setSuccessMsg(res.message); // "OTP sent to email..."
-        // Pass all user data to the verify-otp page
-        setTimeout(() => {
-          navigate("/verify-otp", {
-            state: {
-              email: data.email,
-              fullName: data.fullName,
-              password: data.password,
-            },
-          });
-        }, 2000);
+        const { accessToken } = res.data[0];
+        const user = res.user;
+
+        setAccessToken(accessToken);
+
+        dispatch(loginAction(user));
+
+        navigate("/");
       } else {
-        throw new Error(res.message || "Signup failed");
+        throw new Error(res.message || "Login failed");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || "Signup failed");
+        setError(error.response?.data?.message || "Login failed");
       } else if (error instanceof Error) {
         setError(error.message);
       } else {
@@ -59,30 +56,20 @@ function Signup() {
           </span>
         </div>
         <h2 className="text-center text-2xl font-bold text-gray-800">
-          Create a new account
+          Log in to your account
         </h2>
         <p className="mt-2 text-center text-base text-black/60">
-          Already have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
-            to="/login"
+            to="/signup"
             className="font-medium text-blue-600 hover:underline"
           >
-            Log In
+            Sign Up
           </Link>
         </p>
         {error && <p className="mt-8 text-center text-red-600">{error}</p>}
-        {successMsg && (
-          <p className="mt-8 text-center text-green-600">{successMsg}</p>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8">
           <div className="space-y-5">
-            <Input
-              label="Full Name"
-              placeholder="Enter your full name"
-              type="text"
-              onFocus={() => setError(null)}
-              {...register("fullName", { required: "Full name is required" })}
-            />
             <Input
               label="Email"
               placeholder="Enter your email"
@@ -98,7 +85,7 @@ function Signup() {
               {...register("password", { required: "Password is required" })}
             />
             <Button type="submit" className="w-full">
-              Sign Up
+              Log in
             </Button>
           </div>
         </form>
@@ -107,4 +94,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default Login;

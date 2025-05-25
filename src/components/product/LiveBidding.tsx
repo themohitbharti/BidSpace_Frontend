@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
-import { useAppDispatch } from "../store/hooks";
-import { placeBid } from "../store/productSlice";
+import { RootState } from "../../store/store";
+import { useAppDispatch } from "../../store/hooks";
+import { placeBid } from "../../store/productSlice";
 
 interface LiveBidMessage {
   userId: string;

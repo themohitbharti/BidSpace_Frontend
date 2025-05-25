@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom"; // Add this import
-import { Input } from "./index";
-import { Button } from "./index";
+import { Input } from "../index";
+import { Button } from "../index";
 import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
-import { useAppDispatch } from "../store/hooks";
+import { RootState } from "../../store/store";
+import { useAppDispatch } from "../../store/hooks";
 import {
   addRecentSearch,
   searchProducts,
   clearSearchResults,
   SearchProduct,
-} from "../store/searchSlice";
+} from "../../store/searchSlice";
 import debounce from "lodash.debounce";
 
 const SUGGESTIONS = [

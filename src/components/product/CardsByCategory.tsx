@@ -1,4 +1,4 @@
-import { ProductCard } from "./index";
+import { ProductCard } from "../index";
 
 function CardsByCategory() {
   const mockProduct = {

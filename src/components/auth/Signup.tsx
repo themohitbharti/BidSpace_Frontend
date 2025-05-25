@@ -1,44 +1,47 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Input, Button, Logo } from "./index";
-import { loginUser } from "../api/auth";
-import { login as loginAction } from "../store/authSlice";
+import { Input, Button, Logo } from "../index";
+import { registerUser } from "../../api/auth";
 import axios from "axios";
-import { setAccessToken } from "../api/axiosInstance";
 
-interface LoginFormInputs {
+interface SignupFormInputs {
+  fullName: string;
   email: string;
   password: string;
 }
 
-function Login() {
+function Signup() {
   const [error, setError] = useState<string | null>(null);
-  const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm<LoginFormInputs>();
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const { register, handleSubmit } = useForm<SignupFormInputs>();
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<SignupFormInputs> = async (data) => {
     try {
       setError(null);
-      const res = await loginUser(data);
+      setSuccessMsg(null);
+
+      const res = await registerUser(data);
 
       if (res?.success) {
-        const { accessToken } = res.data[0];
-        const user = res.user;
-
-        setAccessToken(accessToken);
-
-        dispatch(loginAction(user));
-
-        navigate("/");
+        setSuccessMsg(res.message); // "OTP sent to email..."
+        // Pass all user data to the verify-otp page
+        setTimeout(() => {
+          navigate("/verify-otp", {
+            state: {
+              email: data.email,
+              fullName: data.fullName,
+              password: data.password,
+            },
+          });
+        }, 2000);
       } else {
-        throw new Error(res.message || "Login failed");
+        throw new Error(res.message || "Signup failed");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || "Login failed");
+        setError(error.response?.data?.message || "Signup failed");
       } else if (error instanceof Error) {
         setError(error.message);
       } else {
@@ -56,20 +59,30 @@ function Login() {
           </span>
         </div>
         <h2 className="text-center text-2xl font-bold text-gray-800">
-          Log in to your account
+          Create a new account
         </h2>
         <p className="mt-2 text-center text-base text-black/60">
-          Don&apos;t have an account?{" "}
+          Already have an account?{" "}
           <Link
-            to="/signup"
+            to="/login"
             className="font-medium text-blue-600 hover:underline"
           >
-            Sign Up
+            Log In
           </Link>
         </p>
         {error && <p className="mt-8 text-center text-red-600">{error}</p>}
+        {successMsg && (
+          <p className="mt-8 text-center text-green-600">{successMsg}</p>
+        )}
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8">
           <div className="space-y-5">
+            <Input
+              label="Full Name"
+              placeholder="Enter your full name"
+              type="text"
+              onFocus={() => setError(null)}
+              {...register("fullName", { required: "Full name is required" })}
+            />
             <Input
               label="Email"
               placeholder="Enter your email"
@@ -85,7 +98,7 @@ function Login() {
               {...register("password", { required: "Password is required" })}
             />
             <Button type="submit" className="w-full">
-              Log in
+              Sign Up
             </Button>
           </div>
         </form>
@@ -94,4 +107,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { ProfileSidebar } from "../index";
+import { ProfileSidebar } from "../../index";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaRocket, FaUserAstronaut, FaBell } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
+import { RootState } from "../../../store/store";
 
 function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -1,13 +1,13 @@
 import { FaLock, FaCoins } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/store";
-import { logout } from "../store/authSlice";
+import { RootState } from "../../store/store";
+import { logout } from "../../store/authSlice";
 import { useNavigate } from "react-router-dom";
-import profilePhoto from "../assets/DP.png";
+import profilePhoto from "../../assets/DP.png";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { logoutUser } from "../api/auth";
-import { setAccessToken } from "../api/axiosInstance";
+import { logoutUser } from "../../api/auth";
+import { setAccessToken } from "../../api/axiosInstance";
 import axios from "axios";
 
 interface SidebarProps {
