@@ -1,28 +1,26 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import { Container } from "../components/index";
 import {
-  Container,
-  ProductCard,
-} from "../components/index";
-import { Product } from "../types";
+  FaEnvelope,
+  FaUser,
+  FaClock,
+  FaStar,
+  FaShoppingBag,
+} from "react-icons/fa";
 import axiosInstance from "../api/axiosInstance";
 
 export default function UserProfile() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [purchasedProducts, setPurchasedProducts] = useState<Product[]>([]);
-  const [listedProducts, setListedProducts] = useState<Product[]>([]);
-  const [reservedProducts, setReservedProducts] = useState<Product[]>([]);
-  
+  const [reservedProducts, setReservedProducts] = useState<number>(0);
+  const [joinDate, setJoinDate] = useState<string>("");
+
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-
-  // Add this to handle the tab query parameter
-  const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'purchased';
 
   // Redirect if not logged in
   useEffect(() => {
@@ -31,50 +29,49 @@ export default function UserProfile() {
     }
   }, [isLoggedIn, navigate]);
 
-  // Fetch user's products
+  // Fetch user's data
   useEffect(() => {
-    const fetchUserProducts = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
         setError(null);
 
-        // Fetch purchased products
-        const purchasedResponse = await axiosInstance.get("/user/products/purchased");
-        if (purchasedResponse.data.success) {
-          setPurchasedProducts(purchasedResponse.data.data);
-        }
-
-        // Fetch listed products
-        const listedResponse = await axiosInstance.get("/user/products/listed");
-        if (listedResponse.data.success) {
-          setListedProducts(listedResponse.data.data);
-        }
-
         // Fetch reserved products
-        const reservedResponse = await axiosInstance.get("/user/products/reserved");
+        const reservedResponse = await axiosInstance.get("/product/waiting");
         if (reservedResponse.data.success) {
-          setReservedProducts(reservedResponse.data.data);
+          setReservedProducts(reservedResponse.data.data.length);
+        }
+
+        // Format join date
+        if (user.createdAt) {
+          const date = new Date(user.createdAt);
+          setJoinDate(
+            date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+          );
         }
       } catch (err) {
-        console.error("Error fetching user products:", err);
-        setError("Failed to load user products");
+        console.error("Error fetching user data:", err);
+        setError("Failed to load user data");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUserProducts();
+    fetchUserData();
   }, [user]);
 
-  // Handler for product card clicks
-  const handleProductClick = (productId: string) => {
-    navigate(`/product-details/${productId}`);
-  };
-
   if (!user) {
-    return <div className="py-20 text-center text-white">Loading user profile...</div>;
+    return (
+      <div className="py-20 text-center text-white">
+        Loading user profile...
+      </div>
+    );
   }
 
   return (
@@ -83,12 +80,12 @@ export default function UserProfile() {
       <div className="relative">
         {/* Background banner image */}
         <div className="h-72 w-full overflow-hidden bg-gradient-to-r from-blue-900 to-purple-900">
-          <img 
-            src="/src/assets/profile_banner.jpg" 
+          <img
+            src="/src/assets/profile_banner.jpg"
             alt="Profile banner"
             className="h-full w-full object-cover opacity-70"
             onError={(e) => {
-              e.currentTarget.style.display = 'none';
+              e.currentTarget.style.display = "none";
             }}
           />
         </div>
@@ -109,12 +106,12 @@ export default function UserProfile() {
             </div>
 
             {/* Profile info */}
-            <div className="mt-4 flex-1 md:ml-6 md:mt-0">
+            <div className="mt-4 flex-1 md:mt-0 md:ml-6">
               <h1 className="text-center text-3xl font-bold md:text-left">
                 {user.fullName}
               </h1>
               <p className="text-center text-gray-400 md:text-left">
-                @{user.fullName.toLowerCase().replace(/\s+/g, '')}
+                @{user.fullName.toLowerCase().replace(/\s+/g, "")}
               </p>
             </div>
 
@@ -129,15 +126,19 @@ export default function UserProfile() {
           {/* User stats */}
           <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
-              <span className="text-lg font-bold">{user.productsListed?.length || 0}</span>
+              <span className="text-lg font-bold">
+                {user.productsListed?.length || 0}
+              </span>
               <span className="text-sm text-gray-400">Products Listed</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
-              <span className="text-lg font-bold">{user.productsPurchased?.length || 0}</span>
+              <span className="text-lg font-bold">
+                {user.productsPurchased?.length || 0}
+              </span>
               <span className="text-sm text-gray-400">Products Purchased</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
-              <span className="text-lg font-bold">{reservedProducts.length}</span>
+              <span className="text-lg font-bold">{reservedProducts}</span>
               <span className="text-sm text-gray-400">Products Reserved</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
@@ -156,117 +157,160 @@ export default function UserProfile() {
         </Container>
       </div>
 
-      {/* Navigation tabs */}
-      <div className="bg-gray-900 border-b border-gray-800">
-        <Container>
-          <div className="flex space-x-4 py-4">
-            <button 
-              onClick={() => navigate('/profile')} 
-              className={`px-4 py-2 ${activeTab === 'purchased' ? 'border-b-2 border-blue-500 text-blue-400' : 'text-gray-400'}`}
-            >
-              Recently Acquired
-            </button>
-            <button 
-              onClick={() => navigate('/profile?tab=listed')} 
-              className={`px-4 py-2 ${activeTab === 'listed' ? 'border-b-2 border-blue-500 text-blue-400' : 'text-gray-400'}`}
-            >
-              Products Listed
-            </button>
-          </div>
-        </Container>
-      </div>
-
-      {/* Products sections */}
+      {/* Main profile information section */}
       <Container>
-        {activeTab === 'purchased' && (
-          <div className="mt-12">
-            <h2 className="mb-6 text-2xl font-bold">Recently Acquired</h2>
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-              </div>
-            ) : error ? (
-              <div className="py-12 text-center text-red-500">{error}</div>
-            ) : purchasedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                {purchasedProducts.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    onClick={() => handleProductClick(product._id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  />
-                </svg>
-                <h3 className="mt-4 text-lg font-semibold text-white">
-                  No purchased products yet
-                </h3>
-                <p className="mt-1 text-sm text-gray-400">
-                  Products you buy will appear here
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="py-12">
+          <h2 className="mb-8 text-2xl font-bold">User Information</h2>
 
-        {activeTab === 'listed' && (
-          <div className="mt-12">
-            <h2 className="mb-6 text-2xl font-bold">Products Listed</h2>
-            {isLoading ? (
-              <div className="flex justify-center py-6">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-              </div>
-            ) : listedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                {listedProducts.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    onClick={() => handleProductClick(product._id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                <h3 className="mt-4 text-lg font-semibold text-white">
-                  No listed products
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+          ) : error ? (
+            <div className="py-12 text-center text-red-500">{error}</div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* User details card */}
+              <div className="rounded-xl bg-gray-800/50 p-6 backdrop-blur">
+                <h3 className="mb-4 border-b border-gray-700 pb-2 text-xl font-medium">
+                  Account Details
                 </h3>
-                <p className="mt-1 text-sm text-gray-400">
-                  Start selling by listing your first product
-                </p>
+
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20">
+                      <FaUser className="text-blue-400" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm text-gray-400">Full Name</p>
+                      <p className="font-medium">{user.fullName}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20">
+                      <FaEnvelope className="text-purple-400" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm text-gray-400">Email</p>
+                      <p className="font-medium">{user.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/20">
+                      <FaClock className="text-green-400" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm text-gray-400">Joined On</p>
+                      <p className="font-medium">{joinDate}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Activity stats card */}
+              <div className="rounded-xl bg-gray-800/50 p-6 backdrop-blur">
+                <h3 className="mb-4 border-b border-gray-700 pb-2 text-xl font-medium">
+                  Activity
+                </h3>
+
+                <div className="space-y-6">
+                  {/* Products listed */}
+                  <div className="relative overflow-hidden rounded-lg bg-gray-900/50 p-4">
+                    <div className="absolute -top-3 -right-3 h-16 w-16 rounded-full bg-blue-500/10"></div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-400">Products Listed</p>
+                        <p className="text-2xl font-bold">
+                          {user.productsListed?.length || 0}
+                        </p>
+                      </div>
+                      <div className="rounded-full bg-blue-500/20 p-3">
+                        <FaShoppingBag className="text-xl text-blue-400" />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <button
+                        onClick={() => navigate("/profile/products?tab=listed")}
+                        className="text-sm text-blue-400 hover:text-blue-300"
+                      >
+                        View all listings →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Products purchased */}
+                  <div className="relative overflow-hidden rounded-lg bg-gray-900/50 p-4">
+                    <div className="absolute -top-3 -right-3 h-16 w-16 rounded-full bg-green-500/10"></div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-400">
+                          Products Purchased
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {user.productsPurchased?.length || 0}
+                        </p>
+                      </div>
+                      <div className="rounded-full bg-green-500/20 p-3">
+                        <FaStar className="text-xl text-green-400" />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <button
+                        onClick={() => navigate("/profile/products")}
+                        className="text-sm text-green-400 hover:text-green-300"
+                      >
+                        View purchased items →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wallet card */}
+              <div className="overflow-hidden rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 md:col-span-2">
+                <div className="p-6">
+                  <h3 className="mb-4 text-xl font-medium">Your Wallet</h3>
+
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="overflow-hidden rounded-xl bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-6">
+                      <p className="text-sm text-gray-300">Available Coins</p>
+                      <p className="mt-2 text-3xl font-bold">{user.coins}</p>
+                      <div className="mt-4">
+                        <button className="rounded bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-500">
+                          Buy More Coins
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col justify-between rounded-xl bg-gray-800 p-6">
+                      <div>
+                        <p className="text-sm text-gray-300">Reserved Coins</p>
+                        <p className="mt-2 text-3xl font-bold">
+                          {user.reservedCoins}
+                        </p>
+                      </div>
+                      <p className="mt-4 text-xs text-gray-400">
+                        Reserved coins are allocated to ongoing auctions and
+                        cannot be used for new bids.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-700 bg-gray-900/50 p-4">
+                  <p className="text-center text-sm text-gray-400">
+                    Need help with your transactions?{" "}
+                    <a href="#" className="text-blue-400 hover:text-blue-300">
+                      Contact Support
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </Container>
     </div>
   );

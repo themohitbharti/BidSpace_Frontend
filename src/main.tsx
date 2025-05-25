@@ -14,6 +14,7 @@ import {
   UploadItem,
   ProductDetails,
   UserProfile,
+  UserProducts,
 } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
 import Categories from "./pages/Categories";
@@ -88,6 +89,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <UserProfile />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/profile/products",
+        element: (
+          <AuthLayout authentication={false}>
+            <UserProducts />
           </AuthLayout>
         ),
       },

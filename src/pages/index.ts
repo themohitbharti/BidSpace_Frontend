@@ -6,6 +6,7 @@ import UploadItem from "./UploadItem";
 import ProductDetails from "./ProductDetails";
 import Categories from "./Categories";
 import UserProfile from "./UserProfile";
+import UserProducts from "./UserProducts";
 
 export {
   Home,
@@ -16,4 +17,5 @@ export {
   ProductDetails,
   Categories,
   UserProfile,
+  UserProducts,
 };
