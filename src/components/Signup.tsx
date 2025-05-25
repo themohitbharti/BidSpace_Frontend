@@ -58,12 +58,14 @@ function Signup() {
             <Logo size="default" />
           </span>
         </div>
-        <h2 className="text-center text-2xl font-bold">Create a new account</h2>
+        <h2 className="text-center text-2xl font-bold text-gray-800">
+          Create a new account
+        </h2>
         <p className="mt-2 text-center text-base text-black/60">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-blue-600 hover:underline"
           >
             Log In
           </Link>

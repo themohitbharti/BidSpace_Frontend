@@ -55,14 +55,14 @@ function Login() {
             <Logo size="default" />
           </span>
         </div>
-        <h2 className="text-center text-2xl font-bold">
+        <h2 className="text-center text-2xl font-bold text-gray-800">
           Log in to your account
         </h2>
         <p className="mt-2 text-center text-base text-black/60">
           Don&apos;t have an account?{" "}
           <Link
             to="/signup"
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-blue-600 hover:underline"
           >
             Sign Up
           </Link>

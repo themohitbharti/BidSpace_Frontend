@@ -8,7 +8,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 // Generic forwardRef typing for input elements
 const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, type = "text", className = "", ...props },
-  ref
+  ref,
 ) {
   const id = useId();
 
@@ -17,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
     return (
       <div className="w-full">
         {label && (
-          <label className="mb-1 inline-block pl-1" htmlFor={id}>
+          <label className="mb-1 inline-block pl-1 text-gray-700" htmlFor={id}>
             {label}
           </label>
         )}
@@ -36,7 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="w-full">
       {label && (
-        <label className="mb-1 inline-block pl-1" htmlFor={id}>
+        <label className="mb-1 inline-block pl-1 text-gray-700" htmlFor={id}>
           {label}
         </label>
       )}
