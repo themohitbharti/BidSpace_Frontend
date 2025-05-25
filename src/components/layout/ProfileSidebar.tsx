@@ -80,7 +80,12 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="flex h-full flex-col p-6">
           {/* User Info */}
-          <div className="mb-4 flex items-center space-x-4">
+          <div className="mb-4 flex items-center space-x-4 cursor-pointer"
+           onClick={() => {
+            navigate("/profile");
+            onClose(); // Close sidebar after navigation
+          }}
+          >
             <img
               src={profilePhoto}
               alt="Profile"

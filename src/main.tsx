@@ -84,7 +84,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/profile/products",
+        path: "/profile",
         element: (
           <AuthLayout authentication={false}>
             <UserProfile />
