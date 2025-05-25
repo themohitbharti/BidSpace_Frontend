@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import {
-  Container,
-  ProductCard,
-} from "../components/index";
+import { Container, ProductCard } from "../components/index";
 import { Product } from "../types";
 import axiosInstance from "../api/axiosInstance";
 
@@ -16,13 +13,13 @@ export default function UserProducts() {
   const [purchasedProducts, setPurchasedProducts] = useState<Product[]>([]);
   const [listedProducts, setListedProducts] = useState<Product[]>([]);
   const [reservedProducts, setReservedProducts] = useState<Product[]>([]);
-  
+
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
 
   // Add this to handle the tab query parameter
   const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'purchased';
+  const activeTab = searchParams.get("tab") || "purchased";
 
   // Redirect if not logged in
   useEffect(() => {
@@ -35,25 +32,29 @@ export default function UserProducts() {
   useEffect(() => {
     const fetchUserProducts = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
         setError(null);
 
         // Fetch purchased products
-        const purchasedResponse = await axiosInstance.get("/user/products/purchased");
+        const purchasedResponse = await axiosInstance.get(
+          "/product/purchased",
+        );
         if (purchasedResponse.data.success) {
           setPurchasedProducts(purchasedResponse.data.data);
         }
 
         // Fetch listed products
-        const listedResponse = await axiosInstance.get("/user/products/listed");
+        const listedResponse = await axiosInstance.get("/product/listed");
         if (listedResponse.data.success) {
           setListedProducts(listedResponse.data.data);
         }
 
         // Fetch reserved products
-        const reservedResponse = await axiosInstance.get("/user/products/reserved");
+        const reservedResponse = await axiosInstance.get(
+          "/product/waiting",
+        );
         if (reservedResponse.data.success) {
           setReservedProducts(reservedResponse.data.data);
         }
@@ -74,7 +75,11 @@ export default function UserProducts() {
   };
 
   if (!user) {
-    return <div className="py-20 text-center text-white">Loading user profile...</div>;
+    return (
+      <div className="py-20 text-center text-white">
+        Loading user profile...
+      </div>
+    );
   }
 
   return (
@@ -83,12 +88,12 @@ export default function UserProducts() {
       <div className="relative">
         {/* Background banner image */}
         <div className="h-72 w-full overflow-hidden bg-gradient-to-r from-blue-900 to-purple-900">
-          <img 
-            src="/src/assets/profile_banner.jpg" 
+          <img
+            src="/src/assets/profile_banner.jpg"
             alt="Profile banner"
             className="h-full w-full object-cover opacity-70"
             onError={(e) => {
-              e.currentTarget.style.display = 'none';
+              e.currentTarget.style.display = "none";
             }}
           />
         </div>
@@ -109,12 +114,12 @@ export default function UserProducts() {
             </div>
 
             {/* Profile info */}
-            <div className="mt-4 flex-1 md:ml-6 md:mt-0">
+            <div className="mt-4 flex-1 md:mt-0 md:ml-6">
               <h1 className="text-center text-3xl font-bold md:text-left">
                 {user.fullName}
               </h1>
               <p className="text-center text-gray-400 md:text-left">
-                @{user.fullName.toLowerCase().replace(/\s+/g, '')}
+                @{user.fullName.toLowerCase().replace(/\s+/g, "")}
               </p>
             </div>
 
@@ -129,15 +134,21 @@ export default function UserProducts() {
           {/* User stats */}
           <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
-              <span className="text-lg font-bold">{user.productsListed?.length || 0}</span>
+              <span className="text-lg font-bold">
+                {user.productsListed?.length || 0}
+              </span>
               <span className="text-sm text-gray-400">Products Listed</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
-              <span className="text-lg font-bold">{user.productsPurchased?.length || 0}</span>
+              <span className="text-lg font-bold">
+                {user.productsPurchased?.length || 0}
+              </span>
               <span className="text-sm text-gray-400">Products Purchased</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
-              <span className="text-lg font-bold">{reservedProducts.length}</span>
+              <span className="text-lg font-bold">
+                {reservedProducts.length}
+              </span>
               <span className="text-sm text-gray-400">Products Reserved</span>
             </div>
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
@@ -157,18 +168,18 @@ export default function UserProducts() {
       </div>
 
       {/* Navigation tabs */}
-      <div className="bg-gray-900 border-b border-gray-800">
+      <div className="border-b border-gray-800 bg-gray-900">
         <Container>
           <div className="flex space-x-4 py-4">
-            <button 
-              onClick={() => navigate('/profile/products')} 
-              className={`px-4 py-2 ${activeTab === 'purchased' ? 'border-b-2 border-blue-500 text-blue-400' : 'text-gray-400'}`}
+            <button
+              onClick={() => navigate("/profile/products")}
+              className={`px-4 py-2 ${activeTab === "purchased" ? "border-b-2 border-blue-500 text-blue-400" : "text-gray-400"}`}
             >
               Recently Acquired
             </button>
-            <button 
-              onClick={() => navigate('/profile/products?tab=listed')} 
-              className={`px-4 py-2 ${activeTab === 'listed' ? 'border-b-2 border-blue-500 text-blue-400' : 'text-gray-400'}`}
+            <button
+              onClick={() => navigate("/profile/products?tab=listed")}
+              className={`px-4 py-2 ${activeTab === "listed" ? "border-b-2 border-blue-500 text-blue-400" : "text-gray-400"}`}
             >
               Products Listed
             </button>
@@ -178,7 +189,7 @@ export default function UserProducts() {
 
       {/* Products sections */}
       <Container>
-        {activeTab === 'purchased' && (
+        {activeTab === "purchased" && (
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Recently Acquired</h2>
             {isLoading ? (
@@ -224,7 +235,7 @@ export default function UserProducts() {
           </div>
         )}
 
-        {activeTab === 'listed' && (
+        {activeTab === "listed" && (
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Products Listed</h2>
             {isLoading ? (
