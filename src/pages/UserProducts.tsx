@@ -4,7 +4,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { Container, ProductCard } from "../components/index";
 import { Product } from "../types";
-import axiosInstance from "../api/axiosInstance";
+import {
+  getPurchasedProducts,
+  getListedProducts,
+  getReservedProducts,
+} from "../api/productApi";
+import axios from "axios";
 
 export default function UserProducts() {
   const navigate = useNavigate();
@@ -37,30 +42,36 @@ export default function UserProducts() {
         setIsLoading(true);
         setError(null);
 
-        // Fetch purchased products
-        const purchasedResponse = await axiosInstance.get(
-          "/product/purchased",
-        );
-        if (purchasedResponse.data.success) {
-          setPurchasedProducts(purchasedResponse.data.data);
+        // Fetch purchased products using API function
+        const purchasedResponse = await getPurchasedProducts();
+        if (purchasedResponse.success) {
+          setPurchasedProducts(purchasedResponse.data);
         }
 
-        // Fetch listed products
-        const listedResponse = await axiosInstance.get("/product/listed");
-        if (listedResponse.data.success) {
-          setListedProducts(listedResponse.data.data);
+        // Fetch listed products using API function
+        const listedResponse = await getListedProducts();
+        if (listedResponse.success) {
+          setListedProducts(listedResponse.data);
         }
 
-        // Fetch reserved products
-        const reservedResponse = await axiosInstance.get(
-          "/product/waiting",
-        );
-        if (reservedResponse.data.success) {
-          setReservedProducts(reservedResponse.data.data);
+        // Fetch reserved products using API function
+        const reservedResponse = await getReservedProducts();
+        if (reservedResponse.success) {
+          setReservedProducts(reservedResponse.data);
         }
       } catch (err) {
         console.error("Error fetching user products:", err);
-        setError("Failed to load user products");
+
+        // Use proper error handling
+        if (axios.isAxiosError(err)) {
+          setError(
+            err.response?.data?.message || "Failed to load user products",
+          );
+        } else if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to load user products");
+        }
       } finally {
         setIsLoading(false);
       }

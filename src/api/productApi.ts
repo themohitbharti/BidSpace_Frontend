@@ -1,44 +1,14 @@
 import axiosInstance from "./axiosInstance";
+import { Product, Bidder, Auction } from "../types"; // Import all needed types
 
-// Define a bidder interface to match your data structure
-export interface Bidder {
-  userId: string;
-  bidAmount: number;
-  _id: string;
-}
-
-// Define the response interfaces
+// Use the imported types in your interfaces
 export interface ProductDetailsResponse {
   success: boolean;
   message: string;
   data: {
-    product: {
-      _id: string;
-      title: string;
-      basePrice: number;
-      description: string;
-      category: string;
-      coverImages: string[];
-      listedBy: string;
-      status: string;
-      createdAt: string;
-      updatedAt: string;
-      __v: number;
-      auctionId?: string;
-      finalSoldPrice?: number;
-    };
-    auction: {
-      _id: string;
-      productId: string;
-      startPrice: number;
-      currentPrice: number;
-      endTime: string;
-      bidders: Bidder[]; // Use the Bidder interface instead of any[]
-      createdAt: string;
-      updatedAt: string;
-      __v: number;
-    };
-    liveBids: Bidder[]; // Use the same Bidder interface for liveBids
+    product: Product;
+    auction: Auction;
+    liveBids: Bidder[];
   };
 }
 
@@ -48,7 +18,7 @@ export interface ProductDetailsResponse {
 export interface ReservedProductsResponse {
   success: boolean;
   message: string;
-  data: Array<any>; // Or define a more specific type if you know the structure
+  data: Product[];
 }
 
 /**
@@ -120,12 +90,41 @@ export const getProductsByCategory = async (
 };
 
 /**
+ * Get products purchased by the current user
+ * @returns Purchased products response
+ */
+export interface UserProductsResponse {
+  success: boolean;
+  message: string;
+  data: Product[];
+}
+
+/**
+ * Get products purchased by the current user
+ * @returns Purchased products response
+ */
+export const getPurchasedProducts = async (): Promise<UserProductsResponse> => {
+  const response =
+    await axiosInstance.get<UserProductsResponse>("/product/purchased");
+  return response.data;
+};
+
+/**
+ * Get products listed by the current user
+ * @returns Listed products response
+ */
+export const getListedProducts = async (): Promise<UserProductsResponse> => {
+  const response =
+    await axiosInstance.get<UserProductsResponse>("/product/listed");
+  return response.data;
+};
+
+/**
  * Get reserved/waiting products for the current user
  * @returns Reserved products response
  */
-export const getReservedProducts =
-  async (): Promise<ReservedProductsResponse> => {
-    const response =
-      await axiosInstance.get<ReservedProductsResponse>("/product/waiting");
-    return response.data;
-  };
+export const getReservedProducts = async (): Promise<UserProductsResponse> => {
+  const response =
+    await axiosInstance.get<UserProductsResponse>("/product/waiting");
+  return response.data;
+};
