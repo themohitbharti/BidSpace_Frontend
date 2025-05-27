@@ -43,6 +43,15 @@ export interface ProductDetailsResponse {
 }
 
 /**
+ * Interface for reserved products response
+ */
+export interface ReservedProductsResponse {
+  success: boolean;
+  message: string;
+  data: Array<any>; // Or define a more specific type if you know the structure
+}
+
+/**
  * Get product details by ID
  * @param productId - The ID of the product to fetch
  * @returns API response with product and auction details
@@ -96,6 +105,7 @@ export const placeBid = async (auctionId: string, bidAmount: number) => {
     bidAmount: bidAmount.toString(),
   });
 };
+
 export const getProductsByCategory = async (
   category: string = "all",
   status: string = "live",
@@ -108,3 +118,14 @@ export const getProductsByCategory = async (
   );
   return response.data;
 };
+
+/**
+ * Get reserved/waiting products for the current user
+ * @returns Reserved products response
+ */
+export const getReservedProducts =
+  async (): Promise<ReservedProductsResponse> => {
+    const response =
+      await axiosInstance.get<ReservedProductsResponse>("/product/waiting");
+    return response.data;
+  };
