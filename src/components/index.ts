@@ -17,7 +17,6 @@ import ProfileSidebar from "./layout/ProfileSidebar";
 
 // Product components
 import ProductCard from "./product/ProductCard";
-import CardsByCategory from "./product/CardsByCategory";
 import LiveBidding from "./product/LiveBidding";
 
 // Category components
@@ -51,7 +50,6 @@ export {
 
   // Product
   ProductCard,
-  CardsByCategory,
   LiveBidding,
 
   // Category

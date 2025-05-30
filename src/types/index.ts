@@ -1,6 +1,8 @@
 export interface Bidder {
   userId: string;
+  username: string;
   bidAmount: number;
+  bidTime: string;
   _id: string;
 }
 
@@ -13,11 +15,11 @@ export interface Product {
   category: string;
   coverImages: string[];
   description?: string;
-  status: "live" | "unsold" | "sold";
-  listedBy?: string;
+  status: string;
+  listedBy: string;
   createdAt?: string;
   updatedAt?: string;
-  __v?: number;
+  __v: number;
   auctionId?: string;
   finalSoldPrice?: number;
 }
@@ -31,10 +33,10 @@ export interface Auction {
   bidders: Bidder[];
   createdAt?: string;
   updatedAt?: string;
-  __v?: number;
+  __v: number;
 }
 
-export interface ProductWithAuction {
+export interface ProductAuctionResponse {
   product: Product;
-  auction?: Auction;
+  auction: Auction;
 }

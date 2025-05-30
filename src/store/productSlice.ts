@@ -1,46 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
-import {
-  getProductDetails,
-  placeBid as placeBidApi,
-  Bidder,
-} from "../api/productApi"; // Import Bidder interface too
-
-// Product interface
-export interface Product {
-  _id: string;
-  title: string;
-  basePrice: number;
-  description: string;
-  category: string;
-  coverImages: string[];
-  listedBy: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  auctionId?: string;
-  finalSoldPrice?: number;
-}
-
-// Auction interface - updated with Bidder[] instead of string[]
-export interface Auction {
-  _id: string;
-  productId: string;
-  startPrice: number;
-  currentPrice: number;
-  endTime: string;
-  bidders: Bidder[]; // Changed from string[] to Bidder[]
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-// Combined product and auction response
-export interface ProductAuctionResponse {
-  product: Product;
-  auction: Auction;
-}
+import { getProductDetails, placeBid as placeBidApi } from "../api/productApi";
+import { Product, Auction, ProductAuctionResponse } from "../types";
 
 // Product state interface
 interface ProductState {
