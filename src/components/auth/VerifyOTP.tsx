@@ -96,7 +96,9 @@ function VerifyOTP() {
             <Logo size="default" />
           </span>
         </div>
-        <h2 className="text-center text-2xl font-bold">Verify Your Account</h2>
+        <h2 className="text-center text-2xl font-bold text-gray-800">
+          Verify Your Account
+        </h2>
         <p className="mt-2 text-center text-base text-black/60">
           Please enter the OTP sent to {email || "your email"}
         </p>
