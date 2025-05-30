@@ -6,22 +6,11 @@ import axios from "axios";
 import axiosInstance from "../../api/axiosInstance";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/authSlice";
+import { loginUser } from "../../api/auth"; // Add this import at the top
+import { setAccessToken } from "../../api/axiosInstance";
 
 interface OTPFormInputs {
   otp: string;
-}
-
-// Define interface for user data from API response
-interface UserData {
-  _id: string;
-  email: string;
-  fullName: string;
-  totalMoney: number;
-  reservedMoney: number;
-  productsListed: string[];
-  productsPurchased: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 function VerifyOTP() {
@@ -53,29 +42,42 @@ function VerifyOTP() {
         password,
       };
 
-      // Call the API directly with axiosInstance
+      // First verify the OTP
       const response = await axiosInstance.post("/user/verify-otp", payload);
       const res = response.data;
 
       if (res?.success) {
-        // Store user data in Redux
-        const userData: UserData = res.data;
-
-        // Dispatch login action with the necessary user data
-        dispatch(
-          login({
-            _id: userData._id,
-            email: userData.email,
-            fullName: userData.fullName,
-          }),
-        );
-
         setSuccessMsg(res.message || "Account verified successfully");
 
-        // Redirect to login after successful verification
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+        // Now automatically log the user in with the credentials we already have
+        try {
+          const loginResponse = await loginUser({
+            email,
+            password,
+          });
+
+          if (loginResponse?.success) {
+            const { accessToken } = loginResponse.data[0];
+            const user = loginResponse.user;
+
+            // Set the token and user state
+            setAccessToken(accessToken);
+            dispatch(login(user));
+
+            // Redirect to home page instead of login page
+            setTimeout(() => {
+              navigate("/");
+            }, 2000);
+          } else {
+            throw new Error(loginResponse.message || "Auto-login failed");
+          }
+        } catch (loginError) {
+          console.error("Auto-login failed:", loginError);
+          // Still consider verification successful, but redirect to login page as fallback
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        }
       } else {
         throw new Error(res.message || "Verification failed");
       }
