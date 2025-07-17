@@ -11,13 +11,13 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Updated space theme button styles
+  // Modern button styles
   const buttonBaseStyle =
-    "inline-block px-2 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-2.5 text-xs sm:text-sm md:text-base duration-200 rounded-full mx-0.5 sm:mx-1 text-white border border-opacity-30 transition-all";
+    "inline-block px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm md:text-base duration-200 rounded-lg mx-0.5 sm:mx-1 text-white border border-opacity-30 transition-all font-medium bg-transparent";
   const buttonActiveStyle =
-    "bg-blue-600 border-cyan-400 font-bold shadow-[0_0_12px_rgba(59,130,246,0.5)]";
+    "bg-blue-600/90 border-cyan-400 font-bold shadow-[0_0_12px_rgba(59,130,246,0.3)]";
   const buttonInactiveStyle =
-    "bg-blue-900/40 border-blue-500/30 hover:bg-blue-800/60 hover:shadow-[0_0_8px_rgba(59,130,246,0.4)]";
+    "bg-blue-900/30 border-blue-500/20 hover:bg-blue-800/40 hover:shadow-[0_0_8px_rgba(59,130,246,0.2)]";
 
   const navItems = [
     { name: "Home", slug: "/", active: true },
@@ -46,13 +46,25 @@ function Header() {
                   <li key={item.name} className="shrink-0">
                     <button
                       onClick={() => navigate(item.slug)}
-                      className={`${buttonBaseStyle} ${
+                      className={`group relative ${buttonBaseStyle} ${
                         location.pathname === item.slug
                           ? buttonActiveStyle
                           : buttonInactiveStyle
-                      }`}
+                      } overflow-hidden`}
                     >
-                      {item.name}
+                      <span className="relative z-10">{item.name}</span>
+                      {/* Animated underline */}
+                      <span
+                        className={`
+                          absolute left-0 bottom-0 h-0.5 w-full bg-blue-400
+                          transition-transform duration-300
+                          ${location.pathname === item.slug
+                            ? "scale-x-100"
+                            : "scale-x-0 group-hover:scale-x-100"}
+                          origin-left
+                        `}
+                        style={{ pointerEvents: "none" }}
+                      />
                     </button>
                   </li>
                 ),
@@ -63,7 +75,7 @@ function Header() {
                 {/* Notification Bell Icon */}
                 <li className="shrink-0">
                   <button
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 text-blue-300 transition-all hover:bg-blue-500/25 hover:shadow-[0_0_12px_rgba(59,130,246,0.4)]"
+                    className="flex h-10 px-3 items-center justify-center rounded-lg bg-blue-500/10 text-blue-300 transition-all hover:bg-blue-500/20 hover:shadow-[0_0_8px_rgba(59,130,246,0.2)]"
                   >
                     <FaBell />
                   </button>
@@ -72,7 +84,7 @@ function Header() {
                 <li className="shrink-0">
                   <button
                     onClick={() => setSidebarOpen(true)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 transition-all hover:bg-purple-500/25 hover:shadow-[0_0_12px_rgba(180,144,202,0.4)]"
+                    className="flex h-10 px-3 items-center justify-center rounded-lg bg-purple-500/10 text-purple-300 transition-all hover:bg-purple-500/20 hover:shadow-[0_0_8px_rgba(180,144,202,0.2)]"
                   >
                     <FaUserAstronaut />
                   </button>
