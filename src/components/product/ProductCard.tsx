@@ -8,26 +8,20 @@ interface Props {
   onClick?: () => void;
 }
 
-const ProductCard = ({ product , onClick}: Props) => {
+const ProductCard = ({ product, onClick }: Props) => {
   return (
-    <div 
-    className="w-full max-w-xs rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl"
-    onClick={onClick}
+    <div
+      className="flex h-[430px] w-full max-w-xs flex-col overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl"
+      onClick={onClick}
     >
       {/* Image with status overlay */}
-      <div className="relative">
-        <div className="h-52 w-full overflow-hidden rounded-t-xl border-b border-slate-700/20">
-          <img
-            src={product.coverImages[0]}
-            alt={product.title}
-            className="h-full w-full object-cover"
-          />
-
-          {/* Gradient overlay to ensure visibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        </div>
-
-        {/* Status Badge - Positioned on image */}
+      <div className="relative h-52 w-full overflow-hidden rounded-t-xl border-b border-slate-700/20">
+        <img
+          src={product.coverImages[0]}
+          alt={product.title}
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
         <span
           className={`absolute top-3 right-3 rounded-full px-3 py-1 text-xs font-semibold shadow-md ${
             product.status === "live"
@@ -39,14 +33,12 @@ const ProductCard = ({ product , onClick}: Props) => {
         >
           {product.status.toUpperCase()}
         </span>
-
-        {/* Category Tag - Bottom left of image */}
         <span className="absolute bottom-3 left-3 rounded-md bg-slate-800/70 px-2 py-1 text-xs text-slate-100 backdrop-blur-sm">
           {product.category}
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col overflow-hidden p-4">
         {/* Title */}
         <div className="mb-3">
           <h3 className="truncate text-xl font-bold text-slate-800 transition hover:text-[#199cfa]">
@@ -92,7 +84,7 @@ const ProductCard = ({ product , onClick}: Props) => {
 
         {/* CTA Button */}
         <button
-          className={`w-full rounded-lg px-4 py-2.5 font-medium shadow-sm transition ${
+          className={`mt-auto w-full rounded-lg px-4 py-2.5 font-medium shadow-sm transition ${
             product.status === "live"
               ? "bg-blue-600 text-white shadow-blue-200/30 hover:bg-blue-700 hover:shadow-blue-200/50"
               : "cursor-not-allowed bg-slate-300 text-slate-500"

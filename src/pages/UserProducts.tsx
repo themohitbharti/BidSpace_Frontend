@@ -143,7 +143,7 @@ export default function UserProducts() {
           </div>
 
           {/* User stats */}
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6 pb-6">
+          <div className="mt-8 grid grid-cols-2 gap-4 pb-6 md:grid-cols-3 lg:grid-cols-6">
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
               <span className="text-lg font-bold">
                 {user.productsListed?.length || 0}
@@ -216,14 +216,16 @@ export default function UserProducts() {
             ) : error ? (
               <div className="py-12 text-center text-red-500">{error}</div>
             ) : purchasedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                {purchasedProducts.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    onClick={() => handleProductClick(product._id)}
-                  />
-                ))}
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                  {purchasedProducts.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      onClick={() => handleProductClick(product._id)}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">
@@ -260,14 +262,16 @@ export default function UserProducts() {
                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
               </div>
             ) : listedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                {listedProducts.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    onClick={() => handleProductClick(product._id)}
-                  />
-                ))}
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {listedProducts.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      onClick={() => handleProductClick(product._id)}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">
@@ -304,14 +308,16 @@ export default function UserProducts() {
                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
               </div>
             ) : reservedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                {reservedProducts.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    onClick={() => handleProductClick(product._id)}
-                  />
-                ))}
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                  {reservedProducts.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      onClick={() => handleProductClick(product._id)}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">

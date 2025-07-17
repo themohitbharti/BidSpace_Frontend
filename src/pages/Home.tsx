@@ -119,8 +119,12 @@ export default function Home() {
             title="New on BidSpace"
             items={recentProducts}
             renderCard={(product, idx) => (
-              <div onClick={() => handleProductClick(product._id)}>
-                <ProductCard key={idx} product={product} />
+              <div
+                key={idx}
+                className="w-[18rem] flex-shrink-0"
+                onClick={() => handleProductClick(product._id)}
+              >
+                <ProductCard product={product} />
               </div>
             )}
           />
@@ -161,8 +165,12 @@ export default function Home() {
             title="Trending Now"
             items={trendingProducts}
             renderCard={(product, idx) => (
-              <div onClick={() => handleProductClick(product._id)}>
-                <ProductCard key={idx} product={product} />
+              <div
+                key={idx}
+                className="w-[18rem] flex-shrink-0"
+                onClick={() => handleProductClick(product._id)}
+              >
+                <ProductCard product={product} />
               </div>
             )}
           />
