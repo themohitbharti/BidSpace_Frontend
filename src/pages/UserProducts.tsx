@@ -194,6 +194,12 @@ export default function UserProducts() {
             >
               Products Listed
             </button>
+            <button
+              onClick={() => navigate("/profile/products?tab=active")}
+              className={`px-4 py-2 ${activeTab === "active" ? "border-b-2 border-blue-500 text-blue-400" : "text-gray-400"}`}
+            >
+              Active Bids
+            </button>
           </div>
         </Container>
       </div>
@@ -284,6 +290,50 @@ export default function UserProducts() {
                 </h3>
                 <p className="mt-1 text-sm text-gray-400">
                   Start selling by listing your first product
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "active" && (
+          <div className="mt-12">
+            <h2 className="mb-6 text-2xl font-bold">Active Bids</h2>
+            {isLoading ? (
+              <div className="flex justify-center py-6">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              </div>
+            ) : reservedProducts.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                {reservedProducts.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    onClick={() => handleProductClick(product._id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+                <h3 className="mt-4 text-lg font-semibold text-white">
+                  No active bids
+                </h3>
+                <p className="mt-1 text-sm text-gray-400">
+                  Products you are bidding on will appear here
                 </p>
               </div>
             )}
