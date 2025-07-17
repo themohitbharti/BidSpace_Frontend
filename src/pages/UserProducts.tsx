@@ -94,7 +94,7 @@ export default function UserProducts() {
   }
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen pb-24 text-white">
       {/* Profile Header with background image */}
       <div className="relative">
         {/* Background banner image */}
