@@ -14,16 +14,19 @@ interface LiveBidMessage {
 
 interface LiveBiddingProps {
   auctionId: string;
-  currentPrice: number;
+  currentPrice: number | null;
+  basePrice: number;
 }
 
 export default function LiveBidding({
   auctionId,
   currentPrice,
+  basePrice,
 }: LiveBiddingProps) {
   const dispatch = useAppDispatch();
   const [messages, setMessages] = useState<LiveBidMessage[]>([]);
-  const [bidAmount, setBidAmount] = useState<number>(currentPrice + 1);
+  const minBid = currentPrice !== null ? currentPrice + 1 : basePrice;
+  const [bidAmount, setBidAmount] = useState<number>(minBid);
   const [isPlacingBid, setIsPlacingBid] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +49,8 @@ export default function LiveBidding({
 
   // Update minimum bid when current price changes
   useEffect(() => {
-    setBidAmount(currentPrice + 1);
-  }, [currentPrice]);
+    setBidAmount(minBid);
+  }, [currentPrice, basePrice, minBid]);
 
   // Set error from Redux if it exists
   useEffect(() => {
@@ -98,8 +101,14 @@ export default function LiveBidding({
       return;
     }
 
-    if (bidAmount <= currentPrice) {
+    if (bidAmount < minBid) {
       setError("Bid must be higher than the current price");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
+    if (bidAmount < minBid) {
+      setError(`Bid must be at least ${minBid} Coins`);
       setTimeout(() => setError(null), 3000);
       return;
     }
@@ -164,8 +173,8 @@ export default function LiveBidding({
             value={bidAmount}
             onChange={(e) => setBidAmount(Number(e.target.value))}
             className="w-full rounded-lg bg-gray-800 px-4 py-2 text-white"
-            placeholder={`Min ${currentPrice + 1} Coins`}
-            min={currentPrice + 1}
+            placeholder={`Min ${minBid} Coins`}
+            min={minBid}
             required
           />
           <button

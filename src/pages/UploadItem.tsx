@@ -12,7 +12,7 @@ interface UploadFormInputs {
   basePrice: number;
   description: string;
   category: string;
-  auctionDuration: number; // Changed from condition to auctionDuration
+  auctionDuration: number;
 }
 
 // Define allowed auction durations (in hours)

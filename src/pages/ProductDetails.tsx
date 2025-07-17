@@ -84,7 +84,11 @@ export default function ProductDetails() {
     product.status === "unsold" ? "Out of Stock" : product.status.toUpperCase();
 
   // Calculate if the user needs to take action (not logged in or insufficient coins)
-  const needsUserAction = !isLoggedIn || userCoins < auction?.currentPrice + 1;
+  const minBid =
+    auction.currentPrice !== null
+      ? auction.currentPrice + 1
+      : product.basePrice;
+  const needsUserAction = !isLoggedIn || userCoins < minBid;
 
   return (
     <div className="relative min-h-screen bg-black pb-32 text-white">
@@ -130,9 +134,15 @@ export default function ProductDetails() {
 
           {/* Updated Price Display */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold">
-              {auction.currentPrice} Coins
-            </span>
+            {auction.bidders && auction.bidders.length > 0 ? (
+              <span className="text-3xl font-bold">
+                {auction.currentPrice} Coins
+              </span>
+            ) : (
+              <span className="text-3xl font-bold text-gray-400">
+                No bids yet
+              </span>
+            )}
             <span className="text-sm text-gray-400">
               Base:{" "}
               <span
@@ -227,7 +237,9 @@ export default function ProductDetails() {
                     <div className="flex justify-between">
                       <span className="text-gray-400">Current Bid</span>
                       <span className="font-semibold text-blue-400">
-                        {auction.currentPrice} Coins
+                        {auction.currentPrice !== null
+                          ? `${auction.currentPrice} Coins`
+                          : "No bids yet"}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -286,6 +298,7 @@ export default function ProductDetails() {
                   <LiveBidding
                     auctionId={auction._id}
                     currentPrice={auction.currentPrice}
+                    basePrice={product.basePrice}
                   />
                 </div>
               )}

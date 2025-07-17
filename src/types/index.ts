@@ -10,7 +10,7 @@ export interface Product {
   _id: string;
   title: string;
   basePrice: number;
-  currentPrice: number;
+  currentPrice: number | null;
   endTime: string;
   category: string;
   coverImages: string[];
@@ -28,7 +28,7 @@ export interface Auction {
   _id: string;
   productId: string;
   startPrice: number;
-  currentPrice: number;
+  currentPrice: number | null;
   endTime: string;
   bidders: Bidder[];
   createdAt?: string;
