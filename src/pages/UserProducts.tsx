@@ -143,7 +143,7 @@ export default function UserProducts() {
           </div>
 
           {/* User stats */}
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6 pb-6">
             <div className="flex flex-col items-center rounded-xl bg-gray-800/50 p-4 text-center">
               <span className="text-lg font-bold">
                 {user.productsListed?.length || 0}

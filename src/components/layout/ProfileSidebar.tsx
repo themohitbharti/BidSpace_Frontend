@@ -80,11 +80,12 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="flex h-full flex-col p-6">
           {/* User Info */}
-          <div className="mb-4 flex items-center space-x-4 cursor-pointer"
-           onClick={() => {
-            navigate("/profile");
-            onClose(); // Close sidebar after navigation
-          }}
+          <div
+            className="mb-4 flex cursor-pointer items-center space-x-4"
+            onClick={() => {
+              navigate("/profile");
+              onClose(); // Close sidebar after navigation
+            }}
           >
             <img
               src={profilePhoto}
@@ -99,33 +100,51 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
           <hr className="mb-4 border-gray-700" />
 
           {/* Stats Section */}
-          <div className="mb-4 flex-1 space-y-2">
-            <button
-              onClick={() => {
-                navigate("/profile/products");
-                onClose(); // Close sidebar after navigation
-              }}
-              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800"
-            >
-              Products Purchased
-            </button>
-            <button
-              onClick={() => {
-                navigate("/profile/products?tab=listed");
-                onClose(); // Close sidebar after navigation
-              }}
-              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800"
-            >
-              Products Listed
-            </button>
-
+          <div className="mb-4 flex-1">
+            <div className="rounded-xl bg-gray-800/80 p-3 shadow-sm">
+              <button
+                onClick={() => {
+                  navigate("/profile/products");
+                  onClose();
+                }}
+                className="mb-2 w-full rounded-lg px-4 py-2 text-left transition-all hover:bg-gray-700/80"
+              >
+                Products Purchased
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/profile/products?tab=listed");
+                  onClose();
+                }}
+                className="mb-2 w-full rounded-lg px-4 py-2 text-left transition-all hover:bg-gray-700/80"
+              >
+                Products Listed
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/profile/products?tab=active");
+                  onClose();
+                }}
+                className="mb-2 w-full rounded-lg px-4 py-2 text-left transition-all hover:bg-gray-700/80"
+              >
+                Active Bids
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/profile/wishlist");
+                  onClose();
+                }}
+                className="w-full rounded-lg px-4 py-2 text-left transition-all hover:bg-gray-700/80"
+              >
+                Wishlist
+              </button>
+            </div>
             {/* Coins button with golden coin icon */}
-            <button className="flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
+            <button className="mt-4 flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
               <FaCoins className="mr-2 text-lg text-yellow-400" />
               <span className="font-medium">Coins:</span>
               <span className="ml-1 font-semibold">{user?.coins}</span>
             </button>
-
             {/* Reserved coins small, dull, lock as subscript */}
             <button className="flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
               <FaLock className="mr-1 text-xs" />
