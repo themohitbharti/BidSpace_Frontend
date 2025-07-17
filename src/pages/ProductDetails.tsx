@@ -135,7 +135,15 @@ export default function ProductDetails() {
             </span>
             <span className="text-sm text-gray-400">
               Base:{" "}
-              <span className="line-through">{product.basePrice} Coins</span>
+              <span
+                className={
+                  auction.bidders && auction.bidders.length > 0
+                    ? "line-through"
+                    : undefined
+                }
+              >
+                {product.basePrice} Coins
+              </span>
             </span>
           </div>
 
