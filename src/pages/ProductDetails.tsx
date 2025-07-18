@@ -6,7 +6,7 @@ import { fetchProductDetails } from "../store/productSlice";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useAppDispatch } from "../store/hooks";
 import LiveBidding from "../components/product/LiveBidding";
-import { addWishlistItem, removeWishlistItem } from "../store/wishlistSlice";
+import { addWishlistItem, removeWishlistItem, fetchWishlist } from "../store/wishlistSlice";
 import { toast } from "react-toastify";
 import type { WishlistResponse } from "../api/wishlistApi";
 
@@ -38,6 +38,12 @@ export default function ProductDetails() {
     }
   }, [dispatch, productId]);
 
+  useEffect(() => {
+    if (isLoggedIn && wishlist.length === 0) {
+      dispatch(fetchWishlist());
+    }
+  }, [isLoggedIn, wishlist.length, dispatch]);
+
   // Show loading state
   if (loading) {
     return (
@@ -60,7 +66,8 @@ export default function ProductDetails() {
   }
 
   // Now it's safe to use product and wishlist
-  const isWishlisted = wishlist.includes(product._id);
+  console.log("wishlist", wishlist, "product._id", product._id);
+  const isWishlisted = Array.isArray(wishlist) && wishlist.includes(product._id);
 
   const mainImage = product.coverImages[selectedIdx];
 

@@ -20,20 +20,22 @@ const initialState: WishlistState = {
 };
 
 // Async actions
-export const fetchWishlist = createAsyncThunk(
-  "wishlist/fetchWishlist",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await getWishlist();
-      return res; // res is string[]
-    } catch (err: unknown) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      return rejectWithValue(
-        axiosErr.response?.data?.message || "Failed to fetch wishlist",
-      );
-    }
-  },
-);
+export const fetchWishlist = createAsyncThunk<
+  string[],
+  void,
+  { rejectValue: string }
+>("wishlist/fetchWishlist", async (_, { rejectWithValue }) => {
+  try {
+    const res = await getWishlist();
+    // If res is { success: true, data: [ { _id: ... }, ... ] }
+    return Array.isArray(res.data) ? res.data.map((item) => item._id) : [];
+  } catch (err: unknown) {
+    const axiosErr = err as AxiosError<{ message?: string }>;
+    return rejectWithValue(
+      axiosErr.response?.data?.message || "Failed to fetch wishlist",
+    );
+  }
+});
 
 export const addWishlistItem = createAsyncThunk<WishlistResponse, string>(
   "wishlist/addWishlistItem",

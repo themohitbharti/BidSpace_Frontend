@@ -1,15 +1,15 @@
 import axiosInstance from "./axiosInstance";
 
 export type WishlistResponse = {
-    success: boolean;
-    message: string;
-  };
-
-
-export const getWishlist = async (): Promise<string[]> => {
-  const res = await axiosInstance.get("/wishlist");
-  return res.data;
+  success: boolean;
+  message: string;
 };
+
+export async function getWishlist() {
+  const response = await axiosInstance.get("/wishlist");
+  // Make sure this returns { data: [...] }
+  return { data: response.data.data };
+}
 
 export const addToWishlist = async (
   productId: string,
