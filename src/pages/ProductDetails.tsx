@@ -8,6 +8,7 @@ import { useAppDispatch } from "../store/hooks";
 import LiveBidding from "../components/product/LiveBidding";
 import { addWishlistItem, removeWishlistItem } from "../store/wishlistSlice";
 import { toast } from "react-toastify";
+import type { WishlistResponse } from "../api/wishlistApi";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -103,18 +104,26 @@ export default function ProductDetails() {
       return;
     }
     try {
+      let result: WishlistResponse;
       if (!isWishlisted) {
-        
-        await dispatch(addWishlistItem(product._id));
-        toast.success("Added to wishlist");
+        result = await dispatch(addWishlistItem(product._id)).unwrap();
+        toast.success(result.message || "Added to wishlist");
       } else {
-        await dispatch(removeWishlistItem(product._id));
-        toast.info("Removed from wishlist");
+        result = await dispatch(removeWishlistItem(product._id)).unwrap();
+        toast.info(result.message || "Removed from wishlist");
       }
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to update wishlist",
-      );
+      console.log("Wishlist error:", err);
+      // Show error message from thunk (rejectWithValue)
+      if (typeof err === "string") {
+        toast.error(err);
+      } else if (typeof err === "object" && err !== null && "message" in err) {
+        toast.error(
+          (err as { message?: string }).message || "Operation failed",
+        );
+      } else {
+        toast.error("Failed to update wishlist");
+      }
     }
   };
 

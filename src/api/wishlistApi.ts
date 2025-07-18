@@ -1,6 +1,6 @@
 import axiosInstance from "./axiosInstance";
 
-type WishlistResponse = {
+export type WishlistResponse = {
     success: boolean;
     message: string;
   };
