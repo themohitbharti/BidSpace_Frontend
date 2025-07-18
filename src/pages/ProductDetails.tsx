@@ -6,7 +6,11 @@ import { fetchProductDetails } from "../store/productSlice";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useAppDispatch } from "../store/hooks";
 import LiveBidding from "../components/product/LiveBidding";
-import { addWishlistItem, removeWishlistItem, fetchWishlist } from "../store/wishlistSlice";
+import {
+  addWishlistItem,
+  removeWishlistItem,
+  fetchWishlist,
+} from "../store/wishlistSlice";
 import { toast } from "react-toastify";
 import type { WishlistResponse } from "../api/wishlistApi";
 
@@ -30,6 +34,7 @@ export default function ProductDetails() {
   const wishlist = useSelector((state: RootState) => state.wishlist.items);
 
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [sparkle, setSparkle] = useState(false);
 
   // Fetch product details when component mounts or productId changes
   useEffect(() => {
@@ -67,7 +72,8 @@ export default function ProductDetails() {
 
   // Now it's safe to use product and wishlist
   console.log("wishlist", wishlist, "product._id", product._id);
-  const isWishlisted = Array.isArray(wishlist) && wishlist.includes(product._id);
+  const isWishlisted =
+    Array.isArray(wishlist) && wishlist.includes(product._id);
 
   const mainImage = product.coverImages[selectedIdx];
 
@@ -110,6 +116,8 @@ export default function ProductDetails() {
       navigate("/login");
       return;
     }
+    setSparkle(true); // Trigger sparkle
+    setTimeout(() => setSparkle(false), 700); // Animation duration
     try {
       let result: WishlistResponse;
       if (!isWishlisted) {
@@ -239,13 +247,40 @@ export default function ProductDetails() {
             </button>
             <button
               onClick={handleWishlistClick}
-              className={`rounded-full border-2 border-white p-3 transition hover:bg-white/10 ${
+              className={`relative rounded-full border-2 border-white p-3 transition hover:bg-white/10 ${
                 isWishlisted ? "border-blue-400 bg-blue-600" : ""
               }`}
               aria-label={
                 isWishlisted ? "Remove from wishlist" : "Add to wishlist"
               }
             >
+              {/* Sparkle Animation Overlay */}
+              {sparkle && (
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  {/* Larger, blue animated stars */}
+                  <svg
+                    className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 animate-ping text-blue-400 opacity-80"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <polygon points="10,2 12,8 18,8 13,12 15,18 10,14 5,18 7,12 2,8 8,8" />
+                  </svg>
+                  <svg
+                    className="absolute top-1/3 left-1/3 h-6 w-6 animate-pulse text-blue-500 opacity-70"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <polygon points="10,2 12,8 18,8 13,12 15,18 10,14 5,18 7,12 2,8 8,8" />
+                  </svg>
+                  <svg
+                    className="absolute right-1/4 bottom-1/4 h-4 w-4 animate-bounce text-blue-300 opacity-60"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <polygon points="10,2 12,8 18,8 13,12 15,18 10,14 5,18 7,12 2,8 8,8" />
+                  </svg>
+                </span>
+              )}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
