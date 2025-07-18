@@ -12,7 +12,6 @@ import {
   fetchWishlist,
 } from "../store/wishlistSlice";
 import { toast } from "react-toastify";
-import type { WishlistResponse } from "../api/wishlistApi";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -71,9 +70,7 @@ export default function ProductDetails() {
   }
 
   // Now it's safe to use product and wishlist
-  console.log("wishlist", wishlist, "product._id", product._id);
-  const isWishlisted =
-    Array.isArray(wishlist) && wishlist.includes(product._id);
+  const isWishlisted = wishlist.some((p) => p._id === product._id);
 
   const mainImage = product.coverImages[selectedIdx];
 
@@ -116,26 +113,22 @@ export default function ProductDetails() {
       navigate("/login");
       return;
     }
-    setSparkle(true); // Trigger sparkle
-    setTimeout(() => setSparkle(false), 700); // Animation duration
+    setSparkle(true);
+    setTimeout(() => setSparkle(false), 700);
     try {
-      let result: WishlistResponse;
       if (!isWishlisted) {
-        result = await dispatch(addWishlistItem(product._id)).unwrap();
+        const result = await dispatch(addWishlistItem(product._id)).unwrap();
         toast.success(result.message || "Added to wishlist");
       } else {
-        result = await dispatch(removeWishlistItem(product._id)).unwrap();
+        const result = await dispatch(removeWishlistItem(product._id)).unwrap();
         toast.info(result.message || "Removed from wishlist");
       }
     } catch (err) {
-      console.log("Wishlist error:", err);
-      // Show error message from thunk (rejectWithValue)
       if (typeof err === "string") {
         toast.error(err);
       } else if (typeof err === "object" && err !== null && "message" in err) {
-        toast.error(
-          (err as { message?: string }).message || "Operation failed",
-        );
+        // @ts-expect-error: message might exist
+        toast.error(err.message || "Operation failed");
       } else {
         toast.error("Failed to update wishlist");
       }

@@ -131,7 +131,7 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
               </button>
               <button
                 onClick={() => {
-                  navigate("/profile/wishlist");
+                  navigate("/profile/products?tab=wishlist");
                   onClose();
                 }}
                 className="w-full rounded-lg px-4 py-2 text-left transition-all hover:bg-gray-700/80"

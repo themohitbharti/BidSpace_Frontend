@@ -5,10 +5,10 @@ import {
   getWishlist,
 } from "../api/wishlistApi";
 import type { AxiosError } from "axios";
-import type { WishlistResponse } from "../api/wishlistApi";
+import { Product } from "../types";
 
 interface WishlistState {
-  items: string[];
+  items: Product[];
   loading: boolean;
   error: string | null;
 }
@@ -19,33 +19,32 @@ const initialState: WishlistState = {
   error: null,
 };
 
-// Async actions
-export const fetchWishlist = createAsyncThunk<
-  string[],
-  void,
-  { rejectValue: string }
->("wishlist/fetchWishlist", async (_, { rejectWithValue }) => {
-  try {
-    const res = await getWishlist();
-    // If res is { success: true, data: [ { _id: ... }, ... ] }
-    return Array.isArray(res.data) ? res.data.map((item) => item._id) : [];
-  } catch (err: unknown) {
-    const axiosErr = err as AxiosError<{ message?: string }>;
-    return rejectWithValue(
-      axiosErr.response?.data?.message || "Failed to fetch wishlist",
-    );
-  }
-});
+// Fetch full product objects for wishlist
+export const fetchWishlist = createAsyncThunk<Product[]>(
+  "wishlist/fetchWishlist",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await getWishlist();
+      if (!Array.isArray(res.data)) throw new Error("Invalid wishlist data");
+      return res.data as Product[];
+    } catch (err: unknown) {
+      if (err instanceof Error) return rejectWithValue(err.message);
+      return rejectWithValue("Failed to fetch wishlist");
+    }
+  },
+);
 
-export const addWishlistItem = createAsyncThunk<WishlistResponse, string>(
+// Add product to wishlist (by productId)
+export const addWishlistItem = createAsyncThunk<{ message: string }, string>(
   "wishlist/addWishlistItem",
-  async (productId, { rejectWithValue }) => {
+  async (productId, { rejectWithValue, dispatch }) => {
     try {
       const res = await addToWishlist(productId);
-      if (!res.success) {
+      if (!res.success)
         return rejectWithValue(res.message || "Failed to add to wishlist");
-      }
-      return res;
+      // Refresh wishlist after add
+      await dispatch(fetchWishlist());
+      return { message: res.message || "Added to wishlist" };
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       return rejectWithValue(
@@ -55,15 +54,17 @@ export const addWishlistItem = createAsyncThunk<WishlistResponse, string>(
   },
 );
 
-export const removeWishlistItem = createAsyncThunk<WishlistResponse, string>(
+// Remove product from wishlist (by productId)
+export const removeWishlistItem = createAsyncThunk<{ message: string }, string>(
   "wishlist/removeWishlistItem",
-  async (productId, { rejectWithValue }) => {
+  async (productId, { rejectWithValue, dispatch }) => {
     try {
       const res = await removeFromWishlist(productId);
-      if (!res.success) {
+      if (!res.success)
         return rejectWithValue(res.message || "Failed to remove from wishlist");
-      }
-      return res;
+      // Refresh wishlist after remove
+      await dispatch(fetchWishlist());
+      return { message: res.message || "Removed from wishlist" };
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       return rejectWithValue(
@@ -85,7 +86,7 @@ const wishlistSlice = createSlice({
       })
       .addCase(
         fetchWishlist.fulfilled,
-        (state, action: PayloadAction<string[]>) => {
+        (state, action: PayloadAction<Product[]>) => {
           state.loading = false;
           state.items = action.payload;
         },
@@ -93,34 +94,8 @@ const wishlistSlice = createSlice({
       .addCase(fetchWishlist.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      .addCase(
-        addWishlistItem.fulfilled,
-        (
-          state,
-          action: PayloadAction<WishlistResponse, string, { arg: string }>,
-        ) => {
-          // Only add if success and not already present
-          if (
-            action.payload.success &&
-            !state.items.includes(action.meta.arg)
-          ) {
-            state.items.push(action.meta.arg);
-          }
-        },
-      )
-      .addCase(
-        removeWishlistItem.fulfilled,
-        (
-          state,
-          action: PayloadAction<WishlistResponse, string, { arg: string }>,
-        ) => {
-          // Only remove if success
-          if (action.payload.success) {
-            state.items = state.items.filter((id) => id !== action.meta.arg);
-          }
-        },
-      );
+      });
+    // No need to handle add/remove fulfilled, as fetchWishlist updates the state
   },
 });
 

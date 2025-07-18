@@ -10,6 +10,8 @@ import {
   getReservedProducts,
 } from "../api/productApi";
 import axios from "axios";
+import { fetchWishlist } from "../store/wishlistSlice";
+import { useAppDispatch } from "../store/hooks";
 
 export default function UserProducts() {
   const navigate = useNavigate();
@@ -25,6 +27,9 @@ export default function UserProducts() {
   // Add this to handle the tab query parameter
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "purchased";
+
+  const dispatch = useAppDispatch();
+  const wishlist = useSelector((state: RootState) => state.wishlist.items); // Product[]
 
   // Redirect if not logged in
   useEffect(() => {
@@ -79,6 +84,13 @@ export default function UserProducts() {
 
     fetchUserProducts();
   }, [user]);
+
+  // Fetch wishlist when wishlist tab is active
+  useEffect(() => {
+    if (activeTab === "wishlist" && isLoggedIn) {
+      dispatch(fetchWishlist());
+    }
+  }, [activeTab, isLoggedIn, dispatch]);
 
   // Handler for product card clicks
   const handleProductClick = (productId: string) => {
@@ -199,6 +211,29 @@ export default function UserProducts() {
               className={`px-4 py-2 ${activeTab === "active" ? "border-b-2 border-blue-500 text-blue-400" : "text-gray-400"}`}
             >
               Active Bids
+            </button>
+            <div className="flex-1" />
+            <button
+              onClick={() => navigate("/profile/products?tab=wishlist")}
+              className={`flex items-center px-4 py-2 ${activeTab === "wishlist" ? "border-b-2 border-blue-500 text-blue-400" : "text-gray-400"}`}
+              aria-label="Wishlist"
+            >
+              {/* Heart icon (same as ProductDetails page) */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill={activeTab === "wishlist" ? "#2563eb" : "none"}
+                stroke={activeTab === "wishlist" ? "#2563eb" : "currentColor"}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-1"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              Wishlist
             </button>
           </div>
         </Container>
@@ -340,6 +375,56 @@ export default function UserProducts() {
                 </h3>
                 <p className="mt-1 text-sm text-gray-400">
                   Products you are bidding on will appear here
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "wishlist" && (
+          <div className="mt-12">
+            <h2 className="mb-6 text-2xl font-bold">Wishlist</h2>
+            {isLoading ? (
+              <div className="flex justify-center py-6">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              </div>
+            ) : wishlist && wishlist.length > 0 ? (
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                  {wishlist.length > 0 ? (
+                    wishlist.map((product) => (
+                      <ProductCard
+                        key={product._id}
+                        product={product}
+                        onClick={() => handleProductClick(product._id)}
+                      />
+                    ))
+                  ) : (
+                    <div>No wishlist items</div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-8 text-center shadow-lg">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"
+                  />
+                </svg>
+                <h3 className="mt-4 text-lg font-semibold text-white">
+                  No wishlist items
+                </h3>
+                <p className="mt-1 text-sm text-gray-400">
+                  Products you add to your wishlist will appear here
                 </p>
               </div>
             )}
