@@ -11,6 +11,7 @@ export interface User {
   __v: number;
   reservedCoins: number;
   coins: number;
+  wishlist: string[];
 }
 
 // Define a type for the minimum required user data
@@ -45,6 +46,7 @@ const authSlice = createSlice({
         __v: 0,
         reservedCoins: 0,
         coins: 0,
+        wishlist: [],
         ...action.payload,
       } as User;
     },

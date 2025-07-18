@@ -6,11 +6,15 @@ import { fetchProductDetails } from "../store/productSlice";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useAppDispatch } from "../store/hooks";
 import LiveBidding from "../components/product/LiveBidding";
+import { addWishlistItem, removeWishlistItem } from "../store/wishlistSlice";
+import { toast } from "react-toastify";
 
 export default function ProductDetails() {
   const { productId } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  // All selectors at the top
   const {
     selectedProduct: product,
     selectedAuction: auction,
@@ -18,11 +22,11 @@ export default function ProductDetails() {
     error,
   } = useSelector((state: RootState) => state.product);
 
-  // Move these selectors to the top level
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const userCoins = useSelector(
     (state: RootState) => state.auth.user?.coins || 0,
   );
+  const wishlist = useSelector((state: RootState) => state.wishlist.items);
 
   const [selectedIdx, setSelectedIdx] = useState(0);
 
@@ -53,6 +57,9 @@ export default function ProductDetails() {
       <div className="py-20 text-center text-white">Product not found</div>
     );
   }
+
+  // Now it's safe to use product and wishlist
+  const isWishlisted = wishlist.includes(product._id);
 
   const mainImage = product.coverImages[selectedIdx];
 
@@ -89,6 +96,27 @@ export default function ProductDetails() {
       ? auction.currentPrice + 1
       : product.basePrice;
   const needsUserAction = !isLoggedIn || userCoins < minBid;
+
+  const handleWishlistClick = async () => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    try {
+      if (!isWishlisted) {
+        
+        await dispatch(addWishlistItem(product._id));
+        toast.success("Added to wishlist");
+      } else {
+        await dispatch(removeWishlistItem(product._id));
+        toast.info("Removed from wishlist");
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update wishlist",
+      );
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-black pb-32 text-white">
@@ -193,14 +221,22 @@ export default function ProductDetails() {
             >
               Bid Now
             </button>
-            <button className="rounded-full border-2 border-white p-3 transition hover:bg-white/10">
+            <button
+              onClick={handleWishlistClick}
+              className={`rounded-full border-2 border-white p-3 transition hover:bg-white/10 ${
+                isWishlisted ? "border-blue-400 bg-blue-600" : ""
+              }`}
+              aria-label={
+                isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+              }
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
+                fill={isWishlisted ? "#fff" : "none"}
+                stroke={isWishlisted ? "#2563eb" : "currentColor"}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
