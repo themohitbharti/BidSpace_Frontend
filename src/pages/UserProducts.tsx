@@ -148,7 +148,11 @@ export default function UserProducts() {
 
             {/* Edit profile button (right aligned) */}
             <div className="mt-4 md:mt-0">
-              <button className="rounded-full bg-blue-600 px-6 py-2 font-medium transition hover:bg-blue-500">
+              <button className="rounded-full bg-blue-600 px-6 py-2 font-medium transition hover:bg-blue-500"
+                onClick={() => {
+                  navigate("/profile?edit=1")
+                }}
+              >
                 Edit Profile
               </button>
             </div>
