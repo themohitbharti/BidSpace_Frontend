@@ -84,7 +84,7 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
             className="mb-4 flex cursor-pointer items-center space-x-4"
             onClick={() => {
               navigate("/profile");
-              onClose(); // Close sidebar after navigation
+              onClose();
             }}
           >
             <img
@@ -159,7 +159,13 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Actions */}
           <div className="space-y-2">
-            <button className="w-full rounded px-4 py-2 text-left hover:bg-gray-800">
+            <button
+              className="w-full rounded px-4 py-2 text-left hover:bg-gray-800"
+              onClick={() => {
+                navigate("/profile?edit=1");
+                onClose();
+              }}
+            >
               Edit Profile
             </button>
             <button

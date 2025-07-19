@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { ToastContainer, toast } from "react-toastify";
@@ -27,6 +27,7 @@ import axios from "axios";
 export default function UserProfile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reservedProducts, setReservedProducts] = useState<number>(0);
@@ -104,6 +105,12 @@ export default function UserProfile() {
 
     fetchUserData();
   }, [user]);
+
+  useEffect(() => {
+    if (searchParams.get("edit") === "1") {
+      setIsEditMode(true);
+    }
+  }, [searchParams]);
 
   if (!user) {
     return (
