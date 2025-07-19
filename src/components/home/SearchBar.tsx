@@ -149,31 +149,30 @@ export default function SearchBar() {
         </Button>
       </div>
 
-      {/* Filters below search bar - ALWAYS VISIBLE */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
-        >
-          Live
-        </Button>
-        <Button
-          variant="outline"
-          className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
-        >
-          Sold
-        </Button>
-        <Button
-          variant="outline"
-          className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
-        >
-          Unsold
-        </Button>
-      </div>
-
       {/* Enhanced pop-up suggestions */}
       {open && (
         <div className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-lg bg-gray-900 p-4 text-white shadow-lg">
+          {/* Add filters INSIDE popup, at the top */}
+          <div className="mb-4 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
+            >
+              Live
+            </Button>
+            <Button
+              variant="outline"
+              className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
+            >
+              Sold
+            </Button>
+            <Button
+              variant="outline"
+              className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
+            >
+              Unsold
+            </Button>
+          </div>
           {isLoading ? (
             // Show loading indicator
             <div className="flex justify-center py-4">
