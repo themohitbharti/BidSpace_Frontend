@@ -51,6 +51,34 @@ export default function SearchBar() {
   );
   const dispatch = useAppDispatch();
 
+  // Utility: Save to localStorage
+  const saveRecentSearches = (searches: string[]) => {
+    localStorage.setItem("recentSearches", JSON.stringify(searches));
+  };
+
+  // Utility: Load from localStorage
+  const loadRecentSearches = (): string[] => {
+    const data = localStorage.getItem("recentSearches");
+    return data ? JSON.parse(data) : [];
+  };
+
+  // On mount, load recent searches from localStorage
+  useEffect(() => {
+    if (recentSearches.length === 0) {
+      const searches = loadRecentSearches();
+      searches.forEach((search) => {
+        dispatch(addRecentSearch(search));
+      });
+    }
+  }, [dispatch, recentSearches.length]);
+
+  // When recentSearches changes, update localStorage
+  useEffect(() => {
+    if (recentSearches.length > 0) {
+      saveRecentSearches(recentSearches);
+    }
+  }, [recentSearches]);
+
   // Replace useCallback with useMemo for the debounced function
   const debouncedSearch = useMemo(
     () =>
@@ -70,40 +98,12 @@ export default function SearchBar() {
     return () => debouncedSearch.cancel();
   }, [query, debouncedSearch]);
 
-  // Initial population of recent searches when component mounts
-  useEffect(() => {
-    const fetchRecentSearches = async () => {
-      try {
-        // This would be replaced with your actual API call
-        const recentSearchStrings = [
-          "Space Odyssey Jeans",
-          "Galaxy Shorts",
-          "Nebula Jeans",
-          "Meteor Jeans",
-        ];
-
-        // Populate recent searches in Redux
-        recentSearchStrings.forEach((search) => {
-          dispatch(addRecentSearch(search));
-        });
-      } catch (error) {
-        console.error("Error fetching recent searches:", error);
-      }
-    };
-
-    // Only populate if recentSearches is empty
-    if (recentSearches.length === 0) {
-      fetchRecentSearches();
-    }
-  }, [dispatch, recentSearches.length]);
-
   const handleSelect = (item: string) => {
     setQuery(item);
     setOpen(false);
 
     // Add to recent searches in Redux when selected
     dispatch(addRecentSearch(item));
-
     // Trigger a search with the selected item
     dispatch(searchProducts(item));
   };
@@ -257,33 +257,27 @@ export default function SearchBar() {
               No results found for "{query}"
             </div>
           ) : (
-            // Default view - show recommendations when search bar is just clicked
             <div className="space-y-6">
-              {/* Recent Searches as TEXT blocks */}
-              {recentSearches.length > 0 ? (
+              {/* Show only if there are recent searches */}
+              {recentSearches.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium text-gray-400">
                     Recent Searches
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {recentSearches.map((search, idx) => (
-                      <div
-                        key={idx}
-                        className="cursor-pointer rounded-lg bg-gray-800 p-3 hover:bg-gray-700"
-                        onClick={() => handleSelect(search)}
-                      >
-                        <p className="text-sm font-medium">{search}</p>
-                      </div>
-                    ))}
+                    {recentSearches
+                      .slice(-4) // Only last 4
+                      .reverse() // Most recent first
+                      .map((search, idx) => (
+                        <div
+                          key={idx}
+                          className="cursor-pointer rounded-lg bg-gray-800 p-3 hover:bg-gray-700"
+                          onClick={() => handleSelect(search)}
+                        >
+                          <p className="text-sm font-medium">{search}</p>
+                        </div>
+                      ))}
                   </div>
-                </div>
-              ) : (
-                // Show placeholder if no recent searches
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-gray-400">
-                    Recent Searches
-                  </h3>
-                  <p className="text-sm text-gray-500">No recent searches</p>
                 </div>
               )}
 
