@@ -51,7 +51,7 @@ const ProductCard = ({ product, onClick }: Props) => {
           <div className="mb-1 flex items-center justify-between">
             <p className="text-sm font-medium text-slate-700">Current Bid</p>
             <p className="text-xl font-bold text-emerald-600">
-              ${product.currentPrice}
+              {product.currentPrice == null ? '-' : `$${product.currentPrice}`}
             </p>
           </div>
           <div className="flex items-center justify-between">
