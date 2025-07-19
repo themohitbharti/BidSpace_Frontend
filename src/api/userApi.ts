@@ -1,4 +1,5 @@
 import axiosInstance from "./axiosInstance";
+import { User } from "../types";
 
 // Interface for profile update request
 interface ProfileUpdateRequest {
@@ -9,20 +10,6 @@ interface ProfileUpdateRequest {
 interface PasswordChangeRequest {
   oldPassword: string;
   newPassword: string;
-}
-
-// Interface for user data in response
-export interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  coins: number;
-  reservedCoins: number;
-  productsListed: string[];
-  productsPurchased: string[];
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
 }
 
 // Profile update response

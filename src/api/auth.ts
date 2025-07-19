@@ -1,21 +1,9 @@
 import axiosInstance from "./axiosInstance";
+import { User } from "../types";
 
 interface LoginPayload {
   email: string;
   password: string;
-}
-
-interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  productsListed: string[];
-  productsPurchased: string[];
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  reservedCoins: number;
-  coins: number;
 }
 
 interface SignupPayload extends LoginPayload {
@@ -52,10 +40,7 @@ export const verifyOTP = async (data: VerifyOTPPayload) => {
 };
 
 export const logoutUser = async () => {
-  const response = await axiosInstance.post(
-    "/user/logout",
-    {}
-  );
+  const response = await axiosInstance.post("/user/logout", {});
   return response.data;
 };
 

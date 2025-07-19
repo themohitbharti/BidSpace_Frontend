@@ -40,3 +40,17 @@ export interface ProductAuctionResponse {
   product: Product;
   auction: Auction;
 }
+
+export interface User {
+  _id: string;
+  email: string;
+  fullName: string;
+  productsListed: string[];
+  productsPurchased: string[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  reservedCoins: number;
+  coins: number;
+  wishlist: string[];
+}

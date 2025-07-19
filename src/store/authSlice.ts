@@ -1,18 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  productsListed: string[];
-  productsPurchased: string[];
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  reservedCoins: number;
-  coins: number;
-  wishlist: string[];
-}
+import { User } from "../types";
 
 // Define a type for the minimum required user data
 export type PartialUser = Partial<User> & {
@@ -54,7 +41,6 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.user = null;
     },
-    // Add the updateUser action
     updateUser: (state, action: PayloadAction<User>) => {
       if (state.user) {
         state.user = action.payload;
