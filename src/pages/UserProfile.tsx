@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,12 +21,14 @@ import { updateUserProfile, changeUserPassword } from "../api/userApi";
 import { getReservedProducts } from "../api/productApi";
 import { updateUser } from "../store/authSlice";
 import axios from "axios";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchWishlist } from "../store/wishlistSlice";
 
 // Import the updateUser action if you have one for Redux state updates
 
 export default function UserProfile() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +53,8 @@ export default function UserProfile() {
 
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const wishlist = useAppSelector((state) => state.wishlist.items);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -111,6 +115,14 @@ export default function UserProfile() {
       setIsEditMode(true);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    dispatch(fetchWishlist());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setWishlistCount(wishlist.length);
+  }, [wishlist]);
 
   if (!user) {
     return (
@@ -388,11 +400,10 @@ export default function UserProfile() {
                 <h3 className="mb-4 border-b border-gray-700 pb-2 text-xl font-medium">
                   Activity
                 </h3>
-
-                <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
                   {/* Products listed */}
                   <div className="relative overflow-hidden rounded-lg bg-gray-900/50 p-4">
-                    <div className="absolute -top-3 -right-3 h-16 w-16 rounded-full bg-blue-500/10"></div>
+                    <div className="absolute -top-3 -right-3 h-12 w-12 rounded-full bg-blue-500/10"></div>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-400">Products Listed</p>
@@ -400,23 +411,22 @@ export default function UserProfile() {
                           {user.productsListed?.length || 0}
                         </p>
                       </div>
-                      <div className="rounded-full bg-blue-500/20 p-3">
-                        <FaShoppingBag className="text-xl text-blue-400" />
+                      <div className="rounded-full bg-blue-500/20 p-2">
+                        <FaShoppingBag className="text-lg text-blue-400" />
                       </div>
                     </div>
                     <div className="mt-2">
                       <button
                         onClick={() => navigate("/profile/products?tab=listed")}
-                        className="text-sm text-blue-400 hover:text-blue-300"
+                        className="text-xs text-blue-400 hover:text-blue-300"
                       >
                         View all listings →
                       </button>
                     </div>
                   </div>
-
                   {/* Products purchased */}
                   <div className="relative overflow-hidden rounded-lg bg-gray-900/50 p-4">
-                    <div className="absolute -top-3 -right-3 h-16 w-16 rounded-full bg-green-500/10"></div>
+                    <div className="absolute -top-3 -right-3 h-12 w-12 rounded-full bg-green-500/10"></div>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-400">
@@ -426,16 +436,60 @@ export default function UserProfile() {
                           {user.productsPurchased?.length || 0}
                         </p>
                       </div>
-                      <div className="rounded-full bg-green-500/20 p-3">
-                        <FaStar className="text-xl text-green-400" />
+                      <div className="rounded-full bg-green-500/20 p-2">
+                        <FaStar className="text-lg text-green-400" />
                       </div>
                     </div>
                     <div className="mt-2">
                       <button
                         onClick={() => navigate("/profile/products")}
-                        className="text-sm text-green-400 hover:text-green-300"
+                        className="text-xs text-green-400 hover:text-green-300"
                       >
                         View purchased items →
+                      </button>
+                    </div>
+                  </div>
+                  {/* Active Bids */}
+                  <div className="relative overflow-hidden rounded-lg bg-gray-900/50 p-4">
+                    <div className="absolute -top-3 -right-3 h-12 w-12 rounded-full bg-yellow-500/10"></div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-400">Active Bids</p>
+                        <p className="text-2xl font-bold">{reservedProducts}</p>
+                      </div>
+                      <div className="rounded-full bg-yellow-500/20 p-2">
+                        <FaLock className="text-lg text-yellow-400" />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <button
+                        onClick={() => navigate("/profile/products?tab=active")}
+                        className="text-xs text-yellow-400 hover:text-yellow-300"
+                      >
+                        View active bids →
+                      </button>
+                    </div>
+                  </div>
+                  {/* Wishlist */}
+                  <div className="relative overflow-hidden rounded-lg bg-gray-900/50 p-4">
+                    <div className="absolute -top-3 -right-3 h-12 w-12 rounded-full bg-pink-500/10"></div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-400">Wishlist</p>
+                        <p className="text-2xl font-bold">{wishlistCount}</p>
+                      </div>
+                      <div className="rounded-full bg-pink-500/20 p-2">
+                        <FaStar className="text-lg text-pink-400" />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <button
+                        onClick={() =>
+                          navigate("/profile/products?tab=wishlist")
+                        }
+                        className="text-xs text-pink-400 hover:text-pink-300"
+                      >
+                        View wishlist →
                       </button>
                     </div>
                   </div>
