@@ -50,3 +50,16 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Make all buttons and clickable elements show pointer cursor */
+button,
+[role="button"],
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label[for],
+[tabindex]:not([tabindex="-1"]),
+.cursor-pointer {
+  cursor: pointer !important;
+}

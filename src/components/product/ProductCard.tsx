@@ -11,7 +11,7 @@ interface Props {
 const ProductCard = ({ product, onClick }: Props) => {
   return (
     <div
-      className="flex h-[430px] w-full max-w-xs flex-col overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl"
+      className="flex h-[430px] w-full max-w-xs flex-col overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl cursor-pointer"
       onClick={onClick}
     >
       {/* Image with status overlay */}
