@@ -134,9 +134,11 @@ export default function SearchBar() {
             // give click a chance to register
             setTimeout(() => setOpen(false), 100);
           }}
+          autoComplete="off"
+          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
         />
         <Button
-          className="rounded-none bg-blue-500 px-6 text-white"
+          className="flex items-center justify-center rounded-none bg-blue-500 px-6 text-white"
           onClick={() => {
             if (query.trim()) {
               dispatch(addRecentSearch(query.trim()));
@@ -145,7 +147,29 @@ export default function SearchBar() {
           }}
         >
           <span className="sr-only">Search</span>
-          🔍
+          {/* Thicker, professional white magnifying glass SVG */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="white"
+            strokeWidth={2.5}
+            className="h-6 w-6"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2.5" />
+            <line
+              x1="16.5"
+              y1="16.5"
+              x2="21"
+              y2="21"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+          </svg>
         </Button>
       </div>
 
