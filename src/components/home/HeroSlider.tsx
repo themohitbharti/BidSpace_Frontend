@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { Button } from "../index";
 import { useEffect, useState } from "react";
+import { FaUserTie, FaGavel } from "react-icons/fa"; // Add these imports
 import banner1 from "../../assets/banner1.jpg";
 import banner2 from "../../assets/banner2.jpg";
+import { useNavigate } from "react-router-dom";
 
 const slides = [
   {
@@ -20,6 +22,7 @@ const slides = [
 
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,11 +52,19 @@ export default function HeroSlider() {
             </motion.h1>
             <p className="mt-3 text-base md:text-lg">{slide.subtitle}</p>
             <div className="mt-6 flex gap-4">
-              <Button className="rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600">
-                Start exploring
+              <Button
+                className="flex items-center rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600"
+                onClick={() => navigate("/upload-item")}
+              >
+                <FaUserTie className="mr-2" />
+                Be a Seller
               </Button>
-              <Button className="rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600">
-                Mint NFT
+              <Button
+                className="flex items-center rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600"
+                onClick={() => navigate("/discover")}
+              >
+                <FaGavel className="mr-2" />
+                Discover Bids
               </Button>
             </div>
           </div>
