@@ -6,6 +6,7 @@ import {
   HomeStats,
   ProductCard,
   SliderSection,
+  LoadingContainer,
 } from "../components/index";
 import { useNavigate } from "react-router-dom";
 import { getRecentProducts, getTrendingProducts } from "../api/productApi";
@@ -124,12 +125,7 @@ export default function Home() {
 
             {/* Content */}
             {isRecentLoading ? (
-              <div className="flex justify-center py-16">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[400px]" />
             ) : recentError ? (
               <div className="py-16 text-center">
                 <div className="mx-auto max-w-md rounded-xl border border-red-500/20 bg-red-900/20 p-8 backdrop-blur-sm">
@@ -205,12 +201,7 @@ export default function Home() {
 
             {/* Content */}
             {isTrendingLoading ? (
-              <div className="flex justify-center py-16">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-orange-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-orange-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[400px]" />
             ) : trendingError ? (
               <div className="py-16 text-center">
                 <div className="mx-auto max-w-md rounded-xl border border-red-500/20 bg-red-900/20 p-8 backdrop-blur-sm">

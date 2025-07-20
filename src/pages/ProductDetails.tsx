@@ -12,6 +12,7 @@ import {
   fetchWishlist,
 } from "../store/wishlistSlice";
 import { toast } from "react-toastify";
+import { LoadingContainer } from "../components/index";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -50,14 +51,7 @@ export default function ProductDetails() {
 
   // Show loading state
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20 text-white min-h-[60vh]">
-        <div className="relative">
-          <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-          <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-        </div>
-      </div>
-    );
+    return <LoadingContainer minHeight="min-h-[60vh]" />;
   }
 
   // Show error state
@@ -301,12 +295,7 @@ export default function ProductDetails() {
           <h2 className="mb-4 text-2xl font-semibold">Auction Activity</h2>
 
           {loading ? (
-            <div className="rounded-xl bg-gray-900 p-6 text-center min-h-[200px] flex items-center justify-center">
-              <div className="relative">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-              </div>
-            </div>
+            <LoadingContainer minHeight="min-h-[200px]" />
           ) : !auction || !auction._id ? (
             <div className="rounded-xl bg-gray-900 p-6 text-center">
               <p>Auction information is not available</p>

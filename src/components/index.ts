@@ -10,6 +10,10 @@ import Input from "./ui/Input";
 import Logo from "./ui/Logo";
 import Container from "./ui/Container";
 
+// Common components
+import LoadingSpinner from "./common/LoadingSpinner";
+import LoadingContainer from "./common/LoadingContainer";
+
 // Layout components
 import Header from "./layout/header/Header";
 import Footer from "./layout/footer/Footer";
@@ -42,6 +46,10 @@ export {
   Input,
   Logo,
   Container,
+
+  // Common
+  LoadingSpinner,
+  LoadingContainer,
 
   // Layout
   Header,

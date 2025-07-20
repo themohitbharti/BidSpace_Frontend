@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Input, Button, Logo } from "../index";
+import { Input, Button, Logo, LoadingSpinner } from "../index";
 import axios from "axios";
 import axiosInstance from "../../api/axiosInstance";
 import { useDispatch } from "react-redux";
@@ -125,10 +125,7 @@ function VerifyOTP() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <span className="flex items-center justify-center">
-                  <div className="relative mr-2">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                    <div className="absolute inset-0 h-5 w-5 animate-ping rounded-full border-2 border-blue-400 opacity-20"></div>
-                  </div>
+                  <LoadingSpinner size="sm" className="mr-2" />
                   Verifying...
                 </span>
               ) : (

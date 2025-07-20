@@ -5,6 +5,7 @@ import { Product } from "../types";
 import CategoryFilter from "../components/category/CategoryFilter";
 import CategorySlider from "../components/category/CategorySlider";
 import ProductCard from "../components/product/ProductCard";
+import { LoadingContainer } from "../components/index";
 
 // At the top of your file, update the imports to include the new categories:
 import TechImage from "../assets/categories/tech.png";
@@ -327,12 +328,7 @@ export default function Categories() {
           <>
             {/* Featured Categories Grid - 2x2 */}
             {categoryLoading ? (
-              <div className="flex justify-center py-16 min-h-[300px]">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[300px]" />
             ) : (
               <div className="mb-12">
                 <h2 className="mb-6 text-2xl font-bold">Featured Categories</h2>
@@ -496,12 +492,7 @@ export default function Categories() {
           </h2>
 
           {loading ? (
-            <div className="flex justify-center py-16 min-h-[400px]">
-              <div className="relative">
-                <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-              </div>
-            </div>
+            <LoadingContainer minHeight="min-h-[400px]" />
           ) : error ? (
             <div className="py-12 text-center text-red-500">{error}</div>
           ) : products.length === 0 ? (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { Container, ProductCard } from "../components/index";
+import { Container, ProductCard, LoadingContainer } from "../components/index";
 import { Product } from "../types";
 import {
   getPurchasedProducts,
@@ -147,9 +147,10 @@ export default function UserProducts() {
 
             {/* Edit profile button (right aligned) */}
             <div className="mt-4 md:mt-0">
-              <button className="rounded-full bg-blue-600 px-6 py-2 font-medium transition hover:bg-blue-500"
+              <button
+                className="rounded-full bg-blue-600 px-6 py-2 font-medium transition hover:bg-blue-500"
                 onClick={() => {
-                  navigate("/profile?edit=1")
+                  navigate("/profile?edit=1");
                 }}
               >
                 Edit Profile
@@ -248,12 +249,7 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Recently Acquired</h2>
             {isLoading ? (
-              <div className="flex justify-center py-16 min-h-[300px]">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[300px]" />
             ) : error ? (
               <div className="py-12 text-center text-red-500">{error}</div>
             ) : purchasedProducts.length > 0 ? (
@@ -299,12 +295,7 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Products Listed</h2>
             {isLoading ? (
-              <div className="flex justify-center py-16 min-h-[300px]">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[300px]" />
             ) : listedProducts.length > 0 ? (
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -348,12 +339,7 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Active Bids</h2>
             {isLoading ? (
-              <div className="flex justify-center py-16 min-h-[300px]">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[300px]" />
             ) : reservedProducts.length > 0 ? (
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
@@ -397,12 +383,7 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Wishlist</h2>
             {isLoading ? (
-              <div className="flex justify-center py-16 min-h-[300px]">
-                <div className="relative">
-                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
-                </div>
-              </div>
+              <LoadingContainer minHeight="min-h-[300px]" />
             ) : wishlist && wishlist.length > 0 ? (
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
