@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 interface CategoryFilterProps {
   categories: string[];
@@ -21,9 +21,26 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [submenu, setSubmenu] = useState<"category" | "status" | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleClick(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setSubmenu(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [isOpen]);
 
   return (
-    <div className="relative z-20">
+    <div className="relative z-20" ref={dropdownRef}>
       <button
         className="flex items-center space-x-2 rounded-lg border border-blue-500 bg-blue-600 px-4 py-2 text-white shadow-md transition hover:bg-blue-700 focus:outline-none"
         onClick={() => setIsOpen((open) => !open)}
