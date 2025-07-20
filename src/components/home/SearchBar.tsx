@@ -171,18 +171,30 @@ export default function SearchBar() {
             <Button
               variant="outline"
               className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
+              onClick={() => {
+                setOpen(false);
+                navigate("/discover?status=live");
+              }}
             >
               Live
             </Button>
             <Button
               variant="outline"
               className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
+              onClick={() => {
+                setOpen(false);
+                navigate("/discover?status=sold");
+              }}
             >
               Sold
             </Button>
             <Button
               variant="outline"
               className="border-gray-600 text-white transition-colors hover:border-blue-400 hover:bg-blue-500"
+              onClick={() => {
+                setOpen(false);
+                navigate("/discover?status=unsold");
+              }}
             >
               Unsold
             </Button>

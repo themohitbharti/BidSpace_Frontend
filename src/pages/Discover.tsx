@@ -73,7 +73,7 @@ export default function Categories() {
         // If "all" is selected, pass "all" as category
         const categoryToFetch =
           selectedCategory === "all" ? "all" : selectedCategory;
-        const limit = 15; // or 10 as per your preference
+        const limit = 10;
 
         const response = await getProductsByCategory(
           categoryToFetch,
@@ -109,7 +109,7 @@ export default function Categories() {
     };
 
     fetchProducts();
-  }, [selectedCategory, selectedStatus]); // <-- Add selectedStatus as dependency
+  }, [selectedCategory, selectedStatus]);
 
   // Fetch products for each featured category
   useEffect(() => {
@@ -203,28 +203,26 @@ export default function Categories() {
   const handleLoadMore = async () => {
     try {
       const nextPage = page + 1;
-
-      // If "all" is selected, get products from the first category as default
       const categoryToFetch =
-        selectedCategory === "all" ? "Tech" : selectedCategory;
+        selectedCategory === "all" ? "all" : selectedCategory;
+      const limit = 10;
 
       const response = await getProductsByCategory(
         categoryToFetch,
-        "live",
+        selectedStatus,
         nextPage,
-        15,
+        limit,
       );
 
       if (response.success) {
         if (response.data.length > 0) {
           setProducts((prev) => [...prev, ...response.data]);
           setPage(nextPage);
-          setHasMore(response.data.length === 15);
+          setHasMore(response.data.length === limit);
         } else {
           setHasMore(false);
         }
       } else {
-        // Handle unsuccessful API responses
         setHasMore(false);
       }
     } catch (err) {
