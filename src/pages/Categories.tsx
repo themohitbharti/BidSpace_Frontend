@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom"; // <-- add useSearchParams
 import { getProductsByCategory } from "../api/productApi";
 import { Product } from "../types";
 import CategoryFilter from "../components/category/CategoryFilter";
@@ -22,18 +22,7 @@ import ClothesImage from "../assets/categories/Clothes.jpg";
 
 import Category_banner from "../assets/Category_banner.jpg";
 
-// Available categories
-const CATEGORIES = [
-  "Tech",
-  "Fashion",
-  "Food",
-  "Home",
-  "Collectibles",
-  "Toys",
-  "Music",
-  "Footwear",
-  "Clothes",
-];
+import { CATEGORIES } from "../constants/categories";
 
 // Featured categories to display in separate sections
 const FEATURED_CATEGORIES = ["Tech", "Food", "Music"];
@@ -58,7 +47,10 @@ const getCategoryImage = (category: string): string => {
 
 export default function Categories() {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchParams] = useSearchParams();
+  const initialCategory = searchParams.get("category") || "all";
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>(initialCategory);
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryProducts, setCategoryProducts] = useState<
     Record<string, Product[]>
@@ -163,6 +155,13 @@ export default function Categories() {
   // Update the handleCategoryChange function to make this the focused view
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+
+    // Update the URL query parameter
+    navigate(
+      category === "all"
+        ? "/discover"
+        : `/discover?category=${encodeURIComponent(category)}`,
+    );
 
     // Scroll to the products section when a category is selected
     setTimeout(() => {

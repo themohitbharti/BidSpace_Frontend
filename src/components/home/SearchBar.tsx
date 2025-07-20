@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom"; // Add this import
+import { useNavigate } from "react-router-dom";
 import { Input } from "../index";
 import { Button } from "../index";
 import { useSelector } from "react-redux";
@@ -12,6 +12,7 @@ import {
   SearchProduct,
 } from "../../store/searchSlice";
 import debounce from "lodash.debounce";
+import { CATEGORIES } from "../../constants/categories";
 
 const SUGGESTIONS = [
   {
@@ -32,15 +33,8 @@ const SUGGESTIONS = [
   },
 ];
 
-// Default popular categories
-const POPULAR_CATEGORIES = [
-  "Cosmic Clothing",
-  "Stellar Accessories",
-  "Interstellar Home Decor",
-];
-
 export default function SearchBar() {
-  const navigate = useNavigate(); // Add this
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -314,12 +308,17 @@ export default function SearchBar() {
                 <h3 className="text-sm font-medium text-gray-400">
                   Celestial Tags
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {POPULAR_CATEGORIES.map((category, i) => (
+                <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
+                  {CATEGORIES.map((category, i) => (
                     <span
                       key={i}
-                      onClick={() => handleSelect(category)}
-                      className="cursor-pointer rounded-full bg-gray-800 px-3 py-1 text-sm hover:bg-gray-700"
+                      onClick={() => {
+                        setOpen(false);
+                        navigate(
+                          `/discover?category=${encodeURIComponent(category)}`,
+                        );
+                      }}
+                      className="cursor-pointer rounded-full bg-gray-800 px-3 py-1 text-sm whitespace-nowrap transition hover:bg-blue-700"
                     >
                       {category}
                     </span>

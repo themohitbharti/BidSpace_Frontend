@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
 import axios from "axios";
 import { addProductWithAuction } from "../store/productSlice";
+import { CATEGORIES } from "../constants/categories";
 
 interface UploadFormInputs {
   title: string;
@@ -18,20 +19,6 @@ interface UploadFormInputs {
 // Define allowed auction durations (in hours)
 const AUCTION_DURATIONS = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24, 48, 72, 96, 120, 144, 168,
-];
-
-// Add this near the top of your file with your other constants
-// Use the same categories as in your Categories.tsx file for consistency
-const CATEGORIES = [
-  "Tech",
-  "Fashion",
-  "Food",
-  "Home",
-  "Collectibles",
-  "Toys",
-  "Music",
-  "Footwear",
-  "Clothes",
 ];
 
 function UploadItem() {

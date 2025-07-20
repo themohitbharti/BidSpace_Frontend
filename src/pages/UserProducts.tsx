@@ -24,7 +24,6 @@ export default function UserProducts() {
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
 
-  // Add this to handle the tab query parameter
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "purchased";
 

@@ -5,7 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   bgColor?: string;
   textColor?: string;
   className?: string;
-  variant?: "default" | "outline"; // Add this line
+  variant?: "default" | "outline";
 }
 
 export default function Button({
@@ -13,7 +13,7 @@ export default function Button({
   bgColor = "bg-blue-600",
   textColor = "text-white",
   className = "",
-  variant = "default", // Add this line
+  variant = "default",
   ...props
 }: ButtonProps) {
   // Determine styling based on variant

@@ -96,7 +96,7 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
               {user?.fullName || "Guest"}
             </span>
           </div>
-          {/* Add this block just below the name */}
+          
           <div className="-mt-8 mb-2 ml-16">
             <button
               className="text-xs text-blue-400 hover:underline cursor-pointer"
