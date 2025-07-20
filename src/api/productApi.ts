@@ -79,12 +79,11 @@ export const placeBid = async (auctionId: string, bidAmount: number) => {
 export const getProductsByCategory = async (
   category: string = "all",
   status: string = "live",
-  all: string = "no",
   page: number = 1,
-  limit: number = 15,
+  limit: number = 10,
 ) => {
   const response = await axiosInstance.get(
-    `/product/list/${category}/${status}/${all}?page=${page}&limit=${limit}`,
+    `/product/list/${category}/${status}?page=${page}&limit=${limit}`,
   );
   return response.data;
 };

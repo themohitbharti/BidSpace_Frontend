@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // <-- add useSearchParams
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getProductsByCategory } from "../api/productApi";
 import { Product } from "../types";
 import CategoryFilter from "../components/category/CategoryFilter";
@@ -49,8 +49,10 @@ export default function Categories() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
+  const initialStatus = searchParams.get("status") || "live";
   const [selectedCategory, setSelectedCategory] =
     useState<string>(initialCategory);
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatus);
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryProducts, setCategoryProducts] = useState<
     Record<string, Product[]>
@@ -68,17 +70,14 @@ export default function Categories() {
       setError(null);
 
       try {
-        // If "all" is selected, get products from all categories
+        // If "all" is selected, pass "all" as category
         const categoryToFetch =
-          selectedCategory === "all" ? "Tech" : selectedCategory;
-
-        // Get more products (20 instead of 15) when a specific category is selected
-        const limit = selectedCategory === "all" ? 15 : 20;
+          selectedCategory === "all" ? "all" : selectedCategory;
+        const limit = 15; // or 10 as per your preference
 
         const response = await getProductsByCategory(
           categoryToFetch,
-          "live",
-          "no",
+          selectedStatus,
           1,
           limit,
         );
@@ -110,7 +109,7 @@ export default function Categories() {
     };
 
     fetchProducts();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedStatus]); // <-- Add selectedStatus as dependency
 
   // Fetch products for each featured category
   useEffect(() => {
@@ -126,7 +125,6 @@ export default function Categories() {
             const response = await getProductsByCategory(
               category,
               "live",
-              "no",
               1,
               4, // Limit to 4 products per category
             );
@@ -152,18 +150,40 @@ export default function Categories() {
     fetchCategoryProducts();
   }, []);
 
-  // Update the handleCategoryChange function to make this the focused view
+  useEffect(() => {
+    const urlCategory = searchParams.get("category") || "all";
+    const urlStatus = searchParams.get("status") || "live";
+    setSelectedCategory(urlCategory);
+    setSelectedStatus(urlStatus);
+    // eslint-disable-next-line
+  }, []);
+
+  // Update category change to include status in URL
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-
-    // Update the URL query parameter
     navigate(
       category === "all"
-        ? "/discover"
-        : `/discover?category=${encodeURIComponent(category)}`,
+        ? `/discover?status=${selectedStatus}`
+        : `/discover?category=${encodeURIComponent(category)}&status=${selectedStatus}`,
     );
+    setTimeout(() => {
+      const productsSection = document.getElementById(
+        "selected-category-products",
+      );
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+  };
 
-    // Scroll to the products section when a category is selected
+  // Add a handler for status change that updates the URL and hides featured
+  const handleStatusChange = (status: string) => {
+    setSelectedStatus(status);
+    navigate(
+      selectedCategory === "all"
+        ? `/discover?status=${status}`
+        : `/discover?category=${encodeURIComponent(selectedCategory)}&status=${status}`,
+    );
     setTimeout(() => {
       const productsSection = document.getElementById(
         "selected-category-products",
@@ -191,7 +211,6 @@ export default function Categories() {
       const response = await getProductsByCategory(
         categoryToFetch,
         "live",
-        "no",
         nextPage,
         15,
       );
@@ -219,6 +238,13 @@ export default function Categories() {
     return category.charAt(0).toUpperCase() + category.slice(1);
   };
 
+  // Hide featured sections if either category or status is filtered
+  const showFeatured = selectedCategory === "all" && selectedStatus === "live";
+
+  // Helper for filter chips
+  const isDefaultCategory = selectedCategory === "all";
+  const isDefaultStatus = selectedStatus === "live";
+
   return (
     <div className="min-h-screen pb-16 text-white">
       {/* Category Header/Banner */}
@@ -239,6 +265,8 @@ export default function Categories() {
             categories={["all", ...CATEGORIES]}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
+            selectedStatus={selectedStatus}
+            onStatusChange={handleStatusChange}
           />
         </div>
 
@@ -252,8 +280,52 @@ export default function Categories() {
           />
         </div>
 
-        {/* Conditionally show featured categories only when viewing "all" products */}
-        {selectedCategory === "all" && (
+        {/* Active Filters Chips */}
+        {(!isDefaultCategory || !isDefaultStatus) && (
+          <div className="mb-6 flex flex-wrap gap-3">
+            {!isDefaultCategory && (
+              <span className="flex items-center rounded-full border border-blue-500 bg-gray-900 px-4 py-1 text-sm text-blue-300 shadow">
+                {formatCategoryName(selectedCategory)}
+                <button
+                  className="ml-2 rounded-full bg-blue-600 p-1 text-white hover:bg-blue-700"
+                  aria-label="Remove category filter"
+                  onClick={() => handleCategoryChange("all")}
+                >
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M6 6l8 8M6 14L14 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </span>
+            )}
+            {!isDefaultStatus && (
+              <span className="flex items-center rounded-full border border-blue-500 bg-gray-900 px-4 py-1 text-sm text-blue-300 shadow">
+                {formatCategoryName(selectedStatus)}
+                <button
+                  className="ml-2 rounded-full bg-blue-600 p-1 text-white hover:bg-blue-700"
+                  aria-label="Remove status filter"
+                  onClick={() => handleStatusChange("live")}
+                >
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M6 6l8 8M6 14L14 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Conditionally show featured categories and summer collection */}
+        {showFeatured && (
           <>
             {/* Featured Categories Grid - 2x2 */}
             {categoryLoading ? (

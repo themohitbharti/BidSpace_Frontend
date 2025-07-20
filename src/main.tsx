@@ -17,7 +17,7 @@ import {
   UserProducts,
 } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
-import Categories from "./pages/Categories";
+import Categories from "./pages/Discover.tsx";
 
 const router = createBrowserRouter([
   {
