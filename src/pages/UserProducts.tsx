@@ -248,8 +248,11 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Recently Acquired</h2>
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              <div className="flex justify-center py-16 min-h-[300px]">
+                <div className="relative">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+                </div>
               </div>
             ) : error ? (
               <div className="py-12 text-center text-red-500">{error}</div>
@@ -296,8 +299,11 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Products Listed</h2>
             {isLoading ? (
-              <div className="flex justify-center py-6">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              <div className="flex justify-center py-16 min-h-[300px]">
+                <div className="relative">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+                </div>
               </div>
             ) : listedProducts.length > 0 ? (
               <div className="overflow-x-auto">
@@ -342,8 +348,11 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Active Bids</h2>
             {isLoading ? (
-              <div className="flex justify-center py-6">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              <div className="flex justify-center py-16 min-h-[300px]">
+                <div className="relative">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+                </div>
               </div>
             ) : reservedProducts.length > 0 ? (
               <div className="overflow-x-auto">
@@ -388,8 +397,11 @@ export default function UserProducts() {
           <div className="mt-12">
             <h2 className="mb-6 text-2xl font-bold">Wishlist</h2>
             {isLoading ? (
-              <div className="flex justify-center py-6">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              <div className="flex justify-center py-16 min-h-[300px]">
+                <div className="relative">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+                </div>
               </div>
             ) : wishlist && wishlist.length > 0 ? (
               <div className="overflow-x-auto">

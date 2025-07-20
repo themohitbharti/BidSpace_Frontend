@@ -327,8 +327,11 @@ export default function Categories() {
           <>
             {/* Featured Categories Grid - 2x2 */}
             {categoryLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+              <div className="flex justify-center py-16 min-h-[300px]">
+                <div className="relative">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                  <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+                </div>
               </div>
             ) : (
               <div className="mb-12">
@@ -493,8 +496,11 @@ export default function Categories() {
           </h2>
 
           {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+            <div className="flex justify-center py-16 min-h-[400px]">
+              <div className="relative">
+                <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+              </div>
             </div>
           ) : error ? (
             <div className="py-12 text-center text-red-500">{error}</div>

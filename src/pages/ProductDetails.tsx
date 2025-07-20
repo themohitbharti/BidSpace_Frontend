@@ -51,8 +51,11 @@ export default function ProductDetails() {
   // Show loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-white">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-t-4 border-gray-400 border-t-blue-500"></div>
+      <div className="flex items-center justify-center py-20 text-white min-h-[60vh]">
+        <div className="relative">
+          <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+          <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+        </div>
       </div>
     );
   }
@@ -298,9 +301,11 @@ export default function ProductDetails() {
           <h2 className="mb-4 text-2xl font-semibold">Auction Activity</h2>
 
           {loading ? (
-            <div className="rounded-xl bg-gray-900 p-6 text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-white border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-              <p className="mt-4">Loading auction data...</p>
+            <div className="rounded-xl bg-gray-900 p-6 text-center min-h-[200px] flex items-center justify-center">
+              <div className="relative">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full border-4 border-blue-400 opacity-20"></div>
+              </div>
             </div>
           ) : !auction || !auction._id ? (
             <div className="rounded-xl bg-gray-900 p-6 text-center">
