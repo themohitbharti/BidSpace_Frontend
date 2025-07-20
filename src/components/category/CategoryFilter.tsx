@@ -47,7 +47,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 rounded-xl border border-blue-500 bg-gray-900 shadow-2xl">
           {!submenu ? (
-            <div className="flex flex-col gap-2 py-4 px-4">
+            <div className="flex flex-col gap-2 px-4 py-4">
               <button
                 className="rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-left text-base text-gray-200 transition hover:bg-blue-700 hover:text-white"
                 onClick={() => setSubmenu("category")}
@@ -62,7 +62,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
               </button>
             </div>
           ) : submenu === "category" ? (
-            <div className="py-2 px-4">
+            <div className="px-4 py-2">
               <button
                 className="mb-3 text-xs text-gray-400 hover:text-blue-400"
                 onClick={() => setSubmenu(null)}
@@ -90,7 +90,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
               </div>
             </div>
           ) : (
-            <div className="py-2 px-4">
+            <div className="px-4 py-2">
               <button
                 className="mb-3 text-xs text-gray-400 hover:text-blue-400"
                 onClick={() => setSubmenu(null)}

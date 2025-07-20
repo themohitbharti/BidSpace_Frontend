@@ -474,7 +474,11 @@ export default function Categories() {
         {/* Selected Category Products */}
         <div
           id="selected-category-products"
-          className={`mb-12 ${selectedCategory !== "all" ? "rounded-lg border-2 border-blue-500 bg-gray-900/50 p-6" : ""}`}
+          className={`mb-12 ${
+            !isDefaultCategory || !isDefaultStatus
+              ? "rounded-lg border-2 border-blue-500 bg-gray-900/50 p-6"
+              : ""
+          }`}
         >
           <h2 className="mb-6 flex items-center justify-between text-2xl font-bold">
             <span>
