@@ -12,26 +12,13 @@ import {
   SearchProduct,
 } from "../../store/searchSlice";
 import debounce from "lodash.debounce";
-import { CATEGORIES } from "../../constants/categories";
+import {
+  CATEGORIES,
+  CATEGORY_IMAGES,
+  defaultImage,
+} from "../../constants/categories";
 
-const SUGGESTIONS = [
-  {
-    id: 1,
-    name: "Starry Night Jeans",
-    image: "/images/products/starry-night.jpg",
-  },
-  {
-    id: 2,
-    name: "Meteor Sneakers",
-    image: "/images/products/meteor-sneakers.jpg",
-  },
-  { id: 3, name: "Nebula Hoodie", image: "/images/products/nebula-hoodie.jpg" },
-  {
-    id: 4,
-    name: "Galactic Backpack",
-    image: "/images/products/galactic-backpack.jpg",
-  },
-];
+const CATEGORY_SUGGESTIONS = CATEGORIES.slice(0, 4);
 
 export default function SearchBar() {
   const navigate = useNavigate();
@@ -167,9 +154,18 @@ export default function SearchBar() {
         </Button>
       </div>
 
+      {/* Overlay for shadow effect */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 transition-opacity duration-200"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Enhanced pop-up suggestions */}
       {open && (
-        <div className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-lg bg-gray-900 p-4 text-white shadow-lg">
+        <div className="absolute top-full left-0 z-40 mt-1 w-full overflow-hidden rounded-lg bg-gray-900 p-4 text-white shadow-lg">
           {/* Add filters INSIDE popup, at the top */}
           <div className="mb-4 flex flex-wrap gap-2">
             <Button
@@ -281,23 +277,25 @@ export default function SearchBar() {
                   Space Recommended for you
                 </h3>
                 <div className="grid grid-cols-4 gap-3">
-                  {SUGGESTIONS.map((item) => (
+                  {CATEGORY_SUGGESTIONS.map((category) => (
                     <div
-                      key={item.id}
+                      key={category}
                       className="cursor-pointer overflow-hidden rounded-lg"
-                      onClick={() => handleSelect(item.name)}
+                      onClick={() => {
+                        setOpen(false);
+                        navigate(
+                          `/discover?category=${encodeURIComponent(category)}`,
+                        );
+                      }}
                     >
                       <div className="aspect-square w-full overflow-hidden">
-                        <div
-                          className="h-full w-full bg-gray-800"
-                          style={{
-                            backgroundImage: `url(${item.image})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }}
+                        <img
+                          src={CATEGORY_IMAGES[category] || defaultImage}
+                          alt={category}
+                          className="h-full w-full bg-gray-800 object-cover"
                         />
                       </div>
-                      <p className="mt-1 text-center text-xs">{item.name}</p>
+                      <p className="mt-1 text-center text-xs">{category}</p>
                     </div>
                   ))}
                 </div>
