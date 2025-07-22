@@ -1,6 +1,8 @@
 // components/ProductCard.tsx
 
 import { formatDistanceToNowStrict } from "date-fns";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 import { Product } from "../../types";
 
 interface Props {
@@ -9,9 +11,21 @@ interface Props {
 }
 
 const ProductCard = ({ product, onClick }: Props) => {
+  // Make sure to handle cases where user is not logged in
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const wishlist = useSelector(
+    (state: RootState) => state.wishlist.items || [],
+  );
+
+  // Only check wishlist if user is logged in and wishlist exists
+  const isWishlisted =
+    isLoggedIn && wishlist.length > 0
+      ? wishlist.some((p) => p._id === product._id)
+      : false;
+
   return (
     <div
-      className="flex h-[430px] w-full max-w-xs flex-col overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl cursor-pointer"
+      className="flex h-[430px] w-full max-w-xs cursor-pointer flex-col overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-b from-slate-400 to-slate-200 shadow-lg backdrop-blur-sm transition hover:scale-[1.02] hover:shadow-xl"
       onClick={onClick}
     >
       {/* Image with status overlay */}
@@ -36,6 +50,24 @@ const ProductCard = ({ product, onClick }: Props) => {
         <span className="absolute bottom-3 left-3 rounded-md bg-slate-800/70 px-2 py-1 text-xs text-slate-100 backdrop-blur-sm">
           {product.category}
         </span>
+
+        {/* Wishlist indicator - only show if logged in and wishlisted */}
+        {isLoggedIn && isWishlisted && (
+          <div className="absolute top-3 left-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-blue-600"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col overflow-hidden p-4">
@@ -51,7 +83,7 @@ const ProductCard = ({ product, onClick }: Props) => {
           <div className="mb-1 flex items-center justify-between">
             <p className="text-sm font-medium text-slate-700">Current Bid</p>
             <p className="text-xl font-bold text-emerald-600">
-              {product.currentPrice == null ? '-' : `$${product.currentPrice}`}
+              {product.currentPrice == null ? "-" : `$${product.currentPrice}`}
             </p>
           </div>
           <div className="flex items-center justify-between">

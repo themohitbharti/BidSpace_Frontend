@@ -6,6 +6,7 @@ import {
 } from "../api/wishlistApi";
 import type { AxiosError } from "axios";
 import { Product } from "../types";
+import { RootState } from "./store";
 
 interface WishlistState {
   items: Product[];
@@ -22,8 +23,16 @@ const initialState: WishlistState = {
 // Fetch full product objects for wishlist
 export const fetchWishlist = createAsyncThunk<Product[]>(
   "wishlist/fetchWishlist",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      // Check if user is logged in before making the request
+      const state = getState() as RootState;
+      const isLoggedIn = state.auth.isLoggedIn;
+
+      if (!isLoggedIn) {
+        return []; // Return empty array for non-logged in users
+      }
+
       const res = await getWishlist();
       if (!Array.isArray(res.data)) throw new Error("Invalid wishlist data");
       return res.data as Product[];
