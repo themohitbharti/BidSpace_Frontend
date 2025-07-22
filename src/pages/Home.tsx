@@ -31,7 +31,6 @@ export default function Home() {
         const response = await getRecentProducts();
 
         if (response.success) {
-          // API now directly returns products with currentPrice and endTime
           setRecentProducts(response.data);
         } else {
           throw new Error(
@@ -59,7 +58,6 @@ export default function Home() {
         const response = await getTrendingProducts();
 
         if (response.success) {
-          // API now directly returns products with currentPrice and endTime
           setTrendingProducts(response.data);
         } else {
           throw new Error(
@@ -77,7 +75,6 @@ export default function Home() {
     fetchTrendingProducts();
   }, []);
 
-  // Handler for product card clicks
   const handleProductClick = (productId: string) => {
     navigate(`/product-details/${productId}`);
   };
@@ -89,7 +86,6 @@ export default function Home() {
       <div className="py-12">
         <Container>
           <div className="grid grid-cols-1 gap-8 md:gap-12 lg:grid-cols-3">
-            {/* Search Section - Takes up 2/3 of the space */}
             <div className="space-y-6 lg:col-span-2">
               <h2 className="mb-6 text-3xl font-bold text-white">
                 Find Your Favourite Bids
@@ -98,8 +94,6 @@ export default function Home() {
                 <SearchBar />
               </div>
             </div>
-
-            {/* Stats Section - Takes up 1/3 of the space */}
             <div className="flex items-center lg:col-span-1">
               <HomeStats />
             </div>
@@ -110,9 +104,8 @@ export default function Home() {
       {/* Enhanced Product Sections */}
       <div className="space-y-20 py-16">
         <Container>
-          {/* "New on BidSpace" section with enhanced styling */}
+          {/* "New on BidSpace" section */}
           <div className="relative">
-            {/* Section Header */}
             <div className="mb-12 text-center">
               <h2 className="relative mb-4 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-5xl font-black tracking-tight text-transparent">
                 New on BidSpace
@@ -123,7 +116,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Content */}
             {isRecentLoading ? (
               <LoadingContainer minHeight="min-h-[400px]" />
             ) : recentError ? (
@@ -186,9 +178,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* "Trending Now" section with enhanced styling */}
+          {/* "Trending Now" section */}
           <div className="relative">
-            {/* Section Header */}
             <div className="mb-12 text-center">
               <h2 className="relative mb-4 bg-gradient-to-r from-orange-400 via-red-400 to-pink-500 bg-clip-text text-5xl font-black tracking-tight text-transparent">
                 Trending Now
@@ -199,7 +190,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Content */}
             {isTrendingLoading ? (
               <LoadingContainer minHeight="min-h-[400px]" />
             ) : trendingError ? (

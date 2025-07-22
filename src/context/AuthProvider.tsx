@@ -7,6 +7,7 @@ import {
   logout as logoutAction,
 } from "../store/authSlice";
 import { AuthContext } from "./AuthContext";
+import { AppLoader } from "../components";
 
 // Define the User type to match what's expected in the loginAction
 interface User {
@@ -40,6 +41,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const startTime = Date.now();
+    const minDisplayTime = 700; // 1 second minimum
+
     regenerateToken()
       .then((response: TokenResponse) => {
         setAccessToken(response.data.accessToken);
@@ -51,10 +55,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         setIsAuthenticated(false);
         dispatch(logoutAction());
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        // Calculate how long the auth check took
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
+
+        // Wait for the remaining time to reach minimum display duration
+        setTimeout(() => {
+          setLoading(false);
+        }, remainingTime);
+      });
   }, [dispatch]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <AppLoader />;
 
   return (
     <AuthContext.Provider value={{ loading, isAuthenticated }}>

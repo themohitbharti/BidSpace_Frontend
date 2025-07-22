@@ -13,6 +13,7 @@ import Container from "./ui/Container";
 // Common components
 import LoadingSpinner from "./common/LoadingSpinner";
 import LoadingContainer from "./common/LoadingContainer";
+import AppLoader from "./common/AppLoader";
 
 // Layout components
 import Header from "./layout/header/Header";
@@ -50,6 +51,7 @@ export {
   // Common
   LoadingSpinner,
   LoadingContainer,
+  AppLoader,
 
   // Layout
   Header,
