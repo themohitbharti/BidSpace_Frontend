@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useAppDispatch } from "../../store/hooks";
 import { placeBid } from "../../store/productSlice";
-
-interface LiveBidMessage {
-  userId: string;
-  username: string;
-  bidAmount: number;
-  timestamp: string;
-}
+import { LiveBidMessage } from "../../types/auction";
 
 interface LiveBiddingProps {
   auctionId: string;
@@ -30,15 +24,13 @@ export default function LiveBidding({
   const [isPlacingBid, setIsPlacingBid] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Validate props immediately to prevent rendering with invalid data
+  // Use ref to access current bidAmount without causing re-renders
+  const bidAmountRef = useRef(bidAmount);
+
+  // Update ref when bidAmount changes
   useEffect(() => {
-    if (!auctionId) {
-      console.error("LiveBidding: Missing auctionId prop");
-    }
-    if (typeof currentPrice !== "number" || isNaN(currentPrice)) {
-      console.error("LiveBidding: Invalid currentPrice prop:", currentPrice);
-    }
-  }, [auctionId, currentPrice]);
+    bidAmountRef.current = bidAmount;
+  }, [bidAmount]);
 
   // Get current user info and bid loading/error states from Redux
   const user = useSelector((state: RootState) => state.auth.user);
@@ -47,10 +39,17 @@ export default function LiveBidding({
   );
   const bidError = useSelector((state: RootState) => state.product.bidError);
 
+  // Validate props immediately to prevent rendering with invalid data
+  useEffect(() => {
+    if (!auctionId) {
+      console.error("LiveBidding: Missing auctionId prop");
+    }
+  }, [auctionId]);
+
   // Update minimum bid when current price changes
   useEffect(() => {
     setBidAmount(minBid);
-  }, [currentPrice, basePrice, minBid]);
+  }, [minBid]);
 
   // Set error from Redux if it exists
   useEffect(() => {
@@ -60,29 +59,67 @@ export default function LiveBidding({
     }
   }, [bidError]);
 
+  // Socket connection and event handling
   useEffect(() => {
-    // Connect to the WebSocket server
+    if (!auctionId) {
+      console.log("❌ No auctionId provided, skipping socket connection");
+      return;
+    }
+
+    console.log(
+      "📍 Socket URL:",
+      import.meta.env.VITE_API_URL || "http://localhost:2000",
+    );
+    console.log("🎯 Auction ID:", auctionId);
+
     const socketInstance = io(
-      import.meta.env.VITE_API_URL || "http://localhost:3000",
+      import.meta.env.VITE_API_URL || "http://localhost:2000",
+      {
+        forceNew: true,
+        transports: ["websocket", "polling"],
+      },
     );
 
-    // Join the auction room
-    socketInstance.emit("joinAuction", auctionId);
+    socketInstance.on("connect", () => {
+      console.log(
+        "✅ Socket connected successfully with ID:",
+        socketInstance.id,
+      );
+      console.log("🚀 Attempting to join auction room:", auctionId);
+      socketInstance.emit("joinAuctionRoom", auctionId);
+      console.log("📤 Emitted joinAuction event with auctionId:", auctionId);
+    });
 
-    // Listen for new bids
+    socketInstance.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+    });
+
+    // Listen for new bids from other users
     socketInstance.on("newBid", (bidMessage: LiveBidMessage) => {
-      setMessages((prev) => [bidMessage, ...prev]);
-      // Update minimum bid amount when new bids come in
-      if (bidMessage.bidAmount >= bidAmount) {
+      console.log("🎉 New bid received:", bidMessage);
+
+      // Only add if it's not from the current user (avoid duplicates)
+      if (user && bidMessage.userId !== user._id) {
+        setMessages((prev) => [bidMessage, ...prev.slice(0, 15)]);
+      }
+
+      // Update minimum bid amount if the new bid is higher
+      if (bidMessage.bidAmount >= bidAmountRef.current) {
         setBidAmount(bidMessage.bidAmount + 1);
+        console.log("💰 Updated bid amount to:", bidMessage.bidAmount + 1);
       }
     });
 
+    socketInstance.on("connect_error", (error) => {
+      console.error("🚨 Socket connection error:", error);
+    });
+
     return () => {
+      console.log("🧹 Cleaning up socket connection for auction:", auctionId);
       socketInstance.emit("leaveAuction", auctionId);
       socketInstance.disconnect();
     };
-  }, [auctionId, bidAmount]);
+  }, [auctionId, user]);
 
   const handleBidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,12 +139,6 @@ export default function LiveBidding({
     }
 
     if (bidAmount < minBid) {
-      setError("Bid must be higher than the current price");
-      setTimeout(() => setError(null), 3000);
-      return;
-    }
-
-    if (bidAmount < minBid) {
       setError(`Bid must be at least ${minBid} Coins`);
       setTimeout(() => setError(null), 3000);
       return;
@@ -119,13 +150,25 @@ export default function LiveBidding({
     dispatch(placeBid({ auctionId, bidAmount }))
       .unwrap()
       .then(() => {
-        // Success is handled by the reducer updating the state
-        // Show success message
+        // Success - add optimistic update for current user
         setError(null);
+
+        const optimisticBid: LiveBidMessage = {
+          userId: user._id,
+          username: user.fullName,
+          bidAmount,
+          timestamp: new Date().toISOString(),
+          auctionId,
+          currentPrice: bidAmount,
+        };
+
+        // Add current user's bid immediately at the top
+        setMessages((prev) => [optimisticBid, ...prev.slice(0, 15)]);
       })
       .catch((err) => {
-        console.log(err);
-        // Error already handled by setting bidError in Redux
+        console.log("Bid error:", err);
+        setError(err || "Failed to place bid");
+        setTimeout(() => setError(null), 3000);
       })
       .finally(() => {
         setIsPlacingBid(false);
@@ -134,31 +177,60 @@ export default function LiveBidding({
 
   return (
     <div className="mt-4">
-      <h3 className="mb-2 text-lg font-medium">Place Your Bid</h3>
+      <h3 className="mb-2 text-lg font-medium">Live Activity</h3>
 
-      {/* Live bid feed */}
+      {/* Live bid feed - Latest bids at top */}
       <div className="h-48 overflow-y-auto rounded-lg bg-gray-800 p-3">
         {messages.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 rounded-md bg-gray-700 p-2 text-sm"
-              >
-                <div className="h-6 w-6 rounded-full bg-blue-600 text-center">
-                  <span className="text-xs leading-6">
-                    {msg.username.charAt(0)}
+            {messages.map((msg, idx) => {
+              const isCurrentUser = user && msg.userId === user._id;
+              const displayName = isCurrentUser ? "You" : msg.username;
+
+              return (
+                <div
+                  key={`${msg.userId}-${msg.timestamp}-${idx}`}
+                  className={`flex items-center gap-2 rounded-md p-2 text-sm ${
+                    isCurrentUser
+                      ? "border border-blue-500/30 bg-blue-900/50"
+                      : "bg-gray-700"
+                  }`}
+                >
+                  <div
+                    className={`h-6 w-6 rounded-full text-center ${
+                      isCurrentUser ? "bg-blue-600" : "bg-gray-600"
+                    }`}
+                  >
+                    <span className="text-xs leading-6">
+                      {isCurrentUser
+                        ? "Y"
+                        : msg.username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span
+                    className={`font-medium ${
+                      isCurrentUser ? "text-blue-300" : "text-blue-400"
+                    }`}
+                  >
+                    {displayName}
+                  </span>{" "}
+                  bid{" "}
+                  <span className="font-medium text-green-400">
+                    {msg.bidAmount} Coins
                   </span>
+                  <div className="ml-auto flex items-center gap-2">
+                  {isCurrentUser && (
+                      <span className="rounded bg-blue-600/20 px-2 py-0.5 text-xs text-blue-300">
+                        Your bid
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
                 </div>
-                <span className="font-medium text-blue-400">
-                  {msg.username}
-                </span>{" "}
-                bid{" "}
-                <span className="font-medium text-green-400">
-                  {msg.bidAmount} Coins
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="text-center text-gray-500">No live activity yet</p>

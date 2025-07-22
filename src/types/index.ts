@@ -2,8 +2,8 @@ export interface Bidder {
   userId: string;
   username: string;
   bidAmount: number;
-  bidTime: string;
-  _id: string;
+  bidTime?: string;
+  _id?: string;
 }
 
 export interface Product {

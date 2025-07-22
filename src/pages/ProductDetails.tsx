@@ -13,6 +13,8 @@ import {
 } from "../store/wishlistSlice";
 import { toast } from "react-toastify";
 import { LoadingContainer } from "../components/index";
+import { io } from "socket.io-client";
+import { LiveBidMessage, TopBidder, Bidder } from "../types/auction"; // Add this import
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -28,6 +30,7 @@ export default function ProductDetails() {
   } = useSelector((state: RootState) => state.product);
 
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const user = useSelector((state: RootState) => state.auth.user); // Add this line
   const userCoins = useSelector(
     (state: RootState) => state.auth.user?.coins || 0,
   );
@@ -35,6 +38,7 @@ export default function ProductDetails() {
 
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [sparkle, setSparkle] = useState(false);
+  const [realtimeBids, setRealtimeBids] = useState<LiveBidMessage[]>([]);
 
   // Fetch product details when component mounts or productId changes
   useEffect(() => {
@@ -48,6 +52,26 @@ export default function ProductDetails() {
       dispatch(fetchWishlist());
     }
   }, [isLoggedIn, wishlist.length, dispatch]);
+
+  useEffect(() => {
+    if (!auction?._id) return;
+
+    const socketInstance = io(
+      import.meta.env.VITE_API_URL || "http://localhost:3000",
+    );
+
+    socketInstance.emit("joinAuctionRoom", auction._id);
+
+    socketInstance.on("newBid", (bidMessage: LiveBidMessage) => {
+      console.log("📱 Real-time bid received in ProductDetails:", bidMessage);
+      setRealtimeBids((prev) => [bidMessage, ...prev.slice(0, 4)]); // Keep 5 recent
+    });
+
+    return () => {
+      socketInstance.emit("leaveAuction", auction._id);
+      socketInstance.disconnect();
+    };
+  }, [auction?._id]);
 
   // Show loading state
   if (loading) {
@@ -331,36 +355,144 @@ export default function ProductDetails() {
 
                 {/* Bid History / Live Activity */}
                 <div className="md:col-span-2">
-                  <h3 className="mb-3 text-lg font-medium">Recent Activity</h3>
+                  <h3 className="mb-3 text-lg font-medium">Top Bidders</h3>
                   <div className="h-48 overflow-y-auto rounded-lg bg-gray-800 p-4">
                     <div className="flex flex-col gap-3">
-                      {auction.bidders && auction.bidders.length > 0 ? (
-                        auction.bidders.slice(0, 10).map((bid, index) => (
-                          <div
-                            key={bid._id || index}
-                            className="flex items-center gap-2 rounded-md bg-gray-700 p-2 text-sm"
-                          >
-                            <div className="h-8 w-8 rounded-full bg-blue-600 text-center">
-                              <span className="leading-8">
-                                {bid.userId.charAt(0)}
-                              </span>
-                            </div>
-                            <p>
-                              <span className="font-medium text-blue-400">
-                                User {bid.userId.substring(0, 6)}
-                              </span>{" "}
-                              bid{" "}
-                              <span className="text-green-400">
-                                {bid.bidAmount} Coins
-                              </span>
-                            </p>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-center text-gray-500">
-                          No bids placed yet
-                        </p>
-                      )}
+                      {(() => {
+                        // Combine real-time and historical bids with proper typing
+                        const allBids: (
+                          | LiveBidMessage
+                          | (Bidder & { username?: string })
+                        )[] = [
+                          ...realtimeBids,
+                          ...(auction.bidders || []).map((bidder) => ({
+                            ...bidder,
+                            username: `User ${bidder.userId.substring(0, 6)}`,
+                            timestamp:
+                              bidder.bidTime || new Date().toISOString(),
+                          })),
+                        ];
+
+                        // Get unique bidders with their highest bid
+                        const topBidders = allBids.reduce(
+                          (acc: TopBidder[], bid) => {
+                            const existingBidderIndex = acc.findIndex(
+                              (b) => b.userId === bid.userId,
+                            );
+
+                            if (
+                              existingBidderIndex === -1 ||
+                              bid.bidAmount > acc[existingBidderIndex].bidAmount
+                            ) {
+                              const bidderData: TopBidder = {
+                                userId: bid.userId,
+                                username:
+                                  bid.username ||
+                                  `User ${bid.userId.substring(0, 6)}`,
+                                bidAmount: bid.bidAmount,
+                                timestamp:
+                                  "timestamp" in bid
+                                    ? bid.timestamp
+                                    : bid.bidTime || new Date().toISOString(),
+                                isRealtime: realtimeBids.some(
+                                  (rb) =>
+                                    rb.userId === bid.userId &&
+                                    rb.bidAmount === bid.bidAmount,
+                                ),
+                              };
+
+                              if (existingBidderIndex >= 0) {
+                                acc[existingBidderIndex] = bidderData;
+                              } else {
+                                acc.push(bidderData);
+                              }
+                            }
+                            return acc;
+                          },
+                          [],
+                        );
+
+                        // Sort by bid amount (highest first)
+                        topBidders.sort((a, b) => b.bidAmount - a.bidAmount);
+
+                        return topBidders.length > 0 ? (
+                          topBidders.slice(0, 8).map((bidder, index) => {
+                            const isCurrentUser =
+                              user && bidder.userId === user._id;
+                            const displayName = isCurrentUser
+                              ? "You"
+                              : bidder.username;
+
+                            return (
+                              <div
+                                key={`top-bidder-${bidder.userId}-${index}`}
+                                className={`flex items-center gap-3 rounded-md p-3 text-sm ${
+                                  isCurrentUser
+                                    ? "border border-blue-500/30 bg-blue-900/30"
+                                    : "bg-gray-700"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-600 text-xs font-bold">
+                                    {index + 1}
+                                  </span>
+                                  <div
+                                    className={`h-8 w-8 rounded-full text-center ${
+                                      isCurrentUser
+                                        ? "bg-blue-600"
+                                        : "bg-gray-600"
+                                    }`}
+                                  >
+                                    <span className="leading-8">
+                                      {isCurrentUser
+                                        ? "Y"
+                                        : bidder.username
+                                            .charAt(0)
+                                            .toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`font-medium ${
+                                          isCurrentUser
+                                            ? "text-blue-300"
+                                            : "text-blue-400"
+                                        }`}
+                                      >
+                                        {displayName}
+                                      </span>
+                                      {bidder.isRealtime && (
+                                        <span className="rounded bg-green-600/20 px-2 py-0.5 text-xs text-green-300">
+                                          LIVE
+                                        </span>
+                                      )}
+                                    </div>
+                                    {/* Move "Your bid" label to the right */}
+                                    {isCurrentUser && (
+                                      <span className="rounded bg-blue-600/20 px-2 py-0.5 text-xs text-blue-300">
+                                        Your bid
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    Highest bid:{" "}
+                                    <span className="font-medium text-green-400">
+                                      {bidder.bidAmount} Coins
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <p className="text-center text-gray-500">
+                            No bids placed yet
+                          </p>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
