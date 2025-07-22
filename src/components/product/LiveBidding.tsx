@@ -21,6 +21,7 @@ export default function LiveBidding({
   const [messages, setMessages] = useState<LiveBidMessage[]>([]);
   const minBid = currentPrice !== null ? currentPrice + 1 : basePrice;
   const [bidAmount, setBidAmount] = useState<number>(minBid);
+  const [bidInputValue, setBidInputValue] = useState<string>(minBid.toString());
   const [isPlacingBid, setIsPlacingBid] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +50,7 @@ export default function LiveBidding({
   // Update minimum bid when current price changes
   useEffect(() => {
     setBidAmount(minBid);
+    setBidInputValue(minBid.toString());
   }, [minBid]);
 
   // Set error from Redux if it exists
@@ -105,8 +107,9 @@ export default function LiveBidding({
 
       // Update minimum bid amount if the new bid is higher
       if (bidMessage.bidAmount >= bidAmountRef.current) {
-        setBidAmount(bidMessage.bidAmount + 1);
-        console.log("💰 Updated bid amount to:", bidMessage.bidAmount + 1);
+        const newBidAmount = bidMessage.bidAmount + 1;
+        setBidAmount(newBidAmount);
+        setBidInputValue(newBidAmount.toString());
       }
     });
 
@@ -120,6 +123,17 @@ export default function LiveBidding({
       socketInstance.disconnect();
     };
   }, [auctionId, user]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setBidInputValue(value);
+
+    // Only update bidAmount if the value is a valid number
+    const numValue = Number(value);
+    if (value !== "" && !isNaN(numValue)) {
+      setBidAmount(numValue);
+    }
+  };
 
   const handleBidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,7 +152,13 @@ export default function LiveBidding({
       return;
     }
 
-    if (bidAmount < minBid) {
+    // Validate the actual bid amount
+    const finalBidAmount = Number(bidInputValue);
+    if (
+      bidInputValue === "" ||
+      isNaN(finalBidAmount) ||
+      finalBidAmount < minBid
+    ) {
       setError(`Bid must be at least ${minBid} Coins`);
       setTimeout(() => setError(null), 3000);
       return;
@@ -147,7 +167,7 @@ export default function LiveBidding({
     setIsPlacingBid(true);
 
     // Dispatch the API call through Redux
-    dispatch(placeBid({ auctionId, bidAmount }))
+    dispatch(placeBid({ auctionId, bidAmount: finalBidAmount }))
       .unwrap()
       .then(() => {
         // Success - add optimistic update for current user
@@ -156,10 +176,10 @@ export default function LiveBidding({
         const optimisticBid: LiveBidMessage = {
           userId: user._id,
           username: user.fullName,
-          bidAmount,
+          bidAmount: finalBidAmount,
           timestamp: new Date().toISOString(),
           auctionId,
-          currentPrice: bidAmount,
+          currentPrice: finalBidAmount,
         };
 
         // Add current user's bid immediately at the top
@@ -219,7 +239,7 @@ export default function LiveBidding({
                     {msg.bidAmount} Coins
                   </span>
                   <div className="ml-auto flex items-center gap-2">
-                  {isCurrentUser && (
+                    {isCurrentUser && (
                       <span className="rounded bg-blue-600/20 px-2 py-0.5 text-xs text-blue-300">
                         Your bid
                       </span>
@@ -242,8 +262,8 @@ export default function LiveBidding({
         <div className="flex gap-2">
           <input
             type="number"
-            value={bidAmount}
-            onChange={(e) => setBidAmount(Number(e.target.value))}
+            value={bidInputValue}
+            onChange={handleInputChange}
             className="w-full rounded-lg bg-gray-800 px-4 py-2 text-white"
             placeholder={`Min ${minBid} Coins`}
             min={minBid}
