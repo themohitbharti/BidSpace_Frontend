@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
-import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useAppDispatch } from "../../store/hooks";
 import { placeBid } from "../../store/productSlice";
 import { LiveBidMessage } from "../../types/auction";
+import { useWebSocket } from "../../contexts/WebSocketContext";
 
 interface LiveBiddingProps {
   auctionId: string;
@@ -27,6 +27,16 @@ export default function LiveBidding({
 
   // Use ref to access current bidAmount without causing re-renders
   const bidAmountRef = useRef(bidAmount);
+
+  // Get WebSocket context
+  const {
+    // socket,
+    isConnected,
+    joinAuctionRoom,
+    leaveAuctionRoom,
+    onNewBid,
+    offNewBid,
+  } = useWebSocket();
 
   // Update ref when bidAmount changes
   useEffect(() => {
@@ -61,43 +71,20 @@ export default function LiveBidding({
     }
   }, [bidError]);
 
-  // Socket connection and event handling
+  // Handle auction room joining/leaving and bid listening
   useEffect(() => {
-    if (!auctionId) {
-      console.log("❌ No auctionId provided, skipping socket connection");
+    if (!auctionId || !isConnected) {
+      console.log(
+        "❌ Cannot join auction room: missing auctionId or not connected",
+      );
       return;
     }
 
-    console.log(
-      "📍 Socket URL:",
-      import.meta.env.VITE_API_URL || "http://localhost:2000",
-    );
-    console.log("🎯 Auction ID:", auctionId);
+    console.log("🎯 Joining auction room:", auctionId);
+    joinAuctionRoom(auctionId);
 
-    const socketInstance = io(
-      import.meta.env.VITE_API_URL || "http://localhost:2000",
-      {
-        forceNew: true,
-        transports: ["websocket", "polling"],
-      },
-    );
-
-    socketInstance.on("connect", () => {
-      console.log(
-        "✅ Socket connected successfully with ID:",
-        socketInstance.id,
-      );
-      console.log("🚀 Attempting to join auction room:", auctionId);
-      socketInstance.emit("joinAuctionRoom", auctionId);
-      console.log("📤 Emitted joinAuction event with auctionId:", auctionId);
-    });
-
-    socketInstance.on("disconnect", (reason) => {
-      console.log("❌ Socket disconnected:", reason);
-    });
-
-    // Listen for new bids from other users
-    socketInstance.on("newBid", (bidMessage: LiveBidMessage) => {
+    // Define the bid handler
+    const handleNewBid = (bidMessage: LiveBidMessage) => {
       console.log("🎉 New bid received:", bidMessage);
 
       // Only add if it's not from the current user (avoid duplicates)
@@ -111,18 +98,26 @@ export default function LiveBidding({
         setBidAmount(newBidAmount);
         setBidInputValue(newBidAmount.toString());
       }
-    });
-
-    socketInstance.on("connect_error", (error) => {
-      console.error("🚨 Socket connection error:", error);
-    });
-
-    return () => {
-      console.log("🧹 Cleaning up socket connection for auction:", auctionId);
-      socketInstance.emit("leaveAuction", auctionId);
-      socketInstance.disconnect();
     };
-  }, [auctionId, user]);
+
+    // Register the bid listener
+    onNewBid(handleNewBid);
+
+    // Cleanup function
+    return () => {
+      console.log("🧹 Cleaning up auction room for:", auctionId);
+      offNewBid(handleNewBid);
+      leaveAuctionRoom(auctionId);
+    };
+  }, [
+    auctionId,
+    isConnected,
+    user,
+    joinAuctionRoom,
+    leaveAuctionRoom,
+    onNewBid,
+    offNewBid,
+  ]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -172,7 +167,6 @@ export default function LiveBidding({
       .then(() => {
         // Success - add optimistic update for current user
         setError(null);
-
         const optimisticBid: LiveBidMessage = {
           userId: user._id,
           username: user.fullName,
@@ -198,6 +192,13 @@ export default function LiveBidding({
   return (
     <div className="mt-4">
       <h3 className="mb-2 text-lg font-medium">Live Activity</h3>
+
+      {/* Connection status indicator */}
+      {!isConnected && (
+        <div className="mb-2 rounded-lg bg-yellow-900/50 p-2 text-sm text-yellow-300">
+          ⚠️ Connecting to live updates...
+        </div>
+      )}
 
       {/* Live bid feed - Latest bids at top */}
       <div className="h-48 overflow-y-auto rounded-lg bg-gray-800 p-3">
@@ -268,11 +269,12 @@ export default function LiveBidding({
             placeholder={`Min ${minBid} Coins`}
             min={minBid}
             required
+            disabled={!isConnected}
           />
           <button
             type="submit"
             className="rounded-lg bg-blue-600 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
-            disabled={isPlacingBid || bidLoading}
+            disabled={isPlacingBid || bidLoading || !isConnected}
           >
             {isPlacingBid || bidLoading ? "Bidding..." : "Place Bid"}
           </button>

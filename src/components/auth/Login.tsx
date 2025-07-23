@@ -7,6 +7,7 @@ import { loginUser } from "../../api/auth";
 import { login as loginAction } from "../../store/authSlice";
 import axios from "axios";
 import { setAccessToken } from "../../api/axiosInstance";
+import { setCurrentAccessToken } from "../../utils/auth"; // Add this import
 
 interface LoginFormInputs {
   email: string;
@@ -31,7 +32,8 @@ function Login() {
         const { accessToken } = res.data[0];
         const user = res.user;
 
-        setAccessToken(accessToken);
+        setAccessToken(accessToken); // Your existing axios setup
+        setCurrentAccessToken(accessToken); // Sync with WebSocket context
         dispatch(loginAction(user));
         navigate("/");
       } else {

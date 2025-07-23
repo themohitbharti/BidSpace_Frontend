@@ -1,33 +1,39 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaBell, FaTimes, FaInfoCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { getNotifications, Notification } from "../../api/notificationApi";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "../../api/notificationApi";
 import { formatDistanceToNow } from "date-fns";
+import { useWebSocket } from "../../contexts/WebSocketContext";
+import type { Notification } from "../../types/notification"; // Use type-only import
 
 const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasOpenedOnce, setHasOpenedOnce] = useState(false); // Track if dropdown was opened
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Use useCallback to memoize fetchNotifications to prevent unnecessary re-renders
-  const fetchNotifications = useCallback(async () => {
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    setNotifications,
+    isConnected,
+  } = useWebSocket();
+
+  // Fetch initial notifications when dropdown opens
+  const fetchNotifications = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await getNotifications();
       if (response.success) {
-        // Add read property to notifications (default to false since backend doesn't provide it)
-        const notificationsWithReadState = response.data.map(
-          (notification) => ({
-            ...notification,
-            read: hasOpenedOnce, // If user has opened dropdown before, mark as read
-          }),
-        );
-        setNotifications(notificationsWithReadState);
+        setNotifications(response.data);
       } else {
         setError("Failed to load notifications");
       }
@@ -37,25 +43,14 @@ const NotificationDropdown: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [hasOpenedOnce]);
+  };
 
-  // Fetch notifications when dropdown opens
+  // Fetch notifications when dropdown opens for the first time
   useEffect(() => {
     if (isOpen && notifications.length === 0) {
       fetchNotifications();
     }
-  }, [isOpen, notifications.length, fetchNotifications]);
-
-  // Mark all as read when dropdown opens for the first time
-  useEffect(() => {
-    if (isOpen && !hasOpenedOnce) {
-      setHasOpenedOnce(true);
-      // Mark all notifications as read when user opens dropdown
-      setNotifications((prev) =>
-        prev.map((notification) => ({ ...notification, read: true })),
-      );
-    }
-  }, [isOpen, hasOpenedOnce]);
+  }, [isOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -72,8 +67,18 @@ const NotificationDropdown: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleNotificationClick = (notification: Notification) => {
-    // Navigate to product details page using productId
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as read locally
+    markAsRead(notification.id);
+
+    // Mark as read on server
+    try {
+      await markNotificationAsRead(notification.id);
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+
+    // Navigate to product details page
     navigate(`/product-details/${notification.productId}`);
     setIsOpen(false);
   };
@@ -82,21 +87,19 @@ const NotificationDropdown: React.FC = () => {
     fetchNotifications();
   };
 
-  const handleDropdownToggle = () => {
-    setIsOpen(!isOpen);
-    // If opening for the first time, mark all as read
-    if (!isOpen && !hasOpenedOnce) {
-      setHasOpenedOnce(true);
-      setNotifications((prev) =>
-        prev.map((notification) => ({ ...notification, read: true })),
-      );
+  const handleMarkAllAsRead = async () => {
+    markAllAsRead();
+
+    try {
+      await markAllNotificationsAsRead();
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
     }
   };
 
-  // Only show unread count if user hasn't opened dropdown yet
-  const unreadCount = hasOpenedOnce
-    ? 0
-    : notifications.filter((n) => !n.read).length;
+  const handleDropdownToggle = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -106,6 +109,14 @@ const NotificationDropdown: React.FC = () => {
         className="relative flex h-10 items-center justify-center rounded-lg bg-blue-500/10 px-3 text-blue-300 transition-all hover:bg-blue-500/20 hover:shadow-[0_0_8px_rgba(59,130,246,0.2)]"
       >
         <FaBell className="h-4 w-4" />
+        {/* Connection status indicator */}
+        <div
+          className={`absolute -top-0.5 -left-0.5 h-2 w-2 rounded-full ${
+            isConnected ? "bg-green-400" : "bg-red-400"
+          }`}
+          title={isConnected ? "Connected" : "Disconnected"}
+        />
+
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -123,8 +134,22 @@ const NotificationDropdown: React.FC = () => {
               <h3 className="text-lg font-semibold text-white">
                 Notifications
               </h3>
+              {unreadCount > 0 && (
+                <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
+                  {unreadCount}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="rounded-full px-2 py-1 text-xs text-blue-400 transition-colors hover:bg-gray-700 hover:text-blue-300"
+                  title="Mark all as read"
+                >
+                  Mark all read
+                </button>
+              )}
               <button
                 onClick={handleRefresh}
                 className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-blue-400"
@@ -189,9 +214,13 @@ const NotificationDropdown: React.FC = () => {
               <div className="divide-y divide-gray-700/50">
                 {notifications.map((notification, index) => (
                   <div
-                    key={`${notification.productId}-${notification.auctionId}-${index}`}
+                    key={`${notification.id}-${index}`}
                     onClick={() => handleNotificationClick(notification)}
-                    className="group cursor-pointer p-4 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-900/30 hover:to-purple-900/30"
+                    className={`group cursor-pointer p-4 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-900/30 hover:to-purple-900/30 ${
+                      !notification.read
+                        ? "border-l-2 border-blue-500 bg-blue-900/10"
+                        : ""
+                    }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Icon based on notification type */}
@@ -232,9 +261,20 @@ const NotificationDropdown: React.FC = () => {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm leading-relaxed text-gray-300">
-                          {notification.message}
-                        </p>
+                        <div className="flex items-start justify-between">
+                          <p
+                            className={`text-sm leading-relaxed ${
+                              !notification.read
+                                ? "font-medium text-white"
+                                : "text-gray-300"
+                            }`}
+                          >
+                            {notification.message}
+                          </p>
+                          {!notification.read && (
+                            <div className="ml-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+                          )}
+                        </div>
                         <div className="mt-1 flex items-center gap-2">
                           <span className="text-xs text-gray-500">
                             {formatDistanceToNow(new Date(notification.time), {
@@ -274,13 +314,18 @@ const NotificationDropdown: React.FC = () => {
                 <span className="text-xs text-gray-500">
                   {notifications.length} notification
                   {notifications.length !== 1 ? "s" : ""}
+                  {unreadCount > 0 && ` • ${unreadCount} unread`}
                 </span>
-                <button
-                  onClick={handleRefresh}
-                  className="text-xs text-blue-400 transition-colors hover:text-blue-300"
-                >
-                  Refresh
-                </button>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`h-2 w-2 rounded-full ${
+                      isConnected ? "bg-green-400" : "bg-red-400"
+                    }`}
+                  />
+                  <span className="text-xs text-gray-500">
+                    {isConnected ? "Live" : "Offline"}
+                  </span>
+                </div>
               </div>
             </div>
           )}

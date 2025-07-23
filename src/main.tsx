@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -18,6 +18,8 @@ import {
 } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
 import Categories from "./pages/Discover.tsx";
+import { WebSocketProvider } from "./contexts/WebSocketContext";
+import { Toaster } from "react-hot-toast";
 
 const router = createBrowserRouter([
   {
@@ -69,7 +71,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/product-details/:productId", // Add productId parameter
+        path: "/product-details/:productId",
         element: (
           <AuthLayout authentication={false}>
             <ProductDetails />
@@ -105,11 +107,13 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  
     <Provider store={store}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <WebSocketProvider>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" />
+        </WebSocketProvider>
       </AuthProvider>
     </Provider>
-  </StrictMode>,
 );

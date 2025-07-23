@@ -9,8 +9,14 @@ const axiosInstance = axios.create({
 
 // simple in‑memory holder (or use localStorage)
 let accessToken: string | null = null;
+
 export const setAccessToken = (t: string | null) => {
   accessToken = t;
+};
+
+// Add this getter function
+export const getAccessToken = () => {
+  return accessToken;
 };
 
 axiosInstance.interceptors.request.use((cfg) => {
