@@ -19,6 +19,7 @@ import AppLoader from "./common/AppLoader";
 import Header from "./layout/header/Header";
 import Footer from "./layout/footer/Footer";
 import ProfileSidebar from "./layout/ProfileSidebar";
+import NotificationDropdown from "./layout/NotificationDropdown";
 
 // Product components
 import ProductCard from "./product/ProductCard";
@@ -57,6 +58,7 @@ export {
   Header,
   Footer,
   ProfileSidebar,
+  NotificationDropdown,
 
   // Product
   ProductCard,

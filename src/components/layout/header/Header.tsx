@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { ProfileSidebar } from "../../index";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaRocket, FaUserAstronaut, FaBell } from "react-icons/fa";
+import { FaRocket, FaUserAstronaut } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
+import NotificationDropdown from "../NotificationDropdown";
 
 function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -72,13 +73,9 @@ function Header() {
 
             {authStatus && (
               <>
-                {/* Notification Bell Icon */}
+                {/* Notification Dropdown */}
                 <li className="shrink-0">
-                  <button
-                    className="flex h-10 px-3 items-center justify-center rounded-lg bg-blue-500/10 text-blue-300 transition-all hover:bg-blue-500/20 hover:shadow-[0_0_8px_rgba(59,130,246,0.2)]"
-                  >
-                    <FaBell />
-                  </button>
+                  <NotificationDropdown />
                 </li>
                 {/* Profile Button */}
                 <li className="shrink-0">
