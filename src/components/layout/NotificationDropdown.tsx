@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FaBell, FaTimes, FaInfoCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getNotifications, Notification } from "../../api/notificationApi";
@@ -13,12 +13,38 @@ const NotificationDropdown: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
+  // Use useCallback to memoize fetchNotifications to prevent unnecessary re-renders
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getNotifications();
+      if (response.success) {
+        // Add read property to notifications (default to false since backend doesn't provide it)
+        const notificationsWithReadState = response.data.map(
+          (notification) => ({
+            ...notification,
+            read: hasOpenedOnce, // If user has opened dropdown before, mark as read
+          }),
+        );
+        setNotifications(notificationsWithReadState);
+      } else {
+        setError("Failed to load notifications");
+      }
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+      setError("Failed to load notifications");
+    } finally {
+      setLoading(false);
+    }
+  }, [hasOpenedOnce]);
+
   // Fetch notifications when dropdown opens
   useEffect(() => {
     if (isOpen && notifications.length === 0) {
       fetchNotifications();
     }
-  }, [isOpen]);
+  }, [isOpen, notifications.length, fetchNotifications]);
 
   // Mark all as read when dropdown opens for the first time
   useEffect(() => {
@@ -45,31 +71,6 @@ const NotificationDropdown: React.FC = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getNotifications();
-      if (response.success) {
-        // Add read property to notifications (default to false since backend doesn't provide it)
-        const notificationsWithReadState = response.data.map(
-          (notification) => ({
-            ...notification,
-            read: hasOpenedOnce, // If user has opened dropdown before, mark as read
-          }),
-        );
-        setNotifications(notificationsWithReadState);
-      } else {
-        setError("Failed to load notifications");
-      }
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
-      setError("Failed to load notifications");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleNotificationClick = (notification: Notification) => {
     // Navigate to product details page using productId
