@@ -18,7 +18,7 @@ import {
 } from "./pages/index.ts";
 import { AuthProvider } from "./context/AuthProvider.tsx";
 import Categories from "./pages/Discover.tsx";
-import { WebSocketProvider } from "./contexts/WebSocketContext";
+import { WebSocketProvider } from "./contexts/WebSocketProvider.tsx";
 import { Toaster } from "react-hot-toast";
 
 const router = createBrowserRouter([

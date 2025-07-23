@@ -7,12 +7,12 @@ import {
   markAllNotificationsAsRead,
 } from "../../api/notificationApi";
 import { formatDistanceToNow } from "date-fns";
-import { useWebSocket } from "../../contexts/WebSocketContext";
+import { useWebSocket } from "../../hooks/useWebSocket";
 import type { Notification } from "../../types/notification"; // Use type-only import
 
 const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [refreshLoading, setRefreshLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -24,12 +24,13 @@ const NotificationDropdown: React.FC = () => {
     markAllAsRead,
     setNotifications,
     isConnected,
+    notificationsLoading,
   } = useWebSocket();
 
-  // Fetch initial notifications when dropdown opens
+  // Manual refresh function (separate from initial load)
   const fetchNotifications = async () => {
     try {
-      setLoading(true);
+      setRefreshLoading(true);
       setError(null);
       const response = await getNotifications();
       if (response.success) {
@@ -41,16 +42,9 @@ const NotificationDropdown: React.FC = () => {
       console.error("Error fetching notifications:", err);
       setError("Failed to load notifications");
     } finally {
-      setLoading(false);
+      setRefreshLoading(false);
     }
   };
-
-  // Fetch notifications when dropdown opens for the first time
-  useEffect(() => {
-    if (isOpen && notifications.length === 0) {
-      fetchNotifications();
-    }
-  }, [isOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -101,6 +95,9 @@ const NotificationDropdown: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
+  // Show loading indicator on initial load
+  const isLoading = notificationsLoading || refreshLoading;
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell Button */}
@@ -117,8 +114,9 @@ const NotificationDropdown: React.FC = () => {
           title={isConnected ? "Connected" : "Disconnected"}
         />
 
+        {/* Show unread count even during initial loading */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -152,7 +150,8 @@ const NotificationDropdown: React.FC = () => {
               )}
               <button
                 onClick={handleRefresh}
-                className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-blue-400"
+                disabled={refreshLoading}
+                className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-blue-400 disabled:opacity-50"
                 title="Refresh notifications"
               >
                 <svg
@@ -180,12 +179,14 @@ const NotificationDropdown: React.FC = () => {
 
           {/* Content */}
           <div className="max-h-80 overflow-y-auto">
-            {loading ? (
+            {isLoading ? (
               <div className="flex items-center justify-center p-8">
                 <div className="flex items-center gap-3">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
                   <span className="text-gray-400">
-                    Loading notifications...
+                    {notificationsLoading
+                      ? "Loading notifications..."
+                      : "Refreshing..."}
                   </span>
                 </div>
               </div>

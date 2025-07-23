@@ -4,7 +4,7 @@ import { RootState } from "../../store/store";
 import { useAppDispatch } from "../../store/hooks";
 import { placeBid } from "../../store/productSlice";
 import { LiveBidMessage } from "../../types/auction";
-import { useWebSocket } from "../../contexts/WebSocketContext";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 interface LiveBiddingProps {
   auctionId: string;

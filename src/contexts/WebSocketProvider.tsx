@@ -1,42 +1,13 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { getAccessToken } from "../api/axiosInstance";
+import { getNotifications } from "../api/notificationApi";
+import { WebSocketContext } from "./WebSocketContext";
 import type { Notification } from "../types/notification";
 import type { LiveBidMessage } from "../types/auction";
-
-interface WebSocketContextType {
-  socket: Socket | null;
-  isConnected: boolean;
-  notifications: Notification[];
-  unreadCount: number;
-  addNotification: (notification: Notification) => void;
-  markAsRead: (notificationId: string) => void;
-  markAllAsRead: () => void;
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
-  // Auction room methods
-  joinAuctionRoom: (auctionId: string) => void;
-  leaveAuctionRoom: (auctionId: string) => void;
-  onNewBid: (callback: (bid: LiveBidMessage) => void) => void;
-  offNewBid: (callback: (bid: LiveBidMessage) => void) => void;
-}
-
-const WebSocketContext = createContext<WebSocketContextType | null>(null);
-
-export const useWebSocket = () => {
-  const context = useContext(WebSocketContext);
-  if (!context) {
-    throw new Error("useWebSocket must be used within WebSocketProvider");
-  }
-  return context;
-};
+import type { WebSocketContextType } from "./WebSocketContext";
 
 interface WebSocketProviderProps {
   children: React.ReactNode;
@@ -48,11 +19,33 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const socketRef = useRef<Socket | null>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Fetch initial notifications
+  const fetchInitialNotifications = useCallback(async () => {
+    if (!isLoggedIn || !user) return;
+
+    try {
+      setNotificationsLoading(true);
+      console.log("🔔 Fetching initial notifications...");
+      const response = await getNotifications();
+      if (response.success) {
+        setNotifications(response.data);
+        console.log(
+          `✅ Loaded ${response.data.length} notifications, ${response.data.filter((n) => !n.read).length} unread`,
+        );
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch initial notifications:", error);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }, [isLoggedIn, user]);
 
   const addNotification = (notification: Notification) => {
     setNotifications((prev) => [notification, ...prev]);
@@ -78,34 +71,37 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     );
   };
 
-  // Auction room methods
-  const joinAuctionRoom = (auctionId: string) => {
-    if (socketRef.current && isConnected) {
-      console.log("🚀 Joining auction room:", auctionId);
-      socketRef.current.emit("joinAuctionRoom", auctionId);
-    } else {
-      console.warn("Cannot join auction room: Socket not connected");
-    }
-  };
+  // Memoize auction room methods to prevent unnecessary re-renders
+  const joinAuctionRoom = useCallback(
+    (auctionId: string) => {
+      if (socketRef.current && isConnected) {
+        console.log("🚀 Joining auction room:", auctionId);
+        socketRef.current.emit("joinAuctionRoom", auctionId);
+      } else {
+        console.warn("Cannot join auction room: Socket not connected");
+      }
+    },
+    [isConnected],
+  );
 
-  const leaveAuctionRoom = (auctionId: string) => {
+  const leaveAuctionRoom = useCallback((auctionId: string) => {
     if (socketRef.current) {
       console.log("🚪 Leaving auction room:", auctionId);
       socketRef.current.emit("leaveAuction", auctionId);
     }
-  };
+  }, []);
 
-  const onNewBid = (callback: (bid: LiveBidMessage) => void) => {
+  const onNewBid = useCallback((callback: (bid: LiveBidMessage) => void) => {
     if (socketRef.current) {
       socketRef.current.on("newBid", callback);
     }
-  };
+  }, []);
 
-  const offNewBid = (callback: (bid: LiveBidMessage) => void) => {
+  const offNewBid = useCallback((callback: (bid: LiveBidMessage) => void) => {
     if (socketRef.current) {
       socketRef.current.off("newBid", callback);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn && user) {
@@ -132,6 +128,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       socketInstance.on("connect", () => {
         console.log("✅ WebSocket connected successfully:", socketInstance.id);
         setIsConnected(true);
+
+        // Fetch initial notifications when socket connects
+        fetchInitialNotifications();
       });
 
       socketInstance.on("connected", (data) => {
@@ -181,7 +180,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         setNotifications([]);
       }
     }
-  }, [isLoggedIn, user]);
+  }, [isLoggedIn, user, fetchInitialNotifications]);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -206,6 +205,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     leaveAuctionRoom,
     onNewBid,
     offNewBid,
+    notificationsLoading,
   };
 
   return (
