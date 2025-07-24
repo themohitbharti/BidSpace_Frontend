@@ -23,6 +23,7 @@ import { updateUser } from "../store/authSlice";
 import axios from "axios";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchWishlist } from "../store/wishlistSlice";
+import BuyCoinsPack from "../components/wallet/BuyCoinsPack";
 
 // Import the updateUser action if you have one for Redux state updates
 
@@ -42,6 +43,7 @@ export default function UserProfile() {
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  const [showBuyCoins, setShowBuyCoins] = useState<boolean>(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -506,7 +508,10 @@ export default function UserProfile() {
                       <p className="text-sm text-gray-300">Available Coins</p>
                       <p className="mt-2 text-3xl font-bold">{user.coins}</p>
                       <div className="mt-4">
-                        <button className="rounded bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-500">
+                        <button
+                          onClick={() => setShowBuyCoins(true)}
+                          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-500"
+                        >
                           Buy More Coins
                         </button>
                       </div>
@@ -540,6 +545,13 @@ export default function UserProfile() {
           )}
         </div>
       </Container>
+
+      {/* Buy Coins Modal */}
+      <BuyCoinsPack
+        isOpen={showBuyCoins}
+        onClose={() => setShowBuyCoins(false)}
+        userCoins={user?.coins || 0}
+      />
 
       {/* Edit Profile Modal */}
       {isEditMode && (
