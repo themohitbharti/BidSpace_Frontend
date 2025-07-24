@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ProfileSidebar } from "../../index";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaRocket, FaUserAstronaut } from "react-icons/fa";
+import { FaRocket, FaUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import NotificationDropdown from "../NotificationDropdown";
@@ -9,6 +9,7 @@ import NotificationDropdown from "../NotificationDropdown";
 function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const authStatus = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -77,13 +78,31 @@ function Header() {
                 <li className="shrink-0">
                   <NotificationDropdown />
                 </li>
-                {/* Profile Button */}
+                {/* Professional Profile Button */}
                 <li className="shrink-0">
                   <button
                     onClick={() => setSidebarOpen(true)}
-                    className="flex h-10 px-3 items-center justify-center rounded-lg bg-purple-500/10 text-purple-300 transition-all hover:bg-purple-500/20 hover:shadow-[0_0_8px_rgba(180,144,202,0.2)]"
+                    className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 text-blue-200 transition-all duration-300 hover:from-blue-500/30 hover:to-purple-500/30 hover:border-blue-400/50 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:scale-105"
+                    title={`${user?.fullName || 'Profile'} - Click to open menu`}
                   >
-                    <FaUserAstronaut />
+                    {/* Background glow effect */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* User Avatar or Icon */}
+                    <div className="relative z-10 flex items-center justify-center">
+                      {user?.fullName ? (
+                        // Show user initials
+                        <span className="text-sm font-bold tracking-wide">
+                          {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        </span>
+                      ) : (
+                        // Fallback to user icon
+                        <FaUser className="text-base" />
+                      )}
+                    </div>
+                    
+                    {/* Subtle rotating border on hover */}
+                    <div className="absolute inset-0 rounded-full border border-blue-400/0 group-hover:border-blue-400/20 transition-all duration-500 group-hover:rotate-180" />
                   </button>
                 </li>
               </>
