@@ -31,6 +31,13 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
+
+  // Move user selector to the top before using it
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const wishlist = useAppSelector((state) => state.wishlist.items);
+
+  // Now you can safely use user in useState
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reservedProducts, setReservedProducts] = useState<number>(0);
@@ -44,6 +51,8 @@ export default function UserProfile() {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [showBuyCoins, setShowBuyCoins] = useState<boolean>(false);
+  const [currentCoins, setCurrentCoins] = useState<number>(user?.coins || 0);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -52,11 +61,6 @@ export default function UserProfile() {
     newPassword: "",
     confirmPassword: "",
   });
-
-  const user = useSelector((state: RootState) => state.auth.user);
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-  const wishlist = useAppSelector((state) => state.wishlist.items);
-  const [wishlistCount, setWishlistCount] = useState(0);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -125,6 +129,27 @@ export default function UserProfile() {
   useEffect(() => {
     setWishlistCount(wishlist.length);
   }, [wishlist]);
+
+  // Update coins when user data changes
+  useEffect(() => {
+    if (user?.coins) {
+      setCurrentCoins(user.coins);
+    }
+  }, [user?.coins]);
+
+  const handleCoinsUpdated = (newCoins: number) => {
+    setCurrentCoins(newCoins);
+
+    // Update Redux state with new coin amount
+    if (user) {
+      dispatch(
+        updateUser({
+          ...user,
+          coins: newCoins,
+        }),
+      );
+    }
+  };
 
   if (!user) {
     return (
@@ -550,7 +575,8 @@ export default function UserProfile() {
       <BuyCoinsPack
         isOpen={showBuyCoins}
         onClose={() => setShowBuyCoins(false)}
-        userCoins={user?.coins || 0}
+        userCoins={currentCoins}
+        onCoinsUpdated={handleCoinsUpdated}
       />
 
       {/* Edit Profile Modal */}

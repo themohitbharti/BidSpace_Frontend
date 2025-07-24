@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes, FaCoins, FaRocket, FaStar, FaGem } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { createOrder, verifyPayment } from "../../api/paymentApi";
+import { RazorpayOptions, RazorpayResponse } from "../../types/razorpay";
 
 interface CoinPack {
   id: string;
@@ -18,6 +22,7 @@ interface BuyCoinsPackProps {
   isOpen: boolean;
   onClose: () => void;
   userCoins: number;
+  onCoinsUpdated?: (newCoins: number) => void; // Callback to update parent component
 }
 
 const COIN_PACKS: CoinPack[] = [
@@ -65,12 +70,29 @@ export default function BuyCoinsPack({
   isOpen,
   onClose,
   userCoins,
+  onCoinsUpdated,
 }: BuyCoinsPackProps) {
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Get user info from Redux
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  // Load Razorpay script - MOVE THIS BEFORE THE CONDITIONAL RETURN
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // NOW the conditional return can be here
   if (!isOpen) return null;
 
   const handlePackSelect = (packId: string) => {
@@ -92,40 +114,127 @@ export default function BuyCoinsPack({
     return coins.toFixed(0); // 1 coin = 1 rupee
   };
 
+  const handlePaymentSuccess = async (
+    response: RazorpayResponse,
+    _amount: number,
+    coins: number,
+  ) => {
+    try {
+      setIsProcessing(true);
+
+      const verificationResult = await verifyPayment({
+        paymentId: response.razorpay_payment_id,
+        orderId: response.razorpay_order_id,
+        signature: response.razorpay_signature,
+        amount: coins, // Send coins amount to backend
+      });
+
+      if (verificationResult.success) {
+        toast.success(`Successfully purchased ${coins} coins!`);
+
+        // Update user coins in parent component
+        if (onCoinsUpdated) {
+          onCoinsUpdated(userCoins + coins);
+        }
+
+        onClose();
+      } else {
+        toast.error("Payment verification failed");
+      }
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      toast.error("Payment verification failed");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handlePurchase = async () => {
-    setIsProcessing(true);
+    if (!user) {
+      toast.error("Please login to continue");
+      return;
+    }
+
+    let purchaseDetails;
+    if (isCustomMode && customAmount) {
+      purchaseDetails = {
+        coins: parseInt(customAmount),
+        price: parseFloat(getCustomPrice(parseInt(customAmount))),
+        bonus: 0,
+      };
+    } else if (selectedPack) {
+      const pack = COIN_PACKS.find((p) => p.id === selectedPack);
+      if (pack) {
+        purchaseDetails = {
+          coins: pack.coins,
+          price: pack.price,
+          bonus: pack.bonus,
+        };
+      }
+    }
+
+    if (!purchaseDetails) {
+      toast.error("Please select a pack or enter custom amount");
+      return;
+    }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setIsProcessing(true);
 
-      let purchaseDetails;
-      if (isCustomMode && customAmount) {
-        purchaseDetails = {
-          coins: parseInt(customAmount),
-          price: parseFloat(getCustomPrice(parseInt(customAmount))),
-          bonus: 0,
-        };
-      } else if (selectedPack) {
-        const pack = COIN_PACKS.find((p) => p.id === selectedPack);
-        if (pack) {
-          purchaseDetails = {
-            coins: pack.coins,
-            price: pack.price,
-            bonus: pack.bonus,
-          };
-        }
+      // Create Razorpay order
+      const orderResponse = await createOrder({
+        amount: purchaseDetails.price,
+      });
+
+      if (!orderResponse.success) {
+        toast.error("Failed to create order");
+        return;
       }
 
-      if (purchaseDetails) {
-        toast.success(
-          `Successfully purchased ${purchaseDetails.coins + purchaseDetails.bonus} coins!`,
+      // Configure Razorpay options
+      const options: RazorpayOptions = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "",
+        amount: orderResponse.amount_in_paise,
+        currency: orderResponse.currency,
+        name: "BidSpace - Cosmic Coin Store",
+        description: `Purchase ${purchaseDetails.coins + purchaseDetails.bonus} coins`,
+        order_id: orderResponse.orderId,
+        handler: (response: RazorpayResponse) => {
+          handlePaymentSuccess(
+            response,
+            purchaseDetails.price,
+            purchaseDetails.coins + purchaseDetails.bonus,
+          );
+        },
+        prefill: {
+          name: user.fullName || "",
+          email: user.email || "",
+          contact: "",
+        },
+        theme: {
+          color: "#3B82F6", // Blue theme to match your design
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+            toast.info("Payment cancelled");
+          },
+        },
+      };
+
+      // Open Razorpay checkout
+      if (window.Razorpay) {
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        toast.error(
+          "Payment gateway not loaded. Please refresh and try again.",
         );
-        onClose();
+        setIsProcessing(false);
       }
-    } catch {
-      toast.error("Purchase failed. Please try again.");
-    } finally {
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to initiate payment");
       setIsProcessing(false);
     }
   };
@@ -189,6 +298,7 @@ export default function BuyCoinsPack({
               <button
                 onClick={onClose}
                 className="rounded-full bg-gray-800/50 p-2 text-gray-400 transition-all hover:scale-110 hover:bg-gray-700 hover:text-white"
+                disabled={isProcessing}
               >
                 <FaTimes className="text-lg" />
               </button>
@@ -223,12 +333,12 @@ export default function BuyCoinsPack({
                 {COIN_PACKS.map((pack) => (
                   <div
                     key={pack.id}
-                    onClick={() => handlePackSelect(pack.id)}
+                    onClick={() => !isProcessing && handlePackSelect(pack.id)}
                     className={`group relative cursor-pointer overflow-hidden rounded-lg border-2 p-4 transition-all duration-300 hover:scale-105 ${
                       selectedPack === pack.id
                         ? `border-blue-400 ${pack.glow} bg-gradient-to-br from-gray-800/90 to-gray-900/90`
                         : "border-gray-600/50 bg-gradient-to-br from-gray-800/50 to-gray-900/50 hover:border-gray-500"
-                    }`}
+                    } ${isProcessing ? "pointer-events-none opacity-70" : ""}`}
                   >
                     {/* Popular/Best Value Badge */}
                     {pack.popular && (
@@ -303,7 +413,8 @@ export default function BuyCoinsPack({
                       value={customAmount}
                       onChange={handleCustomAmountChange}
                       placeholder="e.g., 750"
-                      className="w-full rounded-lg border border-gray-600 bg-gray-800/50 px-4 py-2.5 pr-12 text-white placeholder-gray-400 backdrop-blur-sm focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none"
+                      disabled={isProcessing}
+                      className="w-full rounded-lg border border-gray-600 bg-gray-800/50 px-4 py-2.5 pr-12 text-white placeholder-gray-400 backdrop-blur-sm focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none disabled:opacity-50"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                       <FaCoins className="text-yellow-400" />
@@ -336,7 +447,7 @@ export default function BuyCoinsPack({
                   {isProcessing ? (
                     <>
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
-                      Processing...
+                      Processing Payment...
                     </>
                   ) : (
                     <>
@@ -362,7 +473,7 @@ export default function BuyCoinsPack({
             {/* Security Notice */}
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-3 text-center">
               <p className="text-xs text-blue-300">
-                🔒 Secure payment powered by cosmic encryption technology
+                🔒 Secure payment powered by Razorpay
               </p>
             </div>
           </div>
