@@ -14,7 +14,7 @@ import {
 import { toast } from "react-toastify";
 import { LoadingContainer } from "../components/index";
 import { io } from "socket.io-client";
-import { LiveBidMessage, TopBidder, Bidder } from "../types/auction"; // Add this import
+import { LiveBidMessage, TopBidder, Bidder } from "../types/auction";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -30,7 +30,7 @@ export default function ProductDetails() {
   } = useSelector((state: RootState) => state.product);
 
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-  const user = useSelector((state: RootState) => state.auth.user); // Add this line
+  const user = useSelector((state: RootState) => state.auth.user);
   const userCoins = useSelector(
     (state: RootState) => state.auth.user?.coins || 0,
   );
@@ -39,6 +39,11 @@ export default function ProductDetails() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [sparkle, setSparkle] = useState(false);
   const [realtimeBids, setRealtimeBids] = useState<LiveBidMessage[]>([]);
+
+  // Magnifying glass states
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
 
   // Fetch product details when component mounts or productId changes
   useEffect(() => {
@@ -72,6 +77,29 @@ export default function ProductDetails() {
       socketInstance.disconnect();
     };
   }, [auction?._id]);
+
+  // Magnifying glass handlers
+  const handleMouseEnter = () => {
+    setShowMagnifier(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowMagnifier(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setMagnifierPosition({ x, y });
+
+    // Calculate the position on the original image (for zooming)
+    const imageX = (x / rect.width) * 100;
+    const imageY = (y / rect.height) * 100;
+
+    setImagePosition({ x: imageX, y: imageY });
+  };
 
   // Show loading state
   if (loading) {
@@ -178,14 +206,46 @@ export default function ProductDetails() {
           ))}
         </div>
 
-        {/* Main Image */}
+        {/* Main Image with Magnifying Glass */}
         <div className="flex-1">
-          <div className="flex h-full min-h-[400px] items-center justify-center overflow-hidden rounded-2xl bg-gray-900/50">
+          <div
+            className="relative flex h-full min-h-[400px] cursor-crosshair items-center justify-center overflow-hidden rounded-2xl bg-gray-900/50"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onMouseMove={handleMouseMove}
+          >
             <img
               src={mainImage}
               alt="main"
-              className="h-auto max-h-[70vh] w-full rounded-2xl object-contain"
+              className="h-auto max-h-[70vh] w-full rounded-2xl object-contain select-none"
+              draggable={false}
             />
+
+            {/* Magnifying Glass */}
+            {showMagnifier && (
+              <div
+                className="pointer-events-none absolute z-10 rounded-full border-2 border-white shadow-lg"
+                style={{
+                  left: magnifierPosition.x - 100,
+                  top: magnifierPosition.y - 100,
+                  width: "200px",
+                  height: "200px",
+                  backgroundImage: `url(${mainImage})`,
+                  backgroundSize: "400% 400%",
+                  backgroundPosition: `${imagePosition.x}% ${imagePosition.y}%`,
+                  backgroundRepeat: "no-repeat",
+                  borderRadius: "50%",
+                  boxShadow: "0 0 20px rgba(0, 0, 0, 0.8)",
+                }}
+              />
+            )}
+
+            {/* Optional: Zoom indicator */}
+            {showMagnifier && (
+              <div className="absolute top-4 right-4 rounded-lg bg-black/50 px-3 py-1 text-sm text-white backdrop-blur-sm">
+                2x Zoom
+              </div>
+            )}
           </div>
         </div>
 
