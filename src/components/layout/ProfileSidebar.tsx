@@ -1,4 +1,4 @@
-import { FaLock, FaCoins } from "react-icons/fa";
+import { FaLock, FaCoins, FaWallet, FaPlus } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import { logout } from "../../store/authSlice";
@@ -96,10 +96,10 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
               {user?.fullName || "Guest"}
             </span>
           </div>
-          
+
           <div className="-mt-8 mb-2 ml-16">
             <button
-              className="text-xs text-blue-400 hover:underline cursor-pointer"
+              className="cursor-pointer text-xs text-blue-400 hover:underline"
               onClick={() => {
                 navigate("/profile");
                 onClose();
@@ -109,6 +109,64 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
             </button>
           </div>
           <hr className="mb-4 border-gray-700" />
+
+          {/* Wallet Section */}
+          <div className="mb-4">
+            <div className="rounded-xl border border-blue-500/20 bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-3 shadow-sm">
+              <div className="mb-3 flex items-center">
+                <FaWallet className="mr-2 text-blue-400" />
+                <span className="text-sm font-semibold text-blue-100">
+                  Wallet
+                </span>
+              </div>
+
+              {/* Coins */}
+              <button
+                className="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all hover:bg-blue-800/30"
+                onClick={() => {
+                  navigate("/profile");
+                  onClose();
+                }}
+              >
+                <div className="flex items-center">
+                  <FaCoins className="mr-2 text-yellow-400" />
+                  <span className="text-sm">Coins</span>
+                </div>
+                <span className="font-semibold text-yellow-400">
+                  {user?.coins}
+                </span>
+              </button>
+
+              {/* Reserved Coins */}
+              <button
+                className="mb-3 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all hover:bg-blue-800/30"
+                onClick={() => {
+                  navigate("/profile");
+                  onClose();
+                }}
+              >
+                <div className="flex items-center">
+                  <FaLock className="mr-2 text-xs text-gray-400" />
+                  <span className="text-sm text-gray-300">Reserved</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-300">
+                  {user?.reservedCoins}
+                </span>
+              </button>
+
+              {/* Buy Coins Button */}
+              <button
+                className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-700 to-blue-500 px-3 py-2 text-sm font-medium text-white transition-all hover:from-green-500 hover:to-blue-500 hover:shadow-lg"
+                onClick={() => {
+                  navigate("/profile?buyCoins=true");
+                  onClose();
+                }}
+              >
+                <FaPlus className="mr-2 text-xs" />
+                Buy Coins
+              </button>
+            </div>
+          </div>
 
           {/* Stats Section */}
           <div className="mb-4 flex-1">
@@ -150,20 +208,6 @@ export default function ProfileSidebar({ isOpen, onClose }: SidebarProps) {
                 Wishlist
               </button>
             </div>
-            {/* Coins button with golden coin icon */}
-            <button className="mt-4 flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
-              <FaCoins className="mr-2 text-lg text-yellow-400" />
-              <span className="font-medium">Coins:</span>
-              <span className="ml-1 font-semibold">{user?.coins}</span>
-            </button>
-            {/* Reserved coins small, dull, lock as subscript */}
-            <button className="flex w-full items-center rounded px-4 py-2 text-left hover:bg-gray-800">
-              <FaLock className="mr-1 text-xs" />
-              <span className="text-sm text-gray-400">Reserved Coins:</span>
-              <span className="ml-1 text-sm font-semibold">
-                {user?.reservedCoins}
-              </span>
-            </button>
           </div>
 
           <hr className="mb-4 border-gray-700" />
