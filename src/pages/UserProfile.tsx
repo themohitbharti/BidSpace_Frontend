@@ -30,7 +30,7 @@ import BuyCoinsPack from "../components/wallet/BuyCoinsPack";
 export default function UserProfile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Move user selector to the top before using it
   const user = useSelector((state: RootState) => state.auth.user);
@@ -136,6 +136,32 @@ export default function UserProfile() {
       setCurrentCoins(user.coins);
     }
   }, [user?.coins]);
+
+  // Check URL parameter for buy coins popup
+  useEffect(() => {
+    const buyCoinsParam = searchParams.get("buyCoins");
+    if (buyCoinsParam === "true") {
+      setShowBuyCoins(true);
+    }
+  }, [searchParams]);
+
+  // Handle closing buy coins modal and updating URL
+  const handleCloseBuyCoins = () => {
+    setShowBuyCoins(false);
+    // Remove the buyCoins parameter from URL
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete("buyCoins");
+    setSearchParams(newSearchParams);
+  };
+
+  // Handle opening buy coins modal and updating URL
+  const handleOpenBuyCoins = () => {
+    setShowBuyCoins(true);
+    // Add the buyCoins parameter to URL
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("buyCoins", "true");
+    setSearchParams(newSearchParams);
+  };
 
   const handleCoinsUpdated = (newCoins: number) => {
     setCurrentCoins(newCoins);
@@ -531,11 +557,11 @@ export default function UserProfile() {
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="overflow-hidden rounded-xl bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-6">
                       <p className="text-sm text-gray-300">Available Coins</p>
-                      <p className="mt-2 text-3xl font-bold">{user.coins}</p>
+                      <p className="mt-2 text-3xl font-bold">{currentCoins}</p>
                       <div className="mt-4">
                         <button
-                          onClick={() => setShowBuyCoins(true)}
-                          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-500"
+                          onClick={handleOpenBuyCoins}
+                          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-blue-500"
                         >
                           Buy More Coins
                         </button>
@@ -574,7 +600,7 @@ export default function UserProfile() {
       {/* Buy Coins Modal */}
       <BuyCoinsPack
         isOpen={showBuyCoins}
-        onClose={() => setShowBuyCoins(false)}
+        onClose={handleCloseBuyCoins}
         userCoins={currentCoins}
         onCoinsUpdated={handleCoinsUpdated}
       />

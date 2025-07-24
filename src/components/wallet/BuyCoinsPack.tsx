@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes, FaCoins, FaRocket, FaStar, FaGem } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import { createOrder, verifyPayment } from "../../api/paymentApi";
 import { RazorpayOptions, RazorpayResponse } from "../../types/razorpay";
+import { updateUser } from "../../store/authSlice";
 
 interface CoinPack {
   id: string;
@@ -79,6 +80,7 @@ export default function BuyCoinsPack({
 
   // Get user info from Redux
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
 
   // Load Razorpay script - MOVE THIS BEFORE THE CONDITIONAL RETURN
   useEffect(() => {
@@ -132,11 +134,24 @@ export default function BuyCoinsPack({
       if (verificationResult.success) {
         toast.success(`Successfully purchased ${coins} coins!`);
 
-        // Update user coins in parent component
-        if (onCoinsUpdated) {
-          onCoinsUpdated(userCoins + coins);
+        const newCoinAmount = userCoins + coins;
+
+        // Update Redux store immediately
+        if (user) {
+          dispatch(
+            updateUser({
+              ...user,
+              coins: newCoinAmount,
+            }),
+          );
         }
 
+        // Update parent component
+        if (onCoinsUpdated) {
+          onCoinsUpdated(newCoinAmount);
+        }
+
+        // Close modal (this will also update the URL via parent component)
         onClose();
       } else {
         toast.error("Payment verification failed");
