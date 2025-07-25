@@ -328,11 +328,11 @@ export default function UserProfile() {
             {/* Profile image */}
             <div className="relative h-36 w-36 overflow-hidden rounded-full border-4 border-gray-900 bg-gray-800">
               <img
-                src={`/src/assets/DP.png`}
+                src={`images/DP.png`}
                 alt={user.fullName}
                 className="h-full w-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = "/src/assets/DP.png";
+                  e.currentTarget.src = "images/DP.png";
                 }}
               />
             </div>
