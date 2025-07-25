@@ -67,6 +67,9 @@ const COIN_PACKS: CoinPack[] = [
   },
 ];
 
+// Add purchase limit constant
+const MAX_PURCHASE_LIMIT = 10000; // ₹10,000 limit
+
 export default function BuyCoinsPack({
   isOpen,
   onClose,
@@ -106,6 +109,7 @@ export default function BuyCoinsPack({
   const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === "" || /^\d+$/.test(value)) {
+      // Remove the toast error and limit check here - just allow the input
       setCustomAmount(value);
       setSelectedPack(null);
       setIsCustomMode(true);
@@ -172,14 +176,32 @@ export default function BuyCoinsPack({
 
     let purchaseDetails;
     if (isCustomMode && customAmount) {
+      const customPrice = parseFloat(getCustomPrice(parseInt(customAmount)));
+
+      // Check custom amount limit
+      if (customPrice > MAX_PURCHASE_LIMIT) {
+        toast.error(
+          `Maximum purchase limit is ₹${MAX_PURCHASE_LIMIT.toLocaleString()}`,
+        );
+        return;
+      }
+
       purchaseDetails = {
         coins: parseInt(customAmount),
-        price: parseFloat(getCustomPrice(parseInt(customAmount))),
+        price: customPrice,
         bonus: 0,
       };
     } else if (selectedPack) {
       const pack = COIN_PACKS.find((p) => p.id === selectedPack);
       if (pack) {
+        // Check pack limit
+        if (pack.price > MAX_PURCHASE_LIMIT) {
+          toast.error(
+            `This pack exceeds the maximum purchase limit of ₹${MAX_PURCHASE_LIMIT.toLocaleString()}`,
+          );
+          return;
+        }
+
         purchaseDetails = {
           coins: pack.coins,
           price: pack.price,
@@ -254,9 +276,31 @@ export default function BuyCoinsPack({
     }
   };
 
-  const canPurchase =
-    selectedPack ||
-    (isCustomMode && customAmount && parseInt(customAmount) > 0);
+  // Helper function to check if limit is exceeded
+  const isLimitExceeded = (() => {
+    if (selectedPack) {
+      const pack = COIN_PACKS.find((p) => p.id === selectedPack);
+      return pack && pack.price > MAX_PURCHASE_LIMIT;
+    }
+    if (isCustomMode && customAmount) {
+      const customPrice = parseFloat(getCustomPrice(parseInt(customAmount)));
+      return customPrice > MAX_PURCHASE_LIMIT;
+    }
+    return false;
+  })();
+
+  // Update the canPurchase logic to include limit check
+  const canPurchase = (() => {
+    if (selectedPack) {
+      const pack = COIN_PACKS.find((p) => p.id === selectedPack);
+      return pack && pack.price <= MAX_PURCHASE_LIMIT;
+    }
+    if (isCustomMode && customAmount) {
+      const customPrice = parseFloat(getCustomPrice(parseInt(customAmount)));
+      return parseInt(customAmount) > 0 && customPrice <= MAX_PURCHASE_LIMIT;
+    }
+    return false;
+  })();
 
   return (
     <>
@@ -345,69 +389,74 @@ export default function BuyCoinsPack({
                 Choose Your Pack
               </h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                {COIN_PACKS.map((pack) => (
-                  <div
-                    key={pack.id}
-                    onClick={() => !isProcessing && handlePackSelect(pack.id)}
-                    className={`group relative cursor-pointer overflow-hidden rounded-lg border-2 p-4 transition-all duration-300 hover:scale-105 ${
-                      selectedPack === pack.id
-                        ? `border-blue-400 ${pack.glow} bg-gradient-to-br from-gray-800/90 to-gray-900/90`
-                        : "border-gray-600/50 bg-gradient-to-br from-gray-800/50 to-gray-900/50 hover:border-gray-500"
-                    } ${isProcessing ? "pointer-events-none opacity-70" : ""}`}
-                  >
-                    {/* Popular/Best Value Badge */}
-                    {pack.popular && (
-                      <div className="absolute -top-1 -right-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
-                        POPULAR
-                      </div>
-                    )}
-                    {pack.bestValue && (
-                      <div className="absolute -top-1 -right-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
-                        BEST VALUE
-                      </div>
-                    )}
+                {COIN_PACKS.map((pack) => {
+                  const isOverLimit = pack.price > MAX_PURCHASE_LIMIT;
 
-                    {/* Pack Icon */}
+                  return (
                     <div
-                      className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r ${pack.gradient} shadow-lg`}
+                      key={pack.id}
+                      onClick={() =>
+                        !isProcessing &&
+                        !isOverLimit &&
+                        handlePackSelect(pack.id)
+                      }
+                      className={`group relative cursor-pointer overflow-hidden rounded-lg border-2 p-4 transition-all duration-300 hover:scale-105 ${
+                        selectedPack === pack.id
+                          ? `border-blue-400 ${pack.glow} bg-gradient-to-br from-gray-800/90 to-gray-900/90`
+                          : isOverLimit
+                            ? "cursor-not-allowed border-red-500/50 bg-gradient-to-br from-gray-800/30 to-red-900/30 opacity-60"
+                            : "border-gray-600/50 bg-gradient-to-br from-gray-800/50 to-gray-900/50 hover:border-gray-500"
+                      } ${isProcessing ? "pointer-events-none opacity-70" : ""}`}
                     >
-                      <div className="text-lg">{pack.icon}</div>
-                    </div>
-
-                    {/* Pack Details */}
-                    <div className="space-y-1">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-bold text-white">
-                          {pack.coins.toLocaleString()}
-                        </span>
-                        <span className="text-sm text-gray-400">coins</span>
-                      </div>
-
-                      {pack.bonus > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-green-400">
-                            +{pack.bonus} bonus
-                          </span>
-                          <FaStar className="text-xs text-green-400" />
+                      {/* Limit exceeded indicator */}
+                      {isOverLimit && (
+                        <div className="absolute -top-1 -right-1 rounded-full bg-gradient-to-r from-red-500 to-red-600 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                          LIMIT EXCEEDED
                         </div>
                       )}
 
-                      <div className="text-xl font-bold text-green-400">
-                        ₹{pack.price}
+                      {/* Pack Icon */}
+                      <div
+                        className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r ${pack.gradient} shadow-lg`}
+                      >
+                        <div className="text-lg">{pack.icon}</div>
                       </div>
 
-                      <div className="text-xs text-gray-400">
-                        ₹{(pack.price / (pack.coins + pack.bonus)).toFixed(2)}{" "}
-                        per coin
+                      {/* Pack Details */}
+                      <div className="space-y-1">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl font-bold text-white">
+                            {pack.coins.toLocaleString()}
+                          </span>
+                          <span className="text-sm text-gray-400">coins</span>
+                        </div>
+
+                        {pack.bonus > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-green-400">
+                              +{pack.bonus} bonus
+                            </span>
+                            <FaStar className="text-xs text-green-400" />
+                          </div>
+                        )}
+
+                        <div className="text-xl font-bold text-green-400">
+                          ₹{pack.price}
+                        </div>
+
+                        <div className="text-xs text-gray-400">
+                          ₹{(pack.price / (pack.coins + pack.bonus)).toFixed(2)}{" "}
+                          per coin
+                        </div>
                       </div>
+
+                      {/* Selection indicator */}
+                      {selectedPack === pack.id && (
+                        <div className="absolute inset-0 rounded-lg bg-blue-500/10 ring-2 ring-blue-400 ring-inset"></div>
+                      )}
                     </div>
-
-                    {/* Selection indicator */}
-                    {selectedPack === pack.id && (
-                      <div className="absolute inset-0 rounded-lg bg-blue-500/10 ring-2 ring-blue-400 ring-inset"></div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -420,14 +469,15 @@ export default function BuyCoinsPack({
               <div className="flex flex-col gap-3 md:flex-row md:items-end">
                 <div className="flex-1">
                   <label className="mb-2 block text-sm text-gray-300">
-                    Enter exact amount of coins you need
+                    Enter exact amount of coins you need (Max: ₹
+                    {MAX_PURCHASE_LIMIT.toLocaleString()})
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       value={customAmount}
                       onChange={handleCustomAmountChange}
-                      placeholder="e.g., 750"
+                      placeholder={`e.g., 750 (Max: ${MAX_PURCHASE_LIMIT})`}
                       disabled={isProcessing}
                       className="w-full rounded-lg border border-gray-600 bg-gray-800/50 px-4 py-2.5 pr-12 text-white placeholder-gray-400 backdrop-blur-sm focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none disabled:opacity-50"
                     />
@@ -439,14 +489,37 @@ export default function BuyCoinsPack({
                 {customAmount && parseInt(customAmount) > 0 && (
                   <div className="rounded-lg bg-black/30 p-3 backdrop-blur-sm">
                     <div className="text-xs text-gray-400">Total Price:</div>
-                    <div className="text-lg font-bold text-green-400">
+                    <div
+                      className={`text-lg font-bold ${
+                        parseFloat(getCustomPrice(parseInt(customAmount))) >
+                        MAX_PURCHASE_LIMIT
+                          ? "text-red-400"
+                          : "text-green-400"
+                      }`}
+                    >
                       ₹{getCustomPrice(parseInt(customAmount))}
                     </div>
                     <div className="text-xs text-gray-500">₹1.00 per coin</div>
+                    {parseFloat(getCustomPrice(parseInt(customAmount))) >
+                      MAX_PURCHASE_LIMIT && (
+                      <div className="mt-1 text-xs text-red-400">
+                        Exceeds ₹{MAX_PURCHASE_LIMIT.toLocaleString()} limit
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Purchase limit notice - only show when limit is exceeded */}
+            {isLimitExceeded && (
+              <div className="mb-4 rounded-lg border border-yellow-500/30 bg-yellow-900/20 p-3 text-center">
+                <p className="text-xs text-yellow-300">
+                  ⚠️ Maximum purchase limit: ₹
+                  {MAX_PURCHASE_LIMIT.toLocaleString()} per transaction
+                </p>
+              </div>
+            )}
 
             {/* Purchase Button */}
             <div className="mb-4 flex justify-center">
