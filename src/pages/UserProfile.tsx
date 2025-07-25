@@ -332,7 +332,7 @@ export default function UserProfile() {
                 alt={user.fullName}
                 className="h-full w-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = "/src/assets/default_avatar.jpg";
+                  e.currentTarget.src = "/src/assets/DP.png";
                 }}
               />
             </div>
