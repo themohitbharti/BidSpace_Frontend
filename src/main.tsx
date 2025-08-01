@@ -16,7 +16,7 @@ import {
   UserProfile,
   UserProducts,
 } from "./pages/index.ts";
-import { AuthProvider } from "./context/AuthProvider.tsx";
+import { AuthProvider } from "./contexts/AuthProvider.tsx";
 import Categories from "./pages/Discover.tsx";
 import { WebSocketProvider } from "./contexts/WebSocketProvider.tsx";
 import { Toaster } from "react-hot-toast";
