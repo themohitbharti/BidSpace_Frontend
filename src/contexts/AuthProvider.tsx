@@ -8,20 +8,7 @@ import {
 } from "../store/authSlice";
 import { AuthContext } from "./AuthContext";
 import { AppLoader } from "../components";
-
-// Define the User type to match what's expected in the loginAction
-interface User {
-  _id: string;
-  email: string;
-  fullName: string;
-  productsListed: string[];
-  productsPurchased: string[];
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  reservedCoins: number;
-  coins: number;
-}
+import { User } from "../types";
 
 interface TokenResponse {
   success: boolean;
@@ -42,13 +29,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     const startTime = Date.now();
-    const minDisplayTime = 700; // 1 second minimum
+    const minDisplayTime = 700; // 0.7 seconds minimum
 
     regenerateToken()
       .then((response: TokenResponse) => {
         setAccessToken(response.data.accessToken);
         const user = response.user;
-        dispatch(loginAction(user as User));
+        dispatch(loginAction(user));
         setIsAuthenticated(true);
       })
       .catch(() => {
