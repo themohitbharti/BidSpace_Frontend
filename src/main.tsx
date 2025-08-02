@@ -112,7 +112,7 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <WebSocketProvider>
           <RouterProvider router={router} />
-          <Toaster position="top-right" />
+          <Toaster position="bottom-right" />
         </WebSocketProvider>
       </AuthProvider>
     </Provider>
