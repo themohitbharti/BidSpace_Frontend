@@ -6,7 +6,7 @@ import axios from "axios";
 import axiosInstance from "../../api/axiosInstance";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/authSlice";
-import { loginUser } from "../../api/auth"; // Add this import at the top
+import { loginUser } from "../../api/auth";
 import { setAccessToken } from "../../api/axiosInstance";
 
 interface OTPFormInputs {
@@ -16,7 +16,7 @@ interface OTPFormInputs {
 function VerifyOTP() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Add loading state
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { register, handleSubmit } = useForm<OTPFormInputs>();
   const navigate = useNavigate();
   const location = useLocation();

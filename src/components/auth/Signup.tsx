@@ -14,7 +14,7 @@ interface SignupFormInputs {
 function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Add loading state
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { register, handleSubmit } = useForm<SignupFormInputs>();
   const navigate = useNavigate();
 
@@ -22,12 +22,12 @@ function Signup() {
     try {
       setError(null);
       setSuccessMsg(null);
-      setIsLoading(true); // Set loading to true when submission starts
+      setIsLoading(true);
 
       const res = await registerUser(data);
 
       if (res?.success) {
-        setSuccessMsg(res.message); // "OTP sent to email..."
+        setSuccessMsg(res.message);
         // Pass all user data to the verify-otp page
         setTimeout(() => {
           navigate("/verify-otp", {
@@ -50,7 +50,7 @@ function Signup() {
         setError("Something went wrong");
       }
     } finally {
-      setIsLoading(false); // Set loading to false when done
+      setIsLoading(false);
     }
   };
 

@@ -2,6 +2,7 @@ import { useEffect, useState, ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store/store";
+import AppLoader from "../common/AppLoader";
 
 interface ProtectedProps {
   children: ReactNode;
@@ -22,7 +23,7 @@ const Protected = ({ children, authentication = true }: ProtectedProps) => {
     setLoader(false);
   }, [authStatus, navigate, authentication]);
 
-  return loader ? <h1>Loading...</h1> : <>{children}</>;
+  return loader ? <AppLoader/> : <>{children}</>;
 };
 
 export default Protected;

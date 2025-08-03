@@ -7,7 +7,7 @@ import { loginUser } from "../../api/auth";
 import { login as loginAction } from "../../store/authSlice";
 import axios from "axios";
 import { setAccessToken } from "../../api/axiosInstance";
-import { setCurrentAccessToken } from "../../utils/auth"; // Add this import
+import { setCurrentAccessToken } from "../../utils/auth";
 
 interface LoginFormInputs {
   email: string;
@@ -24,7 +24,7 @@ function Login() {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
       setError(null);
-      setIsLoading(true); // Set loading to true when submission starts
+      setIsLoading(true);
 
       const res = await loginUser(data);
 
@@ -48,7 +48,7 @@ function Login() {
         setError("Something went wrong");
       }
     } finally {
-      setIsLoading(false); // Set loading to false when done
+      setIsLoading(false);
     }
   };
 
