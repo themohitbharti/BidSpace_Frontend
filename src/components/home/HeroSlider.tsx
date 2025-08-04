@@ -81,7 +81,7 @@ export default function HeroSlider() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 0.4 }}
             >
-              {slide.type === "coins" ? (
+              {slides[current].type === "coins" ? (
                 <>
                   <Button
                     className="flex items-center rounded-lg bg-blue-500 px-5 py-2 text-white hover:bg-blue-600"
