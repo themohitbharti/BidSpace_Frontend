@@ -1,4 +1,3 @@
-// import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -107,13 +106,12 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  
-    <Provider store={store}>
-      <AuthProvider>
-        <WebSocketProvider>
-          <RouterProvider router={router} />
-          <Toaster position="bottom-right" />
-        </WebSocketProvider>
-      </AuthProvider>
-    </Provider>
+  <Provider store={store}>
+    <AuthProvider>
+      <WebSocketProvider>
+        <RouterProvider router={router} />
+        <Toaster position="bottom-right" />
+      </WebSocketProvider>
+    </AuthProvider>
+  </Provider>
 );
