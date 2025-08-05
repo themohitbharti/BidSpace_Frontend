@@ -594,7 +594,7 @@ export default function ProductDetails() {
             ) : (
               <button
                 onClick={() => {
-                  /* Add buy coins logic here */
+                  navigate("/profile?buyCoins=true")
                 }}
                 className="rounded-full bg-green-600 px-6 py-2 transition hover:bg-green-500"
               >
